@@ -16,9 +16,9 @@ jobs:
       - name: Jira Login
         uses: atlassian/gajira-login@v3
         env:
-          base-url: ${{ secrets.JIRA_BASE_URL }}
-          email: ${{ secrets.JIRA_USER_EMAIL }}
-          api-token: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
 
       # 제목 예: "Epic: KAN-123 회원가입 오류 리포트"
       - name: Extract EPIC key from title
