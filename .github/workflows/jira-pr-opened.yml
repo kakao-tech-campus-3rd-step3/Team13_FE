@@ -17,9 +17,9 @@ jobs:
       - name: Jira Login
         uses: atlassian/gajira-login@v3
         env:
-          base-url: ${{ secrets.JIRA_BASE_URL }}
-          email: ${{ secrets.JIRA_USER_EMAIL }}
-          api-token: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
 
       # 1) PR 제목/브랜치에서 이슈 키 추출 (예: KAN-123)
       - name: Extract Jira issue key
