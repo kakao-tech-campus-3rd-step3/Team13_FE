@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Jira Login
         uses: atlassian/gajira-login@v3
-        with:
+        env:
           base-url: ${{ secrets.JIRA_BASE_URL }}
           email: ${{ secrets.JIRA_USER_EMAIL }}
           api-token: ${{ secrets.JIRA_API_TOKEN }}
