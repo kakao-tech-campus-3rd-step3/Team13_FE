@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Jira Login
         uses: atlassian/gajira-login@v3
-        with:
+        env:
           base-url: ${{ secrets.JIRA_BASE_URL }}
           email: ${{ secrets.JIRA_USER_EMAIL }}
           api-token: ${{ secrets.JIRA_API_TOKEN }}
@@ -39,7 +39,7 @@ jobs:
         id: create
         uses: atlassian/gajira-create@v3
         with:
-          project: ${{ vars.JIRA_PROJECT_KEY }}
+          project: KAN
           issuetype: Task
           summary: '${{ github.event.issue.title }}'
           description: |
