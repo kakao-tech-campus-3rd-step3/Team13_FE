@@ -101,7 +101,7 @@ jobs:
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           ISSUE_KEY: ${{ steps.key.outputs.issue_key }}
-          REVIEW_NAME: ${{ vars.JIRA_REVIEW_NAME }}
+          REVIEW_NAME: 검토중
         run: |
           set -e
           BASE="${JIRA_BASE_URL%/}"
