@@ -1,0 +1,69 @@
+name: Jira on Branch Create (move to In Progress)
+
+on:
+  create:   # ref_type이 'branch'일 때 실행
+    types: [branch]
+
+permissions:
+  contents: read
+
+jobs:
+  jira-on-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) 브랜치 이름에서 Jira 이슈 키 추출
+      - name: Extract Jira issue key
+        id: extract
+        shell: bash
+        run: |
+          REF_TYPE="${{ github.event.ref_type }}"
+          REF_NAME="${{ github.event.ref }}"   # branch 이름
+          if [ "$REF_TYPE" != "branch" ]; then
+            echo "Not a branch creation, skip."
+            exit 0
+          fi
+          KEY=$(echo "$REF_NAME" | grep -oE '[A-Z][A-Z0-9]+-[0-9]+' | head -n1 || true)
+          echo "issue_key=$KEY" >> $GITHUB_OUTPUT
+          echo "Found key: $KEY"
+
+      - name: Stop if no issue key
+        if: steps.extract.outputs.issue_key == ''
+        run: echo "No Jira issue key found in branch name. Skipping."
+
+      # 2) Jira 이슈를 In Progress로 전환
+      - name: Transition issue to In Progress
+        if: steps.extract.outputs.issue_key != ''
+        shell: bash
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          ISSUE_KEY: ${{ steps.extract.outputs.issue_key }}
+          INPROGRESS_NAME: ${{ vars.JIRA_INPROGRESS_NAME }}
+        run: |
+          set -e
+          BASE="${JIRA_BASE_URL%/}"
+          NAME="${INPROGRESS_NAME:-In Progress}"
+
+          sudo apt-get update -qq && sudo apt-get install -y jq -qq
+
+          RESP=$(curl -sS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
+            -H "Accept: application/json" \
+            "$BASE/rest/api/3/issue/$ISSUE_KEY/transitions")
+
+          echo "Available transitions: $(echo "$RESP" | jq -r '.transitions[].name' | xargs -I{} echo -n "{} | ")"
+
+          ID=$(echo "$RESP" | jq -r --arg n "$NAME" '.transitions[] | select(.name==$n) | .id' | head -n1)
+
+          if [ -z "$ID" ] || [ "$ID" = "null" ]; then
+            echo "No matching transition for '$NAME'."
+            exit 1
+          fi
+
+          curl -sS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -X POST "$BASE/rest/api/3/issue/$ISSUE_KEY/transitions" \
+            --data "{\"transition\":{\"id\":\"$ID\"}}"
+
+          echo "✅ Transitioned $ISSUE_KEY → '$NAME'"
