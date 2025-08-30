@@ -1,4 +1,4 @@
-name: GitHub Issue → Jira Task
+name: GitHub Issue → Jira Task (Epic from title)
 
 on:
   issues:
@@ -6,14 +6,13 @@ on:
 
 permissions:
   contents: read
-  issues: write   # 코멘트 남기기
+  issues: write   # Jira 링크 코멘트를 남기기 위함
 
 jobs:
-  gh-issue-to-jira:
+  gh-issue-to-jira-under-epic:
     runs-on: ubuntu-latest
 
     steps:
-      # 0) Jira 로그인
       - name: Jira Login
         uses: atlassian/gajira-login@v3
         with:
@@ -21,8 +20,22 @@ jobs:
           email: ${{ secrets.JIRA_USER_EMAIL }}
           api-token: ${{ secrets.JIRA_API_TOKEN }}
 
-      # 1) Jira 이슈 생성
-      - name: Create Jira issue
+      # 제목 예: "Epic: KAN-123 회원가입 오류 리포트"
+      - name: Extract EPIC key from title
+        id: epic
+        shell: bash
+        run: |
+          TITLE="${{ github.event.issue.title }}"
+          # "Epic:"(대소문자 무관) 뒤의 KAN-123 패턴만 허용
+          EPIC_KEY=$(echo "$TITLE" | grep -ioE 'epic[:：]\s*[A-Z0-9]+-[0-9]+' | head -n1 | sed -E 's/.*[:：]\s*//I' || true)
+          if [ -z "$EPIC_KEY" ]; then
+            echo "❌ Epic key not found in title. Title must contain: 'Epic: KAN-123 ...'"
+            exit 1
+          fi
+          echo "epic_key=$EPIC_KEY" >> $GITHUB_OUTPUT
+          echo "Using EPIC: $EPIC_KEY"
+
+      - name: Create Jira Task
         id: create
         uses: atlassian/gajira-create@v3
         with:
@@ -38,7 +51,75 @@ jobs:
             ${{ github.event.issue.body }}
             {{code}}
 
-      # 2) GitHub 이슈에 Jira 링크 코멘트 남기기
+      # 공통: 에픽/자식의 내부 ID 조회
+      - name: Resolve IDs
+        id: ids
+        shell: bash
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          CHILD_KEY: ${{ steps.create.outputs.issue }}
+          EPIC_KEY: ${{ steps.epic.outputs.epic_key }}
+        run: |
+          set -e
+          BASE="${JIRA_BASE_URL%/}"
+          sudo apt-get update -qq && sudo apt-get install -y jq -qq
+          CHILD_ID=$(curl -sS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Accept: application/json" \
+            "$BASE/rest/api/3/issue/$CHILD_KEY?fields=id" | jq -r '.id')
+          EPIC_ID=$(curl -sS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Accept: application/json" \
+            "$BASE/rest/api/3/issue/$EPIC_KEY?fields=id" | jq -r '.id')
+          echo "child_id=$CHILD_ID" >> $GITHUB_OUTPUT
+          echo "epic_id=$EPIC_ID"   >> $GITHUB_OUTPUT
+
+      # 1차 시도: 팀매니지드 프로젝트(parent에 에픽 id 지정)
+      - name: Link using parent (team-managed)
+        id: link_parent
+        shell: bash
+        continue-on-error: true
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          CHILD_KEY: ${{ steps.create.outputs.issue }}
+          EPIC_ID: ${{ steps.ids.outputs.epic_id }}
+        run: |
+          set -e
+          BASE="${JIRA_BASE_URL%/}"
+          CODE=$(curl -sS -w "%{http_code}" -o /tmp/resp.txt \
+            -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Content-Type: application/json" \
+            -X PUT "$BASE/rest/api/3/issue/$CHILD_KEY" \
+            --data "{\"fields\":{\"parent\":{\"id\":\"$EPIC_ID\"}}}")
+          echo "HTTP=$CODE Body=$(cat /tmp/resp.txt)"
+          test "$CODE" -ge 200 -a "$CODE" -lt 300
+
+      # 2차 시도: 컴퍼니매니지드('Epic Link' 커스텀 필드 설정)
+      - name: Link using Epic Link (company-managed)
+        if: steps.link_parent.outcome != 'success'
+        shell: bash
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          CHILD_KEY: ${{ steps.create.outputs.issue }}
+          EPIC_KEY: ${{ steps.epic.outputs.epic_key }}
+        run: |
+          set -e
+          BASE="${JIRA_BASE_URL%/}"
+          sudo apt-get update -qq && sudo apt-get install -y jq -qq
+          FIELDS=$(curl -sS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Accept: application/json" "$BASE/rest/api/3/field")
+          EPIC_LINK_ID=$(echo "$FIELDS" | jq -r '.[] | select(.name=="Epic Link") | .id' | head -n1)
+          if [ -z "$EPIC_LINK_ID" ] || [ "$EPIC_LINK_ID" = "null" ]; then
+            echo "❌ 'Epic Link' field not found. Check project type/permissions."
+            exit 1
+          fi
+          DATA=$(jq -n --arg cf "$EPIC_LINK_ID" --arg epic "$EPIC_KEY" '{fields: {}} | .fields[$cf]=$epic')
+          CODE=$(curl -sS -w "%{http_code}" -o /tmp/resp2.txt \
+            -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Content-Type: application/json" \
+            -X PUT "$BASE/rest/api/3/issue/$CHILD_KEY" --data "$DATA")
+          echo "HTTP=$CODE Body=$(cat /tmp/resp2.txt)"
+          test "$CODE" -ge 200 -a "$CODE" -lt 300
+
       - name: Comment back with Jira link
         uses: actions/github-script@v7
         env:
@@ -46,12 +127,12 @@ jobs:
         with:
           script: |
             const issueKey = '${{ steps.create.outputs.issue }}';
+            const epicKey  = '${{ steps.epic.outputs.epic_key }}';
             const base = process.env.JIRA_BASE_URL.replace(/\/$/, '');
-            const jiraUrl = `${base}/browse/${issueKey}`;
-
+            const url  = `${base}/browse/${issueKey}`;
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.issue.number,
-              body: `Jira issue created: **${issueKey}** → ${jiraUrl}`
+              body: `Jira Task created under Epic **${epicKey}** → ${url}`
             });

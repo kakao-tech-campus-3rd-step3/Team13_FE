@@ -1,8 +1,7 @@
 name: Jira on Branch Create (move to In Progress)
 
 on:
-  create:   # ref_type이 'branch'일 때 실행
-    types: [branch]
+  create:
 
 permissions:
   contents: read
@@ -18,20 +17,23 @@ jobs:
         shell: bash
         run: |
           REF_TYPE="${{ github.event.ref_type }}"
-          REF_NAME="${{ github.event.ref }}"   # branch 이름
+          REF_NAME="${{ github.event.ref }}"   # 생성된 브랜치명 또는 태그명
+
           if [ "$REF_TYPE" != "branch" ]; then
-            echo "Not a branch creation, skip."
+            echo "Not a branch creation (type=$REF_TYPE). Skipping."
+            echo "issue_key=" >> $GITHUB_OUTPUT
             exit 0
           fi
+
           KEY=$(echo "$REF_NAME" | grep -oE '[A-Z][A-Z0-9]+-[0-9]+' | head -n1 || true)
           echo "issue_key=$KEY" >> $GITHUB_OUTPUT
-          echo "Found key: $KEY"
+          echo "Found key: $KEY (branch=$REF_NAME)"
 
       - name: Stop if no issue key
         if: steps.extract.outputs.issue_key == ''
         run: echo "No Jira issue key found in branch name. Skipping."
 
-      # 2) Jira 이슈를 In Progress로 전환
+      # 2) Jira 이슈를 In Progress로 전이
       - name: Transition issue to In Progress
         if: steps.extract.outputs.issue_key != ''
         shell: bash
@@ -55,9 +57,9 @@ jobs:
           echo "Available transitions: $(echo "$RESP" | jq -r '.transitions[].name' | xargs -I{} echo -n "{} | ")"
 
           ID=$(echo "$RESP" | jq -r --arg n "$NAME" '.transitions[] | select(.name==$n) | .id' | head -n1)
-
           if [ -z "$ID" ] || [ "$ID" = "null" ]; then
             echo "No matching transition for '$NAME'."
+            echo "Hint: set repository variable JIRA_INPROGRESS_NAME to your actual status name."
             exit 1
           fi
 
