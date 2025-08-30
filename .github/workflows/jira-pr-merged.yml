@@ -1,0 +1,73 @@
+name: Jira on PR Merge (move to Done)
+
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  contents: read
+
+jobs:
+  jira-on-merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) PR 제목/브랜치에서 이슈 키 추출
+      - name: Extract Jira issue key
+        id: extract
+        shell: bash
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          KEY=$(echo "$TITLE $BRANCH" | grep -oE '[A-Z][A-Z0-9]+-[0-9]+' | head -n1 || true)
+          echo "issue_key=$KEY" >> $GITHUB_OUTPUT
+          echo "Found key: $KEY"
+
+      - name: Stop if no issue key
+        if: steps.extract.outputs.issue_key == ''
+        run: echo "No Jira issue key found. Skipping."
+
+      # 2) Done 후보 중 첫 매칭으로 전이 실행
+      - name: Transition issue to Done/완료/Closed
+        if: steps.extract.outputs.issue_key != ''
+        shell: bash
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          ISSUE_KEY: ${{ steps.extract.outputs.issue_key }}
+          DONE_NAMES: ${{ vars.JIRA_DONE_NAMES }}
+        run: |
+          set -e
+          BASE="${JIRA_BASE_URL%/}"
+          CANDIDATES="${DONE_NAMES:-Done,완료,Closed}"
+
+          sudo apt-get update >/dev/null 2>&1 && sudo apt-get install -y jq >/dev/null 2>&1
+
+          RESP=$(curl -sS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Accept: application/json" \
+            "$BASE/rest/api/3/issue/$ISSUE_KEY/transitions")
+          echo "Candidates: $CANDIDATES"
+          echo "Available: $(echo "$RESP" | jq -r '.transitions[].name' | xargs -I{} echo -n "{} | ")"
+
+          ID=""
+          IFS=',' read -ra NAMES <<< "$CANDIDATES"
+          for NAME in "${NAMES[@]}"; do
+            NAME_TRIM=$(echo "$NAME" | xargs)
+            ID=$(echo "$RESP" | jq -r --arg n "$NAME_TRIM" '.transitions[] | select(.name==$n) | .id' | head -n1)
+            if [ -n "$ID" ] && [ "$ID" != "null" ]; then
+              echo "Use transition '$NAME_TRIM' (id=$ID)"
+              break
+            fi
+          done
+
+          if [ -z "$ID" ] || [ "$ID" = "null" ]; then
+            echo "No matching 'Done' transition. Set vars.JIRA_DONE_NAMES to correct status names."
+            exit 1
+          fi
+
+          curl -sS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Content-Type: application/json" \
+            -X POST "$BASE/rest/api/3/issue/$ISSUE_KEY/transitions" \
+            --data "{\"transition\":{\"id\":\"$ID\"}}"
+
+          echo "Transitioned $ISSUE_KEY to Done (id=$ID)"
