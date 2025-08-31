@@ -59,7 +59,7 @@ jobs:
           echo "parent_project_key=$PARENT_PROJECT_KEY" >> $GITHUB_OUTPUT
           echo "Parent is '$PARENT_ISSUE_TYPE' in project '$PARENT_PROJECT_KEY'"
 
-      # 3. 상위 이슈 타입에 따라 하위 이슈 타입 결정
+      # 3. [수정됨] 상위 이슈 타입에 따라 하위 이슈 타입 결정 (Story 제거)
       - name: Determine Child Issue Type
         id: child_type
         shell: bash
@@ -67,7 +67,8 @@ jobs:
           PARENT_TYPE="${{ steps.parent_info.outputs.parent_issuetype }}"
           CHILD_TYPE=""
           if [[ "$PARENT_TYPE" == "Epic" ]]; then CHILD_TYPE="Feature"
-          elif [[ "$PARENT_TYPE" == "Feature" || "$PARENT_TYPE" == "스토리" ]]; then CHILD_TYPE="Task"
+          # Feature 아래에는 바로 Task를 생성하도록 변경
+          elif [[ "$PARENT_TYPE" == "Feature" ]]; then CHILD_TYPE="Task"
           elif [[ "$PARENT_TYPE" == "Task" || "$PARENT_TYPE" == "작업" ]]; then CHILD_TYPE="Sub-task"
           else
             echo "::error::Parent issue type '$PARENT_TYPE' cannot have children in this workflow."
@@ -76,7 +77,7 @@ jobs:
           echo "child_issuetype=$CHILD_TYPE" >> $GITHUB_OUTPUT
           echo "Determined child issue type: $CHILD_TYPE"
 
-      # 4. [수정됨] 단일 API 호출로 Jira 이슈 생성 및 연결
+      # 4. 단일 API 호출로 Jira 이슈 생성 및 연결
       - name: Create and Link Jira Issue
         id: create
         shell: bash
@@ -89,43 +90,30 @@ jobs:
           PROJECT_KEY: ${{ steps.parent_info.outputs.parent_project_key }}
           CHILD_TYPE: ${{ steps.child_type.outputs.child_issuetype }}
           SUMMARY: '${{ github.event.issue.title }}'
-          DESCRIPTION: |
-            *GitHub Issue*: ${{ github.event.issue.html_url }}
-            *Author*: ${{ github.event.issue.user.login }}
         run: |
           set -e
           BASE="${JIRA_BASE_URL%/}"
-          
-          # JSON 페이로드 구성을 위해 텍스트 이스케이프 처리
           SUMMARY_ESCAPED=$(echo "$SUMMARY" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
           
-          # 기본 필드 구성
           JSON_PAYLOAD=$(jq -n \
             --arg pkey "$PROJECT_KEY" \
             --arg summary "$SUMMARY_ESCAPED" \
             --arg ctype "$CHILD_TYPE" \
             '{fields: {project: {key: $pkey}, summary: $summary, issuetype: {name: $ctype}}}')
 
-          # 상위 이슈 타입에 따라 페이로드에 부모 정보 추가
           if [[ "$PARENT_TYPE" == "Epic" ]]; then
-            # Epic Link 필드 ID 찾기 (회사 관리형 프로젝트)
             FIELDS=$(curl -sS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Accept: application/json" "$BASE/rest/api/3/field")
             EPIC_LINK_ID=$(echo "$FIELDS" | jq -r '.[] | select(.name=="Epic Link") | .id' | head -n1)
-            
             if [ -z "$EPIC_LINK_ID" ] || [ "$EPIC_LINK_ID" == "null" ]; then
-              # Epic Link 필드가 없으면(팀 관리형 프로젝트) parent 필드 사용
               JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --arg pkey "$PARENT_KEY" '.fields.parent = {key: $pkey}')
             else
-              # Epic Link 필드가 있으면 해당 필드 사용
               JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --arg epic_field "$EPIC_LINK_ID" --arg pkey "$PARENT_KEY" '.fields[$epic_field] = $pkey')
             fi
           else
-            # Epic이 아닌 모든 경우(Feature, Task)는 parent 필드 사용
             JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --arg pkey "$PARENT_KEY" '.fields.parent = {key: $pkey}')
           fi
 
           echo "Sending this payload to Jira: $JSON_PAYLOAD"
-
           RESPONSE=$(curl -sS -w "\nHTTP_CODE:%{http_code}" -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
             -H "Content-Type: application/json" -X POST --data "$JSON_PAYLOAD" \
             "$BASE/rest/api/3/issue")
@@ -150,10 +138,7 @@ jobs:
         with:
           script: |
             const issueKey = '${{ steps.create.outputs.issue }}';
-            if (!issueKey) {
-              console.log('No issue key found to comment back.');
-              return;
-            }
+            if (!issueKey) { return; }
             const parentKey = '${{ steps.parent.outputs.parent_key }}';
             const childType = '${{ steps.child_type.outputs.child_issuetype }}';
             const base = process.env.JIRA_BASE_URL.replace(/\/$/, '');
