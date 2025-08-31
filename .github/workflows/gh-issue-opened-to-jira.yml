@@ -59,16 +59,16 @@ jobs:
           echo "parent_project_key=$PARENT_PROJECT_KEY" >> $GITHUB_OUTPUT
           echo "Parent is '$PARENT_ISSUE_TYPE' in project '$PARENT_PROJECT_KEY'"
 
-      # 3. [수정됨] 상위 이슈 타입에 따라 하위 이슈 타입 결정 (Feature 제거)
+      # 3. [수정됨] 상위 이슈 타입에 따라 하위 이슈 타입 결정 (하이픈 제거)
       - name: Determine Child Issue Type
         id: child_type
         shell: bash
         run: |
           PARENT_TYPE="${{ steps.parent_info.outputs.parent_issuetype }}"
           CHILD_TYPE=""
-          # Epic 아래에는 바로 Task를 생성하도록 변경
           if [[ "$PARENT_TYPE" == "Epic" ]]; then CHILD_TYPE="Task"
-          elif [[ "$PARENT_TYPE" == "Task" || "$PARENT_TYPE" == "작업" ]]; then CHILD_TYPE="Sub-task"
+          # 'Sub-task'를 'Subtask'로 변경
+          elif [[ "$PARENT_TYPE" == "Task" || "$PARENT_TYPE" == "작업" ]]; then CHILD_TYPE="Subtask"
           else
             echo "::error::Parent issue type '$PARENT_TYPE' cannot have children. Only Epic or Task."
             exit 1
