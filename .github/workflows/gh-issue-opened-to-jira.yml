@@ -1,5 +1,5 @@
 # GitHub 이슈 생성 시, 상위 Jira 이슈 타입을 자동으로 감지하여
-# Epic-Feature, Feature-Task, Task-Sub-task 등 모든 계층 구조를 지원하는 최종 워크플로우
+# Epic-Task, Task-Sub-task 계층 구조를 지원하는 최종 워크플로우
 
 on:
   issues:
@@ -59,19 +59,18 @@ jobs:
           echo "parent_project_key=$PARENT_PROJECT_KEY" >> $GITHUB_OUTPUT
           echo "Parent is '$PARENT_ISSUE_TYPE' in project '$PARENT_PROJECT_KEY'"
 
-      # 3. [수정됨] 상위 이슈 타입에 따라 하위 이슈 타입 결정 (Story 제거)
+      # 3. [수정됨] 상위 이슈 타입에 따라 하위 이슈 타입 결정 (Feature 제거)
       - name: Determine Child Issue Type
         id: child_type
         shell: bash
         run: |
           PARENT_TYPE="${{ steps.parent_info.outputs.parent_issuetype }}"
           CHILD_TYPE=""
-          if [[ "$PARENT_TYPE" == "Epic" ]]; then CHILD_TYPE="Feature"
-          # Feature 아래에는 바로 Task를 생성하도록 변경
-          elif [[ "$PARENT_TYPE" == "Feature" ]]; then CHILD_TYPE="Task"
+          # Epic 아래에는 바로 Task를 생성하도록 변경
+          if [[ "$PARENT_TYPE" == "Epic" ]]; then CHILD_TYPE="Task"
           elif [[ "$PARENT_TYPE" == "Task" || "$PARENT_TYPE" == "작업" ]]; then CHILD_TYPE="Sub-task"
           else
-            echo "::error::Parent issue type '$PARENT_TYPE' cannot have children in this workflow."
+            echo "::error::Parent issue type '$PARENT_TYPE' cannot have children. Only Epic or Task."
             exit 1
           fi
           echo "child_issuetype=$CHILD_TYPE" >> $GITHUB_OUTPUT
