@@ -28,7 +28,7 @@ jobs:
           TITLE="${{ github.event.issue.title }}"
           PARENT_KEY=$(echo "$TITLE" | grep -oE '^[A-Z][A-Z0-9]+-[0-9]+' | head -n1 || true)
           if [ -z "$PARENT_KEY" ]; then
-            echo "❌ Title does not start with a Jira key (e.g., 'KAN-123 ...')."
+            echo "::error::Title does not start with a Jira key (e.g., 'KAN-123 ...')."
             exit 1
           fi
           echo "parent_key=$PARENT_KEY" >> $GITHUB_OUTPUT
@@ -52,7 +52,7 @@ jobs:
           PARENT_ISSUE_TYPE=$(echo "$ISSUE_DATA" | jq -r '.fields.issuetype.name')
           PARENT_PROJECT_KEY=$(echo "$ISSUE_DATA" | jq -r '.fields.project.key')
           if [ -z "$PARENT_ISSUE_TYPE" ] || [ "$PARENT_ISSUE_TYPE" == "null" ]; then
-            echo "❌ Could not find parent issue type for $PARENT_KEY."
+            echo "::error::Could not find parent issue type for $PARENT_KEY."
             exit 1
           fi
           echo "parent_issuetype=$PARENT_ISSUE_TYPE" >> $GITHUB_OUTPUT
@@ -70,117 +70,79 @@ jobs:
           elif [[ "$PARENT_TYPE" == "Feature" || "$PARENT_TYPE" == "스토리" ]]; then CHILD_TYPE="Task"
           elif [[ "$PARENT_TYPE" == "Task" || "$PARENT_TYPE" == "작업" ]]; then CHILD_TYPE="Sub-task"
           else
-            echo "❌ Parent issue type '$PARENT_TYPE' cannot have children in this workflow."
+            echo "::error::Parent issue type '$PARENT_TYPE' cannot have children in this workflow."
             exit 1
           fi
           echo "child_issuetype=$CHILD_TYPE" >> $GITHUB_OUTPUT
           echo "Determined child issue type: $CHILD_TYPE"
 
-      # 4. [수정됨] Sub-task와 일반 이슈를 분리하여 생성
-      - name: Create Jira Issue (if not Sub-task)
-        if: steps.child_type.outputs.child_issuetype != 'Sub-task'
-        id: create_standard
-        uses: atlassian/gajira-create@v3
-        with:
-          project: ${{ steps.parent_info.outputs.parent_project_key }}
-          issuetype: ${{ steps.child_type.outputs.child_issuetype }}
-          summary: '${{ github.event.issue.title }}'
-          description: |
-            *GitHub Issue*: ${{ github.event.issue.html_url }}
-
-      - name: Create Jira Sub-task (if Sub-task)
-        if: steps.child_type.outputs.child_issuetype == 'Sub-task'
-        id: create_subtask
+      # 4. [수정됨] 단일 API 호출로 Jira 이슈 생성 및 연결
+      - name: Create and Link Jira Issue
+        id: create
         shell: bash
         env:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           PARENT_KEY: ${{ steps.parent.outputs.parent_key }}
+          PARENT_TYPE: ${{ steps.parent_info.outputs.parent_issuetype }}
           PROJECT_KEY: ${{ steps.parent_info.outputs.parent_project_key }}
-          SUMMARY: '${{ github.event.issue.title }}'
           CHILD_TYPE: ${{ steps.child_type.outputs.child_issuetype }}
+          SUMMARY: '${{ github.event.issue.title }}'
+          DESCRIPTION: |
+            *GitHub Issue*: ${{ github.event.issue.html_url }}
+            *Author*: ${{ github.event.issue.user.login }}
         run: |
           set -e
           BASE="${JIRA_BASE_URL%/}"
-          # Jira API는 description을 ADF(Atlassian Document Format)로 받음
-          # 간단한 텍스트 설명을 위해 JSON 문자열로 이스케이프 처리
+          
+          # JSON 페이로드 구성을 위해 텍스트 이스케이프 처리
           SUMMARY_ESCAPED=$(echo "$SUMMARY" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
           
-          read -r -d '' DATA_TEMPLATE << EOM
-          {
-            "fields": {
-              "parent": { "key": "%s" },
-              "project": { "key": "%s" },
-              "summary": "%s",
-              "issuetype": { "name": "%s" }
-            }
-          }
-          EOM
-          DATA=$(printf "$DATA_TEMPLATE" "$PARENT_KEY" "$PROJECT_KEY" "$SUMMARY_ESCAPED" "$CHILD_TYPE")
-          
+          # 기본 필드 구성
+          JSON_PAYLOAD=$(jq -n \
+            --arg pkey "$PROJECT_KEY" \
+            --arg summary "$SUMMARY_ESCAPED" \
+            --arg ctype "$CHILD_TYPE" \
+            '{fields: {project: {key: $pkey}, summary: $summary, issuetype: {name: $ctype}}}')
+
+          # 상위 이슈 타입에 따라 페이로드에 부모 정보 추가
+          if [[ "$PARENT_TYPE" == "Epic" ]]; then
+            # Epic Link 필드 ID 찾기 (회사 관리형 프로젝트)
+            FIELDS=$(curl -sS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Accept: application/json" "$BASE/rest/api/3/field")
+            EPIC_LINK_ID=$(echo "$FIELDS" | jq -r '.[] | select(.name=="Epic Link") | .id' | head -n1)
+            
+            if [ -z "$EPIC_LINK_ID" ] || [ "$EPIC_LINK_ID" == "null" ]; then
+              # Epic Link 필드가 없으면(팀 관리형 프로젝트) parent 필드 사용
+              JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --arg pkey "$PARENT_KEY" '.fields.parent = {key: $pkey}')
+            else
+              # Epic Link 필드가 있으면 해당 필드 사용
+              JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --arg epic_field "$EPIC_LINK_ID" --arg pkey "$PARENT_KEY" '.fields[$epic_field] = $pkey')
+            fi
+          else
+            # Epic이 아닌 모든 경우(Feature, Task)는 parent 필드 사용
+            JSON_PAYLOAD=$(echo "$JSON_PAYLOAD" | jq --arg pkey "$PARENT_KEY" '.fields.parent = {key: $pkey}')
+          fi
+
+          echo "Sending this payload to Jira: $JSON_PAYLOAD"
+
           RESPONSE=$(curl -sS -w "\nHTTP_CODE:%{http_code}" -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
-            -H "Content-Type: application/json" -X POST --data "$DATA" \
+            -H "Content-Type: application/json" -X POST --data "$JSON_PAYLOAD" \
             "$BASE/rest/api/3/issue")
           
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1 | cut -d: -f2)
           BODY=$(echo "$RESPONSE" | sed '$d')
           
           if [ "$HTTP_CODE" -ne 201 ]; then
-            echo "::error::Failed to create sub-task. Code: $HTTP_CODE, Body: $BODY"
+            echo "::error::Failed to create Jira issue. Code: $HTTP_CODE, Body: $BODY"
             exit 1
           fi
           
           NEW_KEY=$(echo "$BODY" | jq -r '.key')
-          echo "Created sub-task: $NEW_KEY"
+          echo "Created Jira issue: $NEW_KEY"
           echo "issue=$NEW_KEY" >> "$GITHUB_OUTPUT"
 
-      - name: Set Created Issue Key
-        id: create
-        shell: bash
-        run: |
-          if [ -n "${{ steps.create_standard.outputs.issue }}" ]; then
-            echo "issue=${{ steps.create_standard.outputs.issue }}" >> "$GITHUB_OUTPUT"
-          elif [ -n "${{ steps.create_subtask.outputs.issue }}" ]; then
-            echo "issue=${{ steps.create_subtask.outputs.issue }}" >> "$GITHUB_OUTPUT"
-          fi
-
-      # 5. [수정됨] Sub-task가 아닌 경우에만 부모-자식 연결 실행
-      - name: Link to parent issue
-        if: steps.child_type.outputs.child_issuetype != 'Sub-task'
-        shell: bash
-        env:
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-          CHILD_KEY: ${{ steps.create.outputs.issue }}
-          PARENT_KEY: ${{ steps.parent.outputs.parent_key }}
-          PARENT_TYPE: ${{ steps.parent_info.outputs.parent_issuetype }}
-        run: |
-          set -e
-          BASE="${JIRA_BASE_URL%/}"
-          DATA=""
-          if [[ "$PARENT_TYPE" == "Epic" ]]; then
-            FIELDS=$(curl -sS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Accept: application/json" "$BASE/rest/api/3/field")
-            EPIC_LINK_ID=$(echo "$FIELDS" | jq -r '.[] | select(.name=="Epic Link") | .id' | head -n1)
-            if [ -z "$EPIC_LINK_ID" ] || [ "$EPIC_LINK_ID" == "null" ]; then
-              DATA=$(jq -n --arg pkey "$PARENT_KEY" '{fields: {parent: {key: $pkey}}}')
-            else
-              DATA=$(jq -n --arg cf "$EPIC_LINK_ID" --arg epic "$PARENT_KEY" '{fields: {}} | .fields[$cf]=$epic')
-            fi
-          else
-            DATA=$(jq -n --arg pkey "$PARENT_KEY" '{fields: {parent: {key: $pkey}}}')
-          fi
-          CODE=$(curl -sS -w "%{http_code}" -o /tmp/resp.txt \
-            -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Content-Type: application/json" \
-            -X PUT "$BASE/rest/api/3/issue/$CHILD_KEY" --data "$DATA")
-          if [ "$CODE" -lt 200 ] || [ "$CODE" -ge 300 ]; then
-            echo "::error::Failed to link issue. Body: $(cat /tmp/resp.txt)"
-            exit 1
-          fi
-          echo "✅ Successfully linked $CHILD_KEY under $PARENT_KEY"
-
-      # 6. GitHub 이슈에 코멘트 남기기
+      # 5. GitHub 이슈에 코멘트 남기기
       - name: Comment back with Jira link
         uses: actions/github-script@v7
         env:
