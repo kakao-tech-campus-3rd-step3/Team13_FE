@@ -98,5 +98,5 @@ jobs:
         uses: atlassian/gajira-transition@v3
         with:
           issue: ${{ steps.key.outputs.issue_key }}
-          transition: 'In Review'
+          transition: '진행 중'
 
