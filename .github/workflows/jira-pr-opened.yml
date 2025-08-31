@@ -90,7 +90,7 @@ jobs:
         uses: atlassian/gajira-transition@v3
         with:
           issue: ${{ steps.key.outputs.issue_key }}
-          transition: 'In Progress'
+          transition: '진행 중'
 
       # 5-B) 리뷰 준비된 PR일 경우 'In Review'로 전이
       - name: Transition to 'In Review' for Ready PR
@@ -99,3 +99,4 @@ jobs:
         with:
           issue: ${{ steps.key.outputs.issue_key }}
           transition: 'In Review'
+
