@@ -2,4 +2,4 @@
 
 ## kakao tech campus 3rd (step3) : Team 13 (FE)
 
-#issue manage by JIRA ㅎㅎㅎ
+#issue manage by JIRA ㅎㅎㅎㅎ
