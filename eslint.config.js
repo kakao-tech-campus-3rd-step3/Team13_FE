@@ -70,7 +70,6 @@ export default tseslint.config(
     settings: {
       react: { version: 'detect' },
       'import/resolver': {
-        typescript: true,
         node: true,
       },
     },
