@@ -45,7 +45,7 @@ export default tseslint.config(
       ...react.configs['jsx-runtime'].rules,
       ...reactHooks.configs.recommended.rules,
       ...jsxA11y.configs.recommended.rules,
-      '@typescript-eslint/explicit-module-boundary-types': 'error',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
       'react/jsx-props-no-spreading': 'warn',
       'import/order': [
         'error',
@@ -71,6 +71,20 @@ export default tseslint.config(
       react: { version: 'detect' },
       'import/resolver': {
         node: true,
+      },
+    },
+  },
+  {
+    files: ['vite.config.ts'],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true,
+        project: './tsconfig.node.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+      globals: {
+        ...globals.node,
       },
     },
   },
