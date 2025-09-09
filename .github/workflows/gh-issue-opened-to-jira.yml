@@ -93,7 +93,7 @@ jobs:
           set -e
           BASE="${JIRA_BASE_URL%/}"
           SUMMARY_ESCAPED=$(echo "$SUMMARY" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
-          
+
           JSON_PAYLOAD=$(jq -n \
             --arg pkey "$PROJECT_KEY" \
             --arg summary "$SUMMARY_ESCAPED" \
@@ -116,15 +116,15 @@ jobs:
           RESPONSE=$(curl -sS -w "\nHTTP_CODE:%{http_code}" -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
             -H "Content-Type: application/json" -X POST --data "$JSON_PAYLOAD" \
             "$BASE/rest/api/3/issue")
-          
+
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1 | cut -d: -f2)
           BODY=$(echo "$RESPONSE" | sed '$d')
-          
+
           if [ "$HTTP_CODE" -ne 201 ]; then
             echo "::error::Failed to create Jira issue. Code: $HTTP_CODE, Body: $BODY"
             exit 1
           fi
-          
+
           NEW_KEY=$(echo "$BODY" | jq -r '.key')
           echo "Created Jira issue: $NEW_KEY"
           echo "issue=$NEW_KEY" >> "$GITHUB_OUTPUT"
@@ -148,4 +148,3 @@ jobs:
               issue_number: context.payload.issue.number,
               body: `Jira **${childType}** created under **${parentKey}** → ${url}`
             });
-
