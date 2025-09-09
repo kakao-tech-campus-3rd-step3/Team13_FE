@@ -1,5 +1,6 @@
 import { Global, css } from '@emotion/react';
 import React from 'react';
+import '@fontsource/pretendard';
 
 // 전부 임시 AI css 코드
 const spacing = {
@@ -27,21 +28,7 @@ const GlobalStyle = (): React.ReactElement => (
       body {
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
-        font-family:
-          'Pretendard',
-          -apple-system,
-          BlinkMacSystemFont,
-          system-ui,
-          Roboto,
-          'Helvetica Neue',
-          'Segoe UI',
-          'Apple SD Gothic Neo',
-          'Noto Sans KR',
-          'Malgun Gothic',
-          'Apple Color Emoji',
-          'Segoe UI Emoji',
-          'Segoe UI Symbol',
-          sans-serif;
+        font-family: 'Pretendard', sans-serif;
         background-color: #f0f2f5; // 앱 전체 배경색
       }
 
