@@ -1,12 +1,10 @@
 import { Global, css } from '@emotion/react';
 import React from 'react';
-import '@fontsource/pretendard';
 
-// 전부 임시 AI css 코드
-const spacing = {
-  spacing0: 0,
-  spacing4: '1rem', // 16px
-};
+import '@fontsource/pretendard';
+import { colors } from '@/theme/color';
+import { spacing } from '@/theme/spacing';
+import { typography } from '@/theme/typography';
 
 const GlobalStyle = (): React.ReactElement => (
   <Global
@@ -26,10 +24,11 @@ const GlobalStyle = (): React.ReactElement => (
       }
 
       body {
-        line-height: 1.5;
+        ${typography.body1Regular};
         -webkit-font-smoothing: antialiased;
         font-family: 'Pretendard', sans-serif;
-        background-color: #f0f2f5; // 앱 전체 배경색
+        background-color: ${colors.background.fill};
+        color: ${colors.text.default};
       }
 
       ol,
@@ -49,30 +48,30 @@ const GlobalStyle = (): React.ReactElement => (
         min-height: 100%;
         margin: 0 auto;
         padding: 0 ${spacing.spacing4};
-        background-color: #ffffff; // 메인 컨텐츠 영역
-        box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 15px; // 그림자 효과
+        background-color: ${colors.background.default};
+        box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 15px;
       }
 
       a,
       button {
-        -webkit-tap-highlight-color: transparent; // 모바일 터치 경험 개선
+        -webkit-tap-highlight-color: transparent;
       }
 
       input,
       button,
       textarea {
-        font-family: inherit; // 폼 요소 폰트 통일
+        font-family: inherit;
       }
 
       ::-webkit-scrollbar {
         width: 6px;
       }
       ::-webkit-scrollbar-thumb {
-        background-color: #c4c4c4;
+        background-color: ${colors.gray[500]};
         border-radius: 6px;
       }
       ::-webkit-scrollbar-track {
-        background-color: #f0f2f5;
+        background-color: ${colors.background.fill};
       }
     `}
   />
