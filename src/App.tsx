@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import InputTextWithEmail from '@/components/inputTextWithEmail';
+import LoginTitleBar from '@/components/loginTitleBar';
 import NavigationTab from '@/components/navigationTab';
 import TitleBar from '@/components/titleBar';
 
@@ -21,6 +22,7 @@ function App() {
         title="타이틀바 예시"
         rightSlot={<button aria-label="menu">메뉴</button>}
       />
+      <LoginTitleBar />
       <S.Container>
         <NavigationTab tabs={tabs} />
         <InputTextWithEmail

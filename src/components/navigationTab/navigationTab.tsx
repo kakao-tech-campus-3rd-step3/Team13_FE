@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import * as S from './NavigationTab.styled.ts';
+import * as S from './navigationTab.styled.ts';
 
 export interface TabItem {
   label: string;

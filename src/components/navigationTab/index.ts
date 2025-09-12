@@ -1,2 +1,2 @@
-export { default } from './NavigationTab';
-export * from './NavigationTab';
+export { default } from './navigationTab';
+export * from './navigationTab';
