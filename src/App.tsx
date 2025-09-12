@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import InputTextWithEmail from '@/components/inputTextWithEmail';
 import NavigationTab from '@/components/navigationTab';
+import TitleBar from '@/components/titleBar';
 
 import * as S from './App.styled.ts';
 
@@ -15,6 +16,11 @@ function App() {
 
   return (
     <>
+      <TitleBar
+        leftSlot={<button aria-label="back">뒤로</button>}
+        title="타이틀바 예시"
+        rightSlot={<button aria-label="menu">메뉴</button>}
+      />
       <S.Container>
         <NavigationTab tabs={tabs} />
         <InputTextWithEmail
