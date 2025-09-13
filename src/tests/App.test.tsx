@@ -15,4 +15,9 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Search' }));
     expect(screen.getByText('Search Content')).toBeInTheDocument();
   });
+  it('프로필 버튼 클릭 시 카운트가 증가한다', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'profile' }));
+    expect(screen.getByText('Profile 클릭 횟수: 1')).toBeInTheDocument();
+  });
 });
