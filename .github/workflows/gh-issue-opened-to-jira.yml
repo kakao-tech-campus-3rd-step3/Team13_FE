@@ -1,5 +1,5 @@
 # GitHub 이슈 생성 시, 상위 Jira 이슈 타입을 자동으로 감지하여
-# Epic-Task, Task-Sub-task 계층 구조를 지원하는 최종 워크플로우
+# Epic-Task, Task-Sub-task 계층 구조를 지원하는 최종 워크플로우 (한글 이슈 타입 지원)
 
 on:
   issues:
@@ -59,15 +59,15 @@ jobs:
           echo "parent_project_key=$PARENT_PROJECT_KEY" >> $GITHUB_OUTPUT
           echo "Parent is '$PARENT_ISSUE_TYPE' in project '$PARENT_PROJECT_KEY'"
 
-      # 3. [수정됨] 상위 이슈 타입에 따라 하위 이슈 타입 결정 (하이픈 제거)
+      # 3. [수정됨] 상위 이슈 타입에 따라 하위 이슈 타입 결정 (한글 이름 추가)
       - name: Determine Child Issue Type
         id: child_type
         shell: bash
         run: |
           PARENT_TYPE="${{ steps.parent_info.outputs.parent_issuetype }}"
           CHILD_TYPE=""
-          if [[ "$PARENT_TYPE" == "Epic" ]]; then CHILD_TYPE="Task"
-          # 'Sub-task'를 'Subtask'로 변경
+          # '에픽'이라는 한글 이름을 조건에 추가
+          if [[ "$PARENT_TYPE" == "Epic" || "$PARENT_TYPE" == "에픽" ]]; then CHILD_TYPE="Task"
           elif [[ "$PARENT_TYPE" == "Task" || "$PARENT_TYPE" == "작업" ]]; then CHILD_TYPE="Subtask"
           else
             echo "::error::Parent issue type '$PARENT_TYPE' cannot have children. Only Epic or Task."
@@ -100,7 +100,8 @@ jobs:
             --arg ctype "$CHILD_TYPE" \
             '{fields: {project: {key: $pkey}, summary: $summary, issuetype: {name: $ctype}}}')
 
-          if [[ "$PARENT_TYPE" == "Epic" ]]; then
+          # '에픽'이라는 한글 이름을 조건에 추가
+          if [[ "$PARENT_TYPE" == "Epic" || "$PARENT_TYPE" == "에픽" ]]; then
             FIELDS=$(curl -sS -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" -H "Accept: application/json" "$BASE/rest/api/3/field")
             EPIC_LINK_ID=$(echo "$FIELDS" | jq -r '.[] | select(.name=="Epic Link") | .id' | head -n1)
             if [ -z "$EPIC_LINK_ID" ] || [ "$EPIC_LINK_ID" == "null" ]; then
@@ -148,4 +149,3 @@ jobs:
               issue_number: context.payload.issue.number,
               body: `Jira **${childType}** created under **${parentKey}** → ${url}`
             });
-

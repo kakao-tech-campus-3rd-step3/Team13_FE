@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+
+import HomeTitleBar from '@/components/homeTitleBar';
+import InputTextWithEmail from '@/components/inputTextWithEmail';
+import LoginTitleBar from '@/components/loginTitleBar';
+import NavigationTab from '@/components/navigationTab';
+import OriginTitleBar from '@/components/originTitleBar';
+
+import * as S from './App.styled.ts';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [email, setEmail] = useState('');
+  const [backCount, setBackCount] = useState(0);
+  const [menuCount, setMenuCount] = useState(0);
+
+  const tabs = [
+    { label: 'Home', content: <div>Home Content</div> },
+    { label: 'Search', content: <div>Search Content</div> },
+    { label: 'Profile', content: <div>Profile Content</div> },
+  ];
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <HomeTitleBar
+        title="홈 타이틀바"
+        onMenu={() => setMenuCount((c) => c + 1)}
+      />
+      <OriginTitleBar
+        title="오리진 타이틀바"
+        onBack={() => setBackCount((c) => c + 1)}
+      />
+      <LoginTitleBar />
+      <S.Container>
+        <p>Profile 클릭 횟수: {menuCount}</p>
+        <p>Back 클릭 횟수: {backCount}</p>
+        <NavigationTab tabs={tabs} />
+        <InputTextWithEmail
+          helperText="학교 이메일을 입력해주세요."
+          onChange={setEmail}
+        />
+        <S.EmailText>입력한 이메일: {email}</S.EmailText>
+      </S.Container>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
