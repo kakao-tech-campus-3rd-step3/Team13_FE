@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import { FaRegThumbsUp, FaThumbsUp } from 'react-icons/fa';
 
+import Button from '@/components/button';
 import HomeTitleBar from '@/components/homeTitleBar';
+import IconButton from '@/components/iconButton';
 import InputTextWithEmail from '@/components/inputTextWithEmail';
+import LoginButton from '@/components/loginButton';
 import LoginTitleBar from '@/components/loginTitleBar';
 import NavigationTab from '@/components/navigationTab';
 import OriginTitleBar from '@/components/originTitleBar';
+import TextButton from '@/components/textButton';
 
 import * as S from './App.styled.ts';
 
@@ -12,6 +17,13 @@ function App() {
   const [email, setEmail] = useState('');
   const [backCount, setBackCount] = useState(0);
   const [menuCount, setMenuCount] = useState(0);
+  const [count, setCount] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const [iconLoading, setIconLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [textCount, setTextCount] = useState(0);
+  const [textLiked, setTextLiked] = useState(false);
+  const [textLoading, setTextLoading] = useState(false);
 
   const tabs = [
     { label: 'Home', content: <div>Home Content</div> },
@@ -39,6 +51,58 @@ function App() {
           onChange={setEmail}
         />
         <S.EmailText>입력한 이메일: {email}</S.EmailText>
+        <Button onClick={() => setCount((c) => c + 1)}>카운트 증가</Button>
+        <S.CountText>현재 카운트: {count}</S.CountText>
+        <IconButton
+          ariaLabel="좋아요 토글"
+          pressed={liked}
+          onPressedChange={setLiked}
+        >
+          {liked ? <FaThumbsUp /> : <FaRegThumbsUp />}
+        </IconButton>
+        <IconButton
+          ariaLabel="아이콘 로딩"
+          loading={iconLoading}
+          onClick={() => {
+            setIconLoading(true);
+            setTimeout(() => setIconLoading(false), 1000);
+          }}
+        >
+          <FaThumbsUp />
+        </IconButton>
+        <IconButton ariaLabel="비활성 아이콘" disabled>
+          <FaThumbsUp />
+        </IconButton>
+        <LoginButton
+          ariaLabel="카카오 로그인"
+          loading={loginLoading}
+          onClick={() => {
+            setLoginLoading(true);
+            setTimeout(() => setLoginLoading(false), 1000);
+          }}
+        />
+        <TextButton onClick={() => setTextCount((c) => c + 1)}>
+          텍스트 증가
+        </TextButton>
+        <S.CountText>텍스트 카운트: {textCount}</S.CountText>
+        <TextButton
+          ariaLabel="텍스트 좋아요"
+          pressed={textLiked}
+          onPressedChange={setTextLiked}
+        >
+          {textLiked ? 'ON' : 'OFF'}
+        </TextButton>
+        <TextButton
+          ariaLabel="텍스트 로딩 버튼"
+          loading={textLoading}
+          onClick={() => {
+            setTextLoading(true);
+            setTimeout(() => setTextLoading(false), 1000);
+          }}
+        >
+          로딩
+        </TextButton>
+        <TextButton disabled>비활성 텍스트</TextButton>
       </S.Container>
     </>
   );
