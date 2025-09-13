@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import Button from '@/components/button';
 import HomeTitleBar from '@/components/homeTitleBar';
 import InputTextWithEmail from '@/components/inputTextWithEmail';
 import LoginTitleBar from '@/components/loginTitleBar';
@@ -12,6 +13,8 @@ function App() {
   const [email, setEmail] = useState('');
   const [backCount, setBackCount] = useState(0);
   const [menuCount, setMenuCount] = useState(0);
+  const [count, setCount] = useState(0);
+  const [liked, setLiked] = useState(false);
 
   const tabs = [
     { label: 'Home', content: <div>Home Content</div> },
@@ -39,6 +42,16 @@ function App() {
           onChange={setEmail}
         />
         <S.EmailText>입력한 이메일: {email}</S.EmailText>
+        <Button onClick={() => setCount((c) => c + 1)}>카운트 증가</Button>
+        <S.CountText>현재 카운트: {count}</S.CountText>
+        <Button
+          variant="icon"
+          ariaLabel="좋아요 토글"
+          pressed={liked}
+          onPressedChange={setLiked}
+        >
+          {liked ? '💙' : '🤍'}
+        </Button>
       </S.Container>
     </>
   );
