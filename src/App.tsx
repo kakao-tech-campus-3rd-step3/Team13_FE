@@ -9,6 +9,7 @@ import LoginButton from '@/components/loginButton';
 import LoginTitleBar from '@/components/loginTitleBar';
 import NavigationTab from '@/components/navigationTab';
 import OriginTitleBar from '@/components/originTitleBar';
+import RoundButton from '@/components/roundButton';
 import TextButton from '@/components/textButton';
 
 import * as S from './App.styled.ts';
@@ -24,6 +25,8 @@ function App() {
   const [textCount, setTextCount] = useState(0);
   const [textLiked, setTextLiked] = useState(false);
   const [textLoading, setTextLoading] = useState(false);
+  const [roundLiked, setRoundLiked] = useState(false);
+  const [roundCount, setRoundCount] = useState(0);
 
   const tabs = [
     { label: 'Home', content: <div>Home Content</div> },
@@ -103,6 +106,17 @@ function App() {
           로딩
         </TextButton>
         <TextButton disabled>비활성 텍스트</TextButton>
+        <RoundButton
+          ariaLabel="라운드 좋아요"
+          pressed={roundLiked}
+          onPressedChange={setRoundLiked}
+        >
+          {roundLiked ? <FaThumbsUp /> : <FaRegThumbsUp />}
+        </RoundButton>
+        <RoundButton size="lg" onClick={() => setRoundCount((c) => c + 1)}>
+          GO
+        </RoundButton>
+        <S.CountText>라운드 버튼 클릭 횟수: {roundCount}</S.CountText>
       </S.Container>
     </>
   );
