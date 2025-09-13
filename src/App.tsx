@@ -7,6 +7,7 @@ import LoginButton from '@/components/loginButton';
 import LoginTitleBar from '@/components/loginTitleBar';
 import NavigationTab from '@/components/navigationTab';
 import OriginTitleBar from '@/components/originTitleBar';
+import TextButton from '@/components/textButton';
 
 import * as S from './App.styled.ts';
 
@@ -17,6 +18,9 @@ function App() {
   const [count, setCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
+  const [textCount, setTextCount] = useState(0);
+  const [textLiked, setTextLiked] = useState(false);
+  const [textLoading, setTextLoading] = useState(false);
 
   const tabs = [
     { label: 'Home', content: <div>Home Content</div> },
@@ -62,6 +66,28 @@ function App() {
             setTimeout(() => setLoginLoading(false), 1000);
           }}
         />
+        <TextButton onClick={() => setTextCount((c) => c + 1)}>
+          텍스트 증가
+        </TextButton>
+        <S.CountText>텍스트 카운트: {textCount}</S.CountText>
+        <TextButton
+          ariaLabel="텍스트 좋아요"
+          pressed={textLiked}
+          onPressedChange={setTextLiked}
+        >
+          {textLiked ? 'ON' : 'OFF'}
+        </TextButton>
+        <TextButton
+          ariaLabel="텍스트 로딩 버튼"
+          loading={textLoading}
+          onClick={() => {
+            setTextLoading(true);
+            setTimeout(() => setTextLoading(false), 1000);
+          }}
+        >
+          로딩
+        </TextButton>
+        <TextButton disabled>비활성 텍스트</TextButton>
       </S.Container>
     </>
   );

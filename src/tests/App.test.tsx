@@ -33,4 +33,10 @@ describe('App', () => {
     fireEvent.click(btn);
     expect(btn).toHaveAttribute('aria-pressed', 'true');
   });
+
+  it('increments text count when TextButton is clicked', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: '텍스트 증가' }));
+    expect(screen.getByText('텍스트 카운트: 1')).toBeInTheDocument();
+  });
 });
