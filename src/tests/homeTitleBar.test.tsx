@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 
 import HomeTitleBar from '@/components/homeTitleBar';
 import { colors } from '@/theme/color';
+import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 describe('HomeTitleBar', () => {
@@ -36,9 +37,9 @@ describe('HomeTitleBar', () => {
     expect(title).toHaveStyle(
       `font-weight: ${typography.title1Bold.fontWeight}`,
     );
-    const profileIcon = screen.getByRole('button', {
-      name: 'profile',
-    }).firstChild;
+    const profileButton = screen.getByRole('button', { name: 'profile' });
+    expect(profileButton).toHaveStyle(`width: ${spacing.spacing10}`);
+    const profileIcon = profileButton.firstChild as HTMLElement;
     expect(profileIcon).toHaveStyle(`color: ${colors.text.default}`);
   });
 });

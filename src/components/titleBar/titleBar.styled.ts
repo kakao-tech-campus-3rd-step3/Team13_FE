@@ -20,6 +20,9 @@ export const Slot = styled.div`
 
 export const Title = styled.div`
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   color: ${colors.text.default};
   ${typography.title1Bold};

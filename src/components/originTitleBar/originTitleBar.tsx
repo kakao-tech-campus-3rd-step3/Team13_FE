@@ -1,5 +1,7 @@
 import React from 'react';
 
+import IconButton from '@/components/iconButton';
+
 import * as S from './originTitleBar.styled';
 
 interface OriginTitleBarProps {
@@ -13,9 +15,9 @@ const OriginTitleBar = ({ title, onBack, className }: OriginTitleBarProps) => {
     <S.Wrapper
       className={className}
       leftSlot={
-        <S.BackButton onClick={onBack} aria-label="뒤로 가기">
-          ←
-        </S.BackButton>
+        <IconButton ariaLabel="뒤로 가기" onClick={onBack}>
+          <S.BackIcon aria-hidden />
+        </IconButton>
       }
       title={title}
     />
