@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { FaRegThumbsUp, FaThumbsUp } from 'react-icons/fa';
 
 import Button from '@/components/button';
 import HomeTitleBar from '@/components/homeTitleBar';
+import IconButton from '@/components/iconButton';
 import InputTextWithEmail from '@/components/inputTextWithEmail';
 import LoginButton from '@/components/loginButton';
 import LoginTitleBar from '@/components/loginTitleBar';
@@ -17,6 +19,7 @@ function App() {
   const [menuCount, setMenuCount] = useState(0);
   const [count, setCount] = useState(0);
   const [liked, setLiked] = useState(false);
+  const [iconLoading, setIconLoading] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [textCount, setTextCount] = useState(0);
   const [textLiked, setTextLiked] = useState(false);
@@ -50,14 +53,26 @@ function App() {
         <S.EmailText>입력한 이메일: {email}</S.EmailText>
         <Button onClick={() => setCount((c) => c + 1)}>카운트 증가</Button>
         <S.CountText>현재 카운트: {count}</S.CountText>
-        <Button
-          variant="icon"
+        <IconButton
           ariaLabel="좋아요 토글"
           pressed={liked}
           onPressedChange={setLiked}
         >
-          {liked ? '💙' : '🤍'}
-        </Button>
+          {liked ? <FaThumbsUp /> : <FaRegThumbsUp />}
+        </IconButton>
+        <IconButton
+          ariaLabel="아이콘 로딩"
+          loading={iconLoading}
+          onClick={() => {
+            setIconLoading(true);
+            setTimeout(() => setIconLoading(false), 1000);
+          }}
+        >
+          <FaThumbsUp />
+        </IconButton>
+        <IconButton ariaLabel="비활성 아이콘" disabled>
+          <FaThumbsUp />
+        </IconButton>
         <LoginButton
           ariaLabel="카카오 로그인"
           loading={loginLoading}
