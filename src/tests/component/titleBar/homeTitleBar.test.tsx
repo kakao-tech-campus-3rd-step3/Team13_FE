@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
-import HomeTitleBar from '@/components/homeTitleBar';
+import HomeTitleBar from '@/components/titleBar/homeTitleBar';
 import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';

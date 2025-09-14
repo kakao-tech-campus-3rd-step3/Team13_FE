@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { FaThumbsUp } from 'react-icons/fa';
 import { describe, it, expect, vi } from 'vitest';
 
-import IconButton from '@/components/iconButton';
+import IconButton from '@/components/button/iconButton';
 import { spacing } from '@/theme/spacing';
 
 describe('IconButton', () => {

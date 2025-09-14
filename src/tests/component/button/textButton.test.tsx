@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import TextButton from '@/components/textButton';
+import TextButton from '@/components/button/textButton';
 import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 

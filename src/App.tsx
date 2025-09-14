@@ -2,16 +2,16 @@ import { useState } from 'react';
 import { FaRegThumbsUp, FaThumbsUp } from 'react-icons/fa';
 
 import Button from '@/components/button';
-import HomeTitleBar from '@/components/homeTitleBar';
-import IconButton from '@/components/iconButton';
+import IconButton from '@/components/button/iconButton/index.ts';
+import LoginButton from '@/components/button/loginButton/index.ts';
+import RoundButton from '@/components/button/roundButton/index.ts';
+import RoundedRectangleButton from '@/components/button/roundedRectangleButton/index.ts';
+import TextButton from '@/components/button/textButton/index.ts';
 import InputTextWithEmail from '@/components/inputTextWithEmail';
-import LoginButton from '@/components/loginButton';
-import LoginTitleBar from '@/components/loginTitleBar';
 import NavigationTab from '@/components/navigationTab';
-import OriginTitleBar from '@/components/originTitleBar';
-import RoundButton from '@/components/roundButton';
-import RoundedRectangleButton from '@/components/roundedRectangleButton';
-import TextButton from '@/components/textButton';
+import HomeTitleBar from '@/components/titleBar/homeTitleBar/index.ts';
+import LoginTitleBar from '@/components/titleBar/loginTitleBar/index.ts';
+import OriginTitleBar from '@/components/titleBar/originTitleBar/index.ts';
 
 import * as S from './App.styled.ts';
 

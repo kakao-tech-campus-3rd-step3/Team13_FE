@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 
-import LoginTitleBar from '@/components/loginTitleBar';
+import LoginTitleBar from '@/components/titleBar/loginTitleBar';
 import { colors } from '@/theme/color';
 import { typography } from '@/theme/typography';
 

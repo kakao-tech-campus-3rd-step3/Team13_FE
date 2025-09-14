@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
-import LoginButton from '@/components/loginButton';
+import LoginButton from '@/components/button/loginButton';
 import { colors } from '@/theme/color';
 
 describe('LoginButton', () => {
