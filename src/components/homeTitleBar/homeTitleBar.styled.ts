@@ -16,15 +16,6 @@ export const Wrapper = styled(TitleBar)`
   }
 `;
 
-export const IconButton = styled.button`
-  border: none;
-  background: none;
-  padding: ${spacing.spacing2};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-`;
 export const ProfileIcon = styled(CgProfile)`
   width: ${spacing.spacing6};
   height: ${spacing.spacing6};

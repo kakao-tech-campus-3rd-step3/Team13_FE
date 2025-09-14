@@ -23,8 +23,11 @@ describe('OriginTitleBar', () => {
     render(<OriginTitleBar title="Origin" onBack={() => {}} />);
 
     const backButton = screen.getByLabelText('뒤로 가기');
-    expect(backButton).toHaveStyle(`width: ${spacing.spacing14}`);
+    expect(backButton).toHaveStyle(`width: ${spacing.spacing10}`);
     expect(backButton).toHaveStyle(`color: ${colors.text.default}`);
+
+    const icon = backButton.firstChild as HTMLElement;
+    expect(icon).toHaveStyle(`color: ${colors.text.default}`);
 
     const title = screen.getByText('Origin');
     expect(title).toHaveStyle(

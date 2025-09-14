@@ -1,5 +1,7 @@
 import React from 'react';
 
+import IconButton from '@/components/iconButton';
+
 import * as S from './homeTitleBar.styled';
 
 interface HomeTitleBarProps {
@@ -12,9 +14,9 @@ const HomeTitleBar = ({ title, onMenu }: HomeTitleBarProps) => {
     <S.Wrapper
       title={title}
       rightSlot={
-        <S.IconButton aria-label="profile" onClick={onMenu}>
-          <S.ProfileIcon />
-        </S.IconButton>
+        <IconButton ariaLabel="profile" onClick={onMenu}>
+          <S.ProfileIcon aria-hidden />
+        </IconButton>
       }
     />
   );

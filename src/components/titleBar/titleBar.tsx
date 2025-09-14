@@ -4,7 +4,7 @@ import * as S from './titleBar.styled';
 
 interface TitleBarProps {
   leftSlot?: React.ReactNode;
-  title?: string;
+  title?: React.ReactNode;
   rightSlot?: React.ReactNode;
   className?: string;
 }
