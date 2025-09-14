@@ -16,3 +16,9 @@ export const EmailText = styled.p`
   ${typography.body1Regular};
   color: ${colors.text.default};
 `;
+
+export const CountText = styled.p`
+  margin: 0;
+  ${typography.body1Regular};
+  color: ${colors.text.default};
+`;

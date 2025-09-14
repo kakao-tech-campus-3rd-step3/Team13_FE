@@ -20,4 +20,17 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: 'profile' }));
     expect(screen.getByText('Profile 클릭 횟수: 1')).toBeInTheDocument();
   });
+
+  it('increments count when button is clicked', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: '카운트 증가' }));
+    expect(screen.getByText('현재 카운트: 1')).toBeInTheDocument();
+  });
+
+  it('toggles like button', () => {
+    render(<App />);
+    const btn = screen.getByRole('button', { name: '좋아요 토글' });
+    fireEvent.click(btn);
+    expect(btn).toHaveAttribute('aria-pressed', 'true');
+  });
 });
