@@ -10,6 +10,7 @@ import LoginTitleBar from '@/components/loginTitleBar';
 import NavigationTab from '@/components/navigationTab';
 import OriginTitleBar from '@/components/originTitleBar';
 import RoundButton from '@/components/roundButton';
+import RoundedRectangleButton from '@/components/roundedRectangleButton';
 import TextButton from '@/components/textButton';
 
 import * as S from './App.styled.ts';
@@ -27,6 +28,7 @@ function App() {
   const [textLoading, setTextLoading] = useState(false);
   const [roundLiked, setRoundLiked] = useState(false);
   const [roundCount, setRoundCount] = useState(0);
+  const [rrCount, setRrCount] = useState(0);
 
   const tabs = [
     { label: 'Home', content: <div>Home Content</div> },
@@ -117,6 +119,10 @@ function App() {
           GO
         </RoundButton>
         <S.CountText>라운드 버튼 클릭 횟수: {roundCount}</S.CountText>
+        <RoundedRectangleButton onClick={() => setRrCount((c) => c + 1)}>
+          라운드 직사각 버튼
+        </RoundedRectangleButton>
+        <S.CountText>라운드 직사각 버튼 클릭 횟수: {rrCount}</S.CountText>
       </S.Container>
     </>
   );
