@@ -1,35 +1,131 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import { FaRegThumbsUp, FaThumbsUp } from 'react-icons/fa';
+
+import Button from '@/components/button';
+import IconButton from '@/components/button/iconButton/index.ts';
+import LoginButton from '@/components/button/loginButton/index.ts';
+import RoundButton from '@/components/button/roundButton/index.ts';
+import RoundedRectangleButton from '@/components/button/roundedRectangleButton/index.ts';
+import TextButton from '@/components/button/textButton/index.ts';
+import InputTextWithEmail from '@/components/inputTextWithEmail';
+import NavigationTab from '@/components/navigationTab';
+import HomeTitleBar from '@/components/titleBar/homeTitleBar/index.ts';
+import LoginTitleBar from '@/components/titleBar/loginTitleBar/index.ts';
+import OriginTitleBar from '@/components/titleBar/originTitleBar/index.ts';
+
+import * as S from './App.styled.ts';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [email, setEmail] = useState('');
+  const [backCount, setBackCount] = useState(0);
+  const [menuCount, setMenuCount] = useState(0);
+  const [count, setCount] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const [iconLoading, setIconLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [textCount, setTextCount] = useState(0);
+  const [textLiked, setTextLiked] = useState(false);
+  const [textLoading, setTextLoading] = useState(false);
+  const [roundLiked, setRoundLiked] = useState(false);
+  const [roundCount, setRoundCount] = useState(0);
+  const [rrCount, setRrCount] = useState(0);
+
+  const tabs = [
+    { label: 'Home', content: <div>Home Content</div> },
+    { label: 'Search', content: <div>Search Content</div> },
+    { label: 'Profile', content: <div>Profile Content</div> },
+  ];
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <HomeTitleBar
+        title="홈 타이틀바"
+        onMenu={() => setMenuCount((c) => c + 1)}
+      />
+      <OriginTitleBar
+        title="오리진 타이틀바"
+        onBack={() => setBackCount((c) => c + 1)}
+      />
+      <LoginTitleBar />
+      <S.Container>
+        <p>Profile 클릭 횟수: {menuCount}</p>
+        <p>Back 클릭 횟수: {backCount}</p>
+        <NavigationTab tabs={tabs} />
+        <InputTextWithEmail
+          helperText="학교 이메일을 입력해주세요."
+          onChange={setEmail}
+        />
+        <S.EmailText>입력한 이메일: {email}</S.EmailText>
+        <Button onClick={() => setCount((c) => c + 1)}>카운트 증가</Button>
+        <S.CountText>현재 카운트: {count}</S.CountText>
+        <IconButton
+          ariaLabel="좋아요 토글"
+          pressed={liked}
+          onPressedChange={setLiked}
+        >
+          {liked ? <FaThumbsUp /> : <FaRegThumbsUp />}
+        </IconButton>
+        <IconButton
+          ariaLabel="아이콘 로딩"
+          loading={iconLoading}
+          onClick={() => {
+            setIconLoading(true);
+            setTimeout(() => setIconLoading(false), 1000);
+          }}
+        >
+          <FaThumbsUp />
+        </IconButton>
+        <IconButton ariaLabel="비활성 아이콘" disabled>
+          <FaThumbsUp />
+        </IconButton>
+        <LoginButton
+          ariaLabel="카카오 로그인"
+          loading={loginLoading}
+          onClick={() => {
+            setLoginLoading(true);
+            setTimeout(() => setLoginLoading(false), 1000);
+          }}
+        />
+        <TextButton onClick={() => setTextCount((c) => c + 1)}>
+          텍스트 증가
+        </TextButton>
+        <S.CountText>텍스트 카운트: {textCount}</S.CountText>
+        <TextButton
+          ariaLabel="텍스트 좋아요"
+          pressed={textLiked}
+          onPressedChange={setTextLiked}
+        >
+          {textLiked ? 'ON' : 'OFF'}
+        </TextButton>
+        <TextButton
+          ariaLabel="텍스트 로딩 버튼"
+          loading={textLoading}
+          onClick={() => {
+            setTextLoading(true);
+            setTimeout(() => setTextLoading(false), 1000);
+          }}
+        >
+          로딩
+        </TextButton>
+        <TextButton disabled>비활성 텍스트</TextButton>
+        <RoundButton
+          ariaLabel="라운드 좋아요"
+          pressed={roundLiked}
+          onPressedChange={setRoundLiked}
+        >
+          {roundLiked ? <FaThumbsUp /> : <FaRegThumbsUp />}
+        </RoundButton>
+        <RoundButton size="lg" onClick={() => setRoundCount((c) => c + 1)}>
+          GO
+        </RoundButton>
+        <S.CountText>라운드 버튼 클릭 횟수: {roundCount}</S.CountText>
+        <RoundedRectangleButton onClick={() => setRrCount((c) => c + 1)}>
+          라운드 직사각 버튼
+        </RoundedRectangleButton>
+        <S.CountText>라운드 직사각 버튼 클릭 횟수: {rrCount}</S.CountText>
+      </S.Container>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
