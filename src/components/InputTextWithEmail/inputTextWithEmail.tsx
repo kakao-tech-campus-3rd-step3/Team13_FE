@@ -1,7 +1,6 @@
 import { useState, type ChangeEvent } from 'react';
 
 import * as S from './inputTextWithEmail.styled';
-// TODO : 해당 파일에서 지속적으로 경로 대소문자 문제 발생
 
 interface InputTextWithEmailProps {
   value?: string;
@@ -19,13 +18,14 @@ const InputTextWithEmail = ({
   onChange,
 }: InputTextWithEmailProps) => {
   const [localPart, setLocalPart] = useState(() => {
-    const [local = ''] = value ? value.split('@') : [''];
+    const [local] = value ? value.split('@') : [''];
     return local;
   });
 
   const initialDomain = value?.split('@')[1];
   const isCustomInitial = initialDomain && initialDomain !== defaultDomain;
-  const [useCustomDomain, setUseCustomDomain] = useState(!!isCustomInitial);
+  const [isCustomDomainSelected, setIsCustomDomainSelected] =
+    useState(!!isCustomInitial);
   const [domain, setDomain] = useState(
     isCustomInitial ? (initialDomain ?? '') : defaultDomain,
   );
@@ -38,11 +38,11 @@ const InputTextWithEmail = ({
 
   const handleDomainSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
     if (e.target.value === 'other') {
-      setUseCustomDomain(true);
+      setIsCustomDomainSelected(true);
       setDomain('');
       onChange?.(`${localPart}@`);
     } else {
-      setUseCustomDomain(false);
+      setIsCustomDomainSelected(false);
       setDomain(defaultDomain);
       onChange?.(`${localPart}@${defaultDomain}`);
     }
@@ -62,7 +62,7 @@ const InputTextWithEmail = ({
           aria-label="email local part"
         />
         <S.AtSign>@</S.AtSign>
-        {useCustomDomain ? (
+        {isCustomDomainSelected ? (
           <S.DomainInput
             value={domain}
             onChange={handleDomainInputChange}
