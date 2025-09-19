@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent } from 'react';
 
 import * as S from './inputTextWithEmail.styled';
+// TODO : 해당 파일에서 지속적으로 경로 대소문자 문제 발생
 
 interface InputTextWithEmailProps {
   value?: string;
