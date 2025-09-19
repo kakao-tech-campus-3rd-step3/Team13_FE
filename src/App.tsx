@@ -7,7 +7,8 @@ import LoginButton from '@/components/button/loginButton/index.ts';
 import RoundButton from '@/components/button/roundButton/index.ts';
 import RoundedRectangleButton from '@/components/button/roundedRectangleButton/index.ts';
 import TextButton from '@/components/button/textButton/index.ts';
-import InputTextWithEmail from '@/components/inputTextWithEmail';
+import InputTextWithEmail from '@/components/inputTextWithEmail/index.ts';
+import MatchCard from '@/components/matchCard';
 import NavigationTab from '@/components/navigationTab';
 import HomeTitleBar from '@/components/titleBar/homeTitleBar/index.ts';
 import LoginTitleBar from '@/components/titleBar/loginTitleBar/index.ts';
@@ -123,6 +124,64 @@ function App() {
           라운드 직사각 버튼
         </RoundedRectangleButton>
         <S.CountText>라운드 직사각 버튼 클릭 횟수: {rrCount}</S.CountText>
+
+        {/* MatchCard 컴포넌트 테스트 */}
+        <h2>MatchCard 컴포넌트 테스트</h2>
+
+        {/* 기본 카드 */}
+        <MatchCard
+          title="장소: 부산대 넥서스 E동"
+          time="8/16 18:00 ~ 22:00"
+          onCardClick={() => console.log('기본 카드 클릭됨')}
+        />
+
+        {/* 사람 수 표시가 있는 카드 */}
+        <MatchCard
+          title="장소: 부산대 넥서스 E동"
+          time="8/16 18:00 ~ 22:00"
+          showPeopleCount={true}
+          peopleCount="8/10"
+          deadline="08/10 23:59"
+          onCardClick={() => console.log('사람 수 카드 클릭됨')}
+        />
+
+        {/* 두 개 버튼이 있는 카드 */}
+        <MatchCard
+          title="장소: 부산대 넥서스 E동"
+          time="8/13 18:00 ~ 22:00"
+          buttons={[
+            {
+              text: '채팅 하기',
+              variant: 'primary',
+              onClick: () => console.log('채팅 버튼 클릭'),
+            },
+            {
+              text: '취소 하기',
+              variant: 'secondary',
+              onClick: () => console.log('취소 버튼 클릭'),
+            },
+          ]}
+          onCardClick={() => console.log('버튼 카드 클릭됨')}
+        />
+
+        {/* 결과 버튼이 있는 카드 */}
+        <MatchCard
+          title="장소: 부산대 넥서스 E동"
+          time="8/3 18:00 ~ 22:00"
+          resultButton={true}
+          onResultClick={() => console.log('결과 버튼 클릭')}
+          onCardClick={() => console.log('결과 카드 클릭됨')}
+        />
+
+        {/* 이미지 없는 카드 */}
+        <MatchCard
+          title="장소: 부산대 넥서스 E동"
+          time="8/16 18:00 ~ 22:00"
+          showPeopleCount={true}
+          peopleCount="8/10"
+          deadline="08/10 23:59"
+          onCardClick={() => console.log('이미지 없는 카드 클릭됨')}
+        />
       </S.Container>
     </>
   );
