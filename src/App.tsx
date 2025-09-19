@@ -130,25 +130,25 @@ function App() {
 
         {/* 기본 카드 */}
         <MatchCard
-          title="장소: 부산대 넥서스 E동"
+          title="부산대 넉넉한 터 농구장"
           time="8/16 18:00 ~ 22:00"
           onCardClick={() => console.log('기본 카드 클릭됨')}
         />
 
         {/* 사람 수 표시가 있는 카드 */}
-        <MatchCard
-          title="장소: 부산대 넥서스 E동"
+        {/* <MatchCard
+          title="부산대 넉넉한 터 농구장"
           time="8/16 18:00 ~ 22:00"
           showPeopleCount={true}
           peopleCount="8/10"
           deadline="08/10 23:59"
           onCardClick={() => console.log('사람 수 카드 클릭됨')}
-        />
+        /> */}
 
         {/* 두 개 버튼이 있는 카드 */}
-        <MatchCard
-          title="장소: 부산대 넥서스 E동"
-          time="8/13 18:00 ~ 22:00"
+        {/* <MatchCard
+          title="부산대 넉넉한 터 농구장"
+          time="8/16 18:00 ~ 22:00"
           buttons={[
             {
               text: '채팅 하기',
@@ -162,26 +162,26 @@ function App() {
             },
           ]}
           onCardClick={() => console.log('버튼 카드 클릭됨')}
-        />
+        /> */}
 
         {/* 결과 버튼이 있는 카드 */}
-        <MatchCard
-          title="장소: 부산대 넥서스 E동"
-          time="8/3 18:00 ~ 22:00"
+        {/* <MatchCard
+          title="부산대 넉넉한 터 농구장"
+          time="8/16 18:00 ~ 22:00"
           resultButton={true}
           onResultClick={() => console.log('결과 버튼 클릭')}
           onCardClick={() => console.log('결과 카드 클릭됨')}
-        />
+        /> */}
 
         {/* 이미지 없는 카드 */}
-        <MatchCard
-          title="장소: 부산대 넥서스 E동"
+        {/* <MatchCard
+          title="부산대 넉넉한 터 농구장"
           time="8/16 18:00 ~ 22:00"
           showPeopleCount={true}
           peopleCount="8/10"
           deadline="08/10 23:59"
           onCardClick={() => console.log('이미지 없는 카드 클릭됨')}
-        />
+        /> */}
       </S.Container>
     </>
   );

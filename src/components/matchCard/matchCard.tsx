@@ -40,7 +40,7 @@ const MatchCard = ({
 
         {/* 콘텐츠 영역 */}
         <S.CardContent>
-          <S.CardTitle>{title}</S.CardTitle>
+          <S.CardTitle>장소: {title}</S.CardTitle>
           <S.CardTime>
             <S.TimeIcon />
             <span>시간: {time}</span>
@@ -51,7 +51,7 @@ const MatchCard = ({
             <S.PeopleInfo>
               <S.PeopleCount>
                 <S.PeopleIcon />
-                <span>지원 인원 : {peopleCount}</span>
+                <span>제한 인원 : {peopleCount}</span>
               </S.PeopleCount>
               {deadline && <S.Deadline>지원 마감 : {deadline}</S.Deadline>}
             </S.PeopleInfo>
