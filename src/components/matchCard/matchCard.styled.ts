@@ -8,13 +8,11 @@ import { typography } from '@/theme/typography';
 export const CardContainer = styled.div`
   background: ${colors.background.default};
   border-radius: 12px;
-  padding: ${spacing.spacing4};
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: 440px * 80px) */
+  width: 440px;
+  height: 80px;
+  position: relative;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  gap: ${spacing.spacing3};
-  width: 100%;
-  max-width: 400px;
   cursor: pointer;
   transition: box-shadow 0.2s ease;
 
@@ -24,74 +22,116 @@ export const CardContainer = styled.div`
 `;
 
 export const CardHeader = styled.div`
-  display: flex;
-  gap: ${spacing.spacing3};
-  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+  position: relative;
 `;
 
 export const CardImage = styled.img`
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: 60px * 60px) */
   width: 60px;
   height: 60px;
   border-radius: 8px;
   object-fit: cover;
-  flex-shrink: 0;
+  position: absolute;
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: left 10px, top 10px) */
+  left: 10px;
+  top: 10px;
 `;
 
 export const CardContent = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: ${spacing.spacing1};
+  position: absolute;
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: left 82px, top 17px) */
+  left: 82px;
+  top: 17px;
+  width: calc(100% - 92px);
+  height: calc(100% - 34px);
 `;
 
 export const CardTitle = styled.h3`
-  font-size: ${typography.title2Bold.fontSize};
-  font-weight: ${typography.title2Bold.fontWeight};
-  line-height: ${typography.title2Bold.lineHeight};
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: font-size 12px) */
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 15px;
   color: ${colors.text.default};
   margin: 0;
+  font-family: 'Inter-Regular', sans-serif;
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: width 194px, height 15px) */
+  width: 194px;
+  height: 15px;
 `;
 
 export const CardTime = styled.div`
   display: flex;
   align-items: center;
-  gap: ${spacing.spacing1};
-  color: ${colors.text.sub};
-  font-size: ${typography.body2Regular.fontSize};
-  font-weight: ${typography.body2Regular.fontWeight};
-  line-height: ${typography.body2Regular.lineHeight};
+  gap: 4px;
+  color: ${colors.text.default};
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: font-size 12px) */
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 15px;
+  font-family: 'Inter-Regular', sans-serif;
+  position: absolute;
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: top 23px) */
+  top: 23px;
+  left: 0;
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: width 194px, height 15px) */
+  width: 194px;
+  height: 15px;
 `;
 
 export const TimeIcon = styled(MdAccessTime)`
   color: ${colors.red[700]};
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: font-size 14px) */
   font-size: 14px;
+  margin-right: 2px;
 `;
 
 export const PeopleInfo = styled.div`
+  position: absolute;
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: right 10px) */
+  right: 10px;
+  top: 0;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: ${spacing.spacing2};
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
 `;
 
 export const PeopleCount = styled.div`
   display: flex;
   align-items: center;
-  gap: ${spacing.spacing1};
+  gap: 4px;
   color: ${colors.text.default};
-  font-size: ${typography.body2Regular.fontSize};
-  font-weight: ${typography.body2Regular.fontWeight};
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: font-size 12px) */
+  font-size: 12px;
+  font-weight: 400;
+  font-family: 'Inter-Regular', sans-serif;
+  text-align: right;
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: width 86px, height 15px) */
+  width: 86px;
+  height: 15px;
 `;
 
 export const PeopleIcon = styled(MdPeople)`
   color: ${colors.yellow[600]};
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: font-size 14px) */
   font-size: 14px;
 `;
 
 export const Deadline = styled.div`
   color: ${colors.text.default};
-  font-size: ${typography.body2Regular.fontSize};
-  font-weight: ${typography.body2Bold.fontWeight};
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: font-size 12px) */
+  font-size: 12px;
+  font-weight: 400;
+  font-family: 'Inter-Regular', sans-serif;
+  text-align: right;
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: width 138px, height 15px) */
+  width: 138px;
+  height: 15px;
 `;
 
 export const ButtonContainer = styled.div`
@@ -174,6 +214,7 @@ export const ResultButton = styled.button`
 `;
 
 export const NoImagePlaceholder = styled.div`
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: 60px * 60px) */
   width: 60px;
   height: 60px;
   border-radius: 8px;
@@ -181,12 +222,15 @@ export const NoImagePlaceholder = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  position: absolute;
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: left 10px, top 10px) */
+  left: 10px;
+  top: 10px;
   color: ${colors.gray[500]};
-  font-size: 24px;
 `;
 
 export const LocationIcon = styled(MdLocationOn)`
+  /* TODO: 화면 비율에 맞는 값으로 수정 필요 (현재 고정값: width 24px, height 24px) */
   width: 24px;
   height: 24px;
   color: ${colors.gray[500]};
