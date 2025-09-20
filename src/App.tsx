@@ -53,6 +53,7 @@ function App() {
         <p>Back 클릭 횟수: {backCount}</p>
         <NavigationTab tabs={tabs} />
         <InputTextWithEmail
+          value={email}
           helperText="학교 이메일을 입력해주세요."
           onChange={setEmail}
         />

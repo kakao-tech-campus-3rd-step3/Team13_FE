@@ -1,15 +1,21 @@
-import { useState, type ChangeEvent } from 'react';
+import { type ChangeEvent } from 'react';
 
 import * as S from './inputTextWithEmail.styled';
 
-interface InputTextWithEmailProps {
-  value?: string;
+export interface InputTextWithEmailProps {
+  value: string;
   defaultDomain?: string;
   helperText?: string;
-  onChange?: (value: string) => void;
+  onChange: (value: string) => void;
 }
 
 const DEFAULT_DOMAIN = 'pusan.ac.kr';
+
+const splitEmail = (email: string): [string, string] => {
+  const [local = '', ...rest] = email.split('@');
+  const domain = rest.length > 0 ? rest.join('@') : '';
+  return [local, domain];
+};
 
 const InputTextWithEmail = ({
   value,
@@ -17,40 +23,24 @@ const InputTextWithEmail = ({
   helperText,
   onChange,
 }: InputTextWithEmailProps) => {
-  const [localPart, setLocalPart] = useState(() => {
-    const [local] = value ? value.split('@') : [''];
-    return local;
-  });
-
-  const initialDomain = value?.split('@')[1];
-  const isCustomInitial = initialDomain && initialDomain !== defaultDomain;
-  const [isCustomDomainSelected, setIsCustomDomainSelected] =
-    useState(!!isCustomInitial);
-  const [domain, setDomain] = useState(
-    isCustomInitial ? (initialDomain ?? '') : defaultDomain,
-  );
+  const [localPart, domainPart] = splitEmail(value);
+  const isCustomDomainSelected = domainPart !== defaultDomain;
 
   const handleLocalChange = (e: ChangeEvent<HTMLInputElement>) => {
     const local = e.target.value;
-    setLocalPart(local);
-    onChange?.(`${local}@${domain}`);
+    onChange(`${local}@${domainPart}`);
   };
 
   const handleDomainSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
     if (e.target.value === 'other') {
-      setIsCustomDomainSelected(true);
-      setDomain('');
-      onChange?.(`${localPart}@`);
-    } else {
-      setIsCustomDomainSelected(false);
-      setDomain(defaultDomain);
-      onChange?.(`${localPart}@${defaultDomain}`);
+      onChange(`${localPart}@`);
+      return;
     }
+    onChange(`${localPart}@${defaultDomain}`);
   };
 
   const handleDomainInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setDomain(e.target.value);
-    onChange?.(`${localPart}@${e.target.value}`);
+    onChange(`${localPart}@${e.target.value}`);
   };
 
   return (
@@ -59,20 +49,20 @@ const InputTextWithEmail = ({
         <S.LocalInput
           value={localPart}
           onChange={handleLocalChange}
-          aria-label="email local part"
+          aria-label="이메일 아이디 입력"
         />
         <S.AtSign>@</S.AtSign>
         {isCustomDomainSelected ? (
           <S.DomainInput
-            value={domain}
+            value={domainPart}
             onChange={handleDomainInputChange}
-            aria-label="email domain input"
+            aria-label="이메일 도메인 입력"
           />
         ) : (
           <S.DomainSelect
-            value={defaultDomain}
+            value={isCustomDomainSelected ? 'other' : defaultDomain}
             onChange={handleDomainSelectChange}
-            aria-label="email domain select"
+            aria-label="이메일 도메인 선택"
           >
             <option value={defaultDomain}>{defaultDomain}</option>
             <option value="other">직접입력</option>
