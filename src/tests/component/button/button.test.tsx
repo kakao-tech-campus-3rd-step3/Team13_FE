@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
-import Button from '@/components/button';
+import Button, { ToggleButton } from '@/components/button';
 import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 
@@ -35,22 +35,6 @@ describe('Button', () => {
     );
   });
 
-  it('toggles pressed state', () => {
-    const handleChange = vi.fn();
-    render(
-      <Button
-        variant="icon"
-        ariaLabel="좋아요"
-        pressed={false}
-        onPressedChange={handleChange}
-      >
-        🤍
-      </Button>,
-    );
-    fireEvent.click(screen.getByRole('button', { name: '좋아요' }));
-    expect(handleChange).toHaveBeenCalledWith(true);
-  });
-
   it('shows spinner and sets aria-busy when loading', () => {
     render(<Button loading ariaLabel="로딩 버튼" />);
     const btn = screen.getByRole('button', { name: '로딩 버튼' });
@@ -70,5 +54,23 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: '큰 버튼' })).toHaveStyle(
       `padding: ${spacing.spacing4} ${spacing.spacing6}`,
     );
+  });
+});
+
+describe('ToggleButton', () => {
+  it('toggles pressed state', () => {
+    const handleChange = vi.fn();
+    render(
+      <ToggleButton
+        variant="icon"
+        ariaLabel="좋아요"
+        pressed={false}
+        onPressedChange={handleChange}
+      >
+        🤍
+      </ToggleButton>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: '좋아요' }));
+    expect(handleChange).toHaveBeenCalledWith(true);
   });
 });

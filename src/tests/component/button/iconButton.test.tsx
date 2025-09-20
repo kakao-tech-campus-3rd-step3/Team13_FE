@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { FaThumbsUp } from 'react-icons/fa';
 import { describe, it, expect, vi } from 'vitest';
 
-import IconButton from '@/components/button/iconButton';
+import IconButton, { ToggleIconButton } from '@/components/button/iconButton';
 import { spacing } from '@/theme/spacing';
 
 describe('IconButton', () => {
@@ -18,13 +18,13 @@ describe('IconButton', () => {
   it('handles pressed state change', () => {
     const handleChange = vi.fn();
     render(
-      <IconButton
+      <ToggleIconButton
         ariaLabel="toggle"
         pressed={false}
         onPressedChange={handleChange}
       >
         <FaThumbsUp />
-      </IconButton>,
+      </ToggleIconButton>,
     );
     fireEvent.click(screen.getByRole('button', { name: 'toggle' }));
     expect(handleChange).toHaveBeenCalledWith(true);

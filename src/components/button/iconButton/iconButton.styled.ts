@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import Button from '@/components/button';
+import Button, { ToggleButton } from '@/components/button';
 import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
@@ -27,3 +27,6 @@ export const StyledIconButton = styled(Button)`
     height: ${spacing.spacing5};
   }
 `;
+
+export const StyledToggleIconButton =
+  StyledIconButton.withComponent(ToggleButton);

@@ -2,7 +2,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { FaThumbsUp } from 'react-icons/fa';
 import { describe, it, expect, vi } from 'vitest';
 
-import RoundButton from '@/components/button/roundButton';
+import RoundButton, {
+  ToggleRoundButton,
+} from '@/components/button/roundButton';
 import { spacing } from '@/theme/spacing';
 
 describe('RoundButton', () => {
@@ -18,13 +20,13 @@ describe('RoundButton', () => {
   it('handles pressed state change', () => {
     const handleChange = vi.fn();
     render(
-      <RoundButton
+      <ToggleRoundButton
         ariaLabel="toggle"
         pressed={false}
         onPressedChange={handleChange}
       >
         <FaThumbsUp />
-      </RoundButton>,
+      </ToggleRoundButton>,
     );
     fireEvent.click(screen.getByRole('button', { name: 'toggle' }));
     expect(handleChange).toHaveBeenCalledWith(true);
