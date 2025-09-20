@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
-import InputTextWithEmail from '@/components/inputTextWithEmail';
+import InputTextWithEmail from '@/components/InputTextWithEmail';
 
 describe('InputTextWithEmail', () => {
   it('renders default domain', () => {

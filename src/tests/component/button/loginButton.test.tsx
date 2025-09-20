@@ -1,7 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
-import LoginButton from '@/components/button/loginButton';
+import LoginButton, {
+  ToggleLoginButton,
+} from '@/components/button/loginButton';
 import { colors } from '@/theme/color';
 
 describe('LoginButton', () => {
@@ -43,7 +45,7 @@ describe('LoginButton', () => {
   it('toggles pressed state', () => {
     const handleChange = vi.fn();
     render(
-      <LoginButton
+      <ToggleLoginButton
         ariaLabel="로그인 토글"
         pressed={false}
         onPressedChange={handleChange}

@@ -1,2 +1,2 @@
-export { default } from './roundButton';
-export type { RoundButtonProps } from './roundButton';
+export { default } from './roundButton.tsx';
+export * from './roundButton.tsx';
