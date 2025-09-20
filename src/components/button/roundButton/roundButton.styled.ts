@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 
-import Button from '@/components/button';
+import Button, { ToggleButton } from '@/components/button';
 import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
@@ -43,3 +43,6 @@ export const StyledRoundButton = styled(Button)<{ size: 'md' | 'lg' }>`
     background: ${colors.brand.kakaoYellowPressed};
   }
 `;
+
+export const StyledToggleRoundButton =
+  StyledRoundButton.withComponent(ToggleButton);

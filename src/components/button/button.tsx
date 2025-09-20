@@ -12,8 +12,6 @@ export interface ButtonOwnProps {
   loading?: boolean;
   disabled?: boolean;
   ariaLabel?: string; // icon 변형이면 필수
-  pressed?: boolean; // 토글 상태
-  onPressedChange?: (v: boolean) => void; // 토글 핸들러(선택)
   onClick?: MouseEventHandler<HTMLButtonElement>;
   children?: ReactNode;
 }
@@ -27,8 +25,6 @@ const Button = ({
   disabled = false,
   loading = false,
   ariaLabel,
-  pressed,
-  onPressedChange,
   onClick,
   children,
   ...rest
@@ -41,13 +37,6 @@ const Button = ({
 
   const isDisabled = disabled || loading;
 
-  const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
-    onClick?.(e);
-    if (!isDisabled && typeof pressed === 'boolean' && onPressedChange) {
-      onPressedChange(!pressed);
-    }
-  };
-
   return (
     <S.StyledButton
       type="button"
@@ -56,10 +45,9 @@ const Button = ({
       disabled={isDisabled}
       aria-label={ariaLabel}
       aria-busy={loading || undefined}
-      aria-pressed={typeof pressed === 'boolean' ? pressed : undefined}
       data-loading={loading ? 'true' : undefined}
-      onClick={handleClick}
-      {...rest}
+      onClick={onClick}
+      {...rest} /* eslint-disable-line react/jsx-props-no-spreading */
     >
       {loading ? (
         <S.Spinner role="status" aria-live="polite" aria-label="loading" />

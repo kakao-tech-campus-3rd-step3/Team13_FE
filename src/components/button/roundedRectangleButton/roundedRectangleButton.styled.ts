@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 
-import Button from '@/components/button';
+import Button, { ToggleButton } from '@/components/button';
 import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 
@@ -40,3 +40,6 @@ export const StyledRoundedRectangleButton = styled(Button, {
     `;
   }}
 `;
+
+export const StyledToggleRoundedRectangleButton =
+  StyledRoundedRectangleButton.withComponent(ToggleButton);

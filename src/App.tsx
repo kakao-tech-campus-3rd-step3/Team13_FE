@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { FaRegThumbsUp, FaThumbsUp } from 'react-icons/fa';
 
 import Button from '@/components/button';
-import IconButton from '@/components/button/iconButton/index.ts';
-import LoginButton from '@/components/button/loginButton/index.ts';
-import RoundButton from '@/components/button/roundButton/index.ts';
-import RoundedRectangleButton from '@/components/button/roundedRectangleButton/index.ts';
-import TextButton from '@/components/button/textButton/index.ts';
-import InputTextWithEmail from '@/components/inputTextWithEmail/index.ts';
+import IconButton, { ToggleIconButton } from '@/components/button/iconButton';
+import LoginButton from '@/components/button/loginButton';
+import RoundButton, {
+  ToggleRoundButton,
+} from '@/components/button/roundButton';
+import RoundedRectangleButton from '@/components/button/roundedRectangleButton';
+import TextButton, { ToggleTextButton } from '@/components/button/textButton';
+import InputTextWithEmail from '@/components/InputTextWithEmail';
 import MatchCard from '@/components/matchCard';
 import NavigationTab from '@/components/navigationTab';
 import HomeTitleBar from '@/components/titleBar/homeTitleBar/index.ts';
@@ -60,13 +62,13 @@ function App() {
         <S.EmailText>입력한 이메일: {email}</S.EmailText>
         <Button onClick={() => setCount((c) => c + 1)}>카운트 증가</Button>
         <S.CountText>현재 카운트: {count}</S.CountText>
-        <IconButton
+        <ToggleIconButton
           ariaLabel="좋아요 토글"
           pressed={liked}
           onPressedChange={setLiked}
         >
           {liked ? <FaThumbsUp /> : <FaRegThumbsUp />}
-        </IconButton>
+        </ToggleIconButton>
         <IconButton
           ariaLabel="아이콘 로딩"
           loading={iconLoading}
@@ -92,13 +94,13 @@ function App() {
           텍스트 증가
         </TextButton>
         <S.CountText>텍스트 카운트: {textCount}</S.CountText>
-        <TextButton
+        <ToggleTextButton
           ariaLabel="텍스트 좋아요"
           pressed={textLiked}
           onPressedChange={setTextLiked}
         >
           {textLiked ? 'ON' : 'OFF'}
-        </TextButton>
+        </ToggleTextButton>
         <TextButton
           ariaLabel="텍스트 로딩 버튼"
           loading={textLoading}
@@ -110,13 +112,13 @@ function App() {
           로딩
         </TextButton>
         <TextButton disabled>비활성 텍스트</TextButton>
-        <RoundButton
+        <ToggleRoundButton
           ariaLabel="라운드 좋아요"
           pressed={roundLiked}
           onPressedChange={setRoundLiked}
         >
           {roundLiked ? <FaThumbsUp /> : <FaRegThumbsUp />}
-        </RoundButton>
+        </ToggleRoundButton>
         <RoundButton size="lg" onClick={() => setRoundCount((c) => c + 1)}>
           GO
         </RoundButton>

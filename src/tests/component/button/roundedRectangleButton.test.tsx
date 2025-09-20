@@ -1,7 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import RoundedRectangleButton from '@/components/button/roundedRectangleButton';
+import RoundedRectangleButton, {
+  ToggleRoundedRectangleButton,
+} from '@/components/button/roundedRectangleButton';
 import { colors } from '@/theme/color';
 
 describe('RoundedRectangleButton', () => {
@@ -58,7 +60,7 @@ describe('RoundedRectangleButton', () => {
   it('toggles pressed state', () => {
     const handle = vi.fn();
     render(
-      <RoundedRectangleButton
+      <ToggleRoundedRectangleButton
         ariaLabel="토글"
         pressed={false}
         onPressedChange={handle}

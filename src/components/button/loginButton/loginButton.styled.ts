@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import Button from '@/components/button';
+import Button, { ToggleButton } from '@/components/button';
 import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
@@ -20,3 +20,6 @@ export const StyledLoginButton = styled(Button)`
     background: ${colors.brand.kakaoYellowPressed};
   }
 `;
+
+export const StyledToggleLoginButton =
+  StyledLoginButton.withComponent(ToggleButton);
