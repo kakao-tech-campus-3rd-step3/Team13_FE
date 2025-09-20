@@ -4,9 +4,9 @@ import { describe, it, expect } from 'vitest';
 import App from '@/App';
 
 describe('App', () => {
-  it('renders email input component', () => {
+  it('이메일 입력 컴포넌트를 렌더링한다', () => {
     render(<App />);
-    expect(screen.getByLabelText(/email local part/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('이메일 아이디 입력')).toBeInTheDocument();
   });
 
   it('renders navigation tabs and switches content', () => {
