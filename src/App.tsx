@@ -9,7 +9,7 @@ import RoundButton, {
 } from '@/components/button/roundButton';
 import RoundedRectangleButton from '@/components/button/roundedRectangleButton';
 import TextButton, { ToggleTextButton } from '@/components/button/textButton';
-import InputTextWithEmail from '@/components/InputTextWithEmail';
+import InputTextWithEmail from '@/components/inputTextWithEmail';
 import MatchCard from '@/components/matchCard';
 import NavigationTab from '@/components/navigationTab';
 import HomeTitleBar from '@/components/titleBar/homeTitleBar/index.ts';
