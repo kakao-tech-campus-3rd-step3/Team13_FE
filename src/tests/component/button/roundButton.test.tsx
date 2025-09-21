@@ -2,9 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { FaThumbsUp } from 'react-icons/fa';
 import { describe, it, expect, vi } from 'vitest';
 
-import RoundButton, {
-  ToggleRoundButton,
-} from '@/components/button/roundButton';
+import { RoundButton, ToggleRoundButton } from '@/components/button';
 import { spacing } from '@/theme/spacing';
 
 describe('RoundButton', () => {

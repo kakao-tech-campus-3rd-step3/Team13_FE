@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { FaRegThumbsUp, FaThumbsUp } from 'react-icons/fa';
 
-import Button from '@/components/button';
+import Button, {
+  RoundedRectangleButton,
+  RoundButton,
+  TextButton,
+  ToggleRoundButton,
+  ToggleTextButton,
+} from '@/components/button';
 import IconButton, { ToggleIconButton } from '@/components/button/iconButton';
 import LoginButton from '@/components/button/loginButton';
-import RoundButton, {
-  ToggleRoundButton,
-} from '@/components/button/roundButton';
-import RoundedRectangleButton from '@/components/button/roundedRectangleButton';
-import TextButton, { ToggleTextButton } from '@/components/button/textButton';
 import InputTextWithEmail from '@/components/inputTextWithEmail';
 import MatchCard from '@/components/matchCard';
 import NavigationTab from '@/components/navigationTab';
