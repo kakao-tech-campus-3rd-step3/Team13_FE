@@ -1,2 +1,2 @@
-export { default } from './roundedRectangleButton';
-export * from './roundedRectangleButton';
+export { default } from './roundedRectangleButton.tsx';
+export * from './roundedRectangleButton.tsx';

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import TextButton from '@/components/button/textButton';
+import TextButton, { ToggleTextButton } from '@/components/button/textButton';
 import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 
@@ -40,7 +40,11 @@ describe('TextButton', () => {
   it('toggles pressed state', () => {
     const handle = vi.fn();
     render(
-      <TextButton ariaLabel="토글" pressed={false} onPressedChange={handle} />,
+      <ToggleTextButton
+        ariaLabel="토글"
+        pressed={false}
+        onPressedChange={handle}
+      />,
     );
     fireEvent.click(screen.getByRole('button', { name: '토글' }));
     expect(handle).toHaveBeenCalledWith(true);

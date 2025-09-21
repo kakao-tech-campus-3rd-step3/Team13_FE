@@ -1,2 +1,2 @@
-export { default } from './textButton';
-export * from './textButton';
+export { default } from './textButton.tsx';
+export * from './textButton.tsx';
