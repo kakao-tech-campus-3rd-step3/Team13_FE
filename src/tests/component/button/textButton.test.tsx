@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import TextButton, { ToggleTextButton } from '@/components/button/textButton';
+import { TextButton, ToggleTextButton } from '@/components/button';
 import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 

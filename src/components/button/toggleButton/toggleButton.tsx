@@ -1,4 +1,5 @@
-import type { MouseEventHandler } from 'react';
+import { forwardRef } from 'react';
+import type { ForwardedRef, MouseEventHandler } from 'react';
 
 import Button from '@/components/button/button';
 import type { ButtonProps } from '@/components/button/button';
@@ -8,14 +9,17 @@ export interface ToggleButtonProps extends ButtonProps {
   onPressedChange: (pressed: boolean) => void;
 }
 
-const ToggleButton = ({
-  pressed,
-  onPressedChange,
-  onClick,
-  disabled = false,
-  loading = false,
-  ...rest
-}: ToggleButtonProps) => {
+const ToggleButtonInner = (
+  {
+    pressed,
+    onPressedChange,
+    onClick,
+    disabled = false,
+    loading = false,
+    ...rest
+  }: ToggleButtonProps,
+  ref: ForwardedRef<HTMLButtonElement>,
+) => {
   const isDisabled = disabled || loading;
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
@@ -27,7 +31,8 @@ const ToggleButton = ({
 
   return (
     <Button
-      {...rest} /* eslint-disable-line react/jsx-props-no-spreading */
+      {...rest}
+      ref={ref}
       disabled={disabled}
       loading={loading}
       aria-pressed={pressed}
@@ -35,5 +40,11 @@ const ToggleButton = ({
     />
   );
 };
+
+const ToggleButton = forwardRef<HTMLButtonElement, ToggleButtonProps>(
+  ToggleButtonInner,
+);
+
+ToggleButton.displayName = 'ToggleButton';
 
 export default ToggleButton;
