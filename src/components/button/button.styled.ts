@@ -60,7 +60,6 @@ const variantStyles: Record<ButtonVariant, ReturnType<typeof css>> = {
     padding: ${spacing.spacing2};
     --btn-hover-background: ${colors.background.fill};
     --btn-active-background: ${colors.gray[200]};
-    }
   `,
   round: css`
     background: ${colors.brand.kakaoYellow};
