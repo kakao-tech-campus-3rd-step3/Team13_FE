@@ -11,10 +11,28 @@ export interface InputTextWithEmailProps {
 
 const DEFAULT_DOMAIN = 'pusan.ac.kr';
 
+const EMAIL_PATTERN = /^([^@]*)@([^@]*)$/;
+const LOCAL_PART_PATTERN = /^[a-zA-Z0-9._%+-]+$/;
+const DOMAIN_PART_PATTERN = /^(?:[a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+$/;
+
+const isValidLocalPart = (value: string) =>
+  value === '' || LOCAL_PART_PATTERN.test(value);
+
+const isValidDomainPart = (value: string) =>
+  value === '' || DOMAIN_PART_PATTERN.test(value);
+
 const splitEmail = (email: string): [string, string] => {
-  const [local = '', ...rest] = email.split('@');
-  const domain = rest.length > 0 ? rest.join('@') : '';
-  return [local, domain];
+  const match = EMAIL_PATTERN.exec(email.trim());
+
+  if (!match) {
+    return ['', ''];
+  }
+
+  const [, localPart, domainPart] = match;
+  const sanitizedLocalPart = isValidLocalPart(localPart) ? localPart : '';
+  const sanitizedDomainPart = isValidDomainPart(domainPart) ? domainPart : '';
+
+  return [sanitizedLocalPart, sanitizedDomainPart];
 };
 
 const InputTextWithEmail = ({
