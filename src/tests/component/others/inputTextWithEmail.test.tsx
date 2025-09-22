@@ -78,4 +78,11 @@ describe('InputTextWithEmail 컴포넌트', () => {
     render(<ControlledInputTextWithEmail helperText="이메일을 입력하세요" />);
     expect(screen.getByText('이메일을 입력하세요')).toBeInTheDocument();
   });
+
+  it('잘못된 이메일 형식이 주어지면 입력값을 초기화한다', () => {
+    render(<ControlledInputTextWithEmail initialValue="invalid@@domain" />);
+
+    expect(screen.getByLabelText('이메일 아이디 입력')).toHaveValue('');
+    expect(screen.getByLabelText('이메일 도메인 입력')).toHaveValue('');
+  });
 });
