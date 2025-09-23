@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { FaRegThumbsUp, FaThumbsUp } from 'react-icons/fa';
 
-import Button from '@/components/button';
-import IconButton from '@/components/button/iconButton/index.ts';
-import LoginButton from '@/components/button/loginButton/index.ts';
-import RoundButton from '@/components/button/roundButton/index.ts';
-import RoundedRectangleButton from '@/components/button/roundedRectangleButton/index.ts';
-import TextButton from '@/components/button/textButton/index.ts';
+import Button, {
+  RoundedRectangleButton,
+  RoundButton,
+  TextButton,
+  ToggleRoundButton,
+  ToggleTextButton,
+} from '@/components/button';
+import IconButton, { ToggleIconButton } from '@/components/button/iconButton';
+import LoginButton from '@/components/button/loginButton';
 import InputTextWithEmail from '@/components/inputTextWithEmail';
+import MatchCard from '@/components/matchCard';
 import NavigationTab from '@/components/navigationTab';
 import HomeTitleBar from '@/components/titleBar/homeTitleBar/index.ts';
 import LoginTitleBar from '@/components/titleBar/loginTitleBar/index.ts';
@@ -52,19 +56,20 @@ function App() {
         <p>Back 클릭 횟수: {backCount}</p>
         <NavigationTab tabs={tabs} />
         <InputTextWithEmail
+          value={email}
           helperText="학교 이메일을 입력해주세요."
           onChange={setEmail}
         />
         <S.EmailText>입력한 이메일: {email}</S.EmailText>
         <Button onClick={() => setCount((c) => c + 1)}>카운트 증가</Button>
         <S.CountText>현재 카운트: {count}</S.CountText>
-        <IconButton
+        <ToggleIconButton
           ariaLabel="좋아요 토글"
           pressed={liked}
           onPressedChange={setLiked}
         >
           {liked ? <FaThumbsUp /> : <FaRegThumbsUp />}
-        </IconButton>
+        </ToggleIconButton>
         <IconButton
           ariaLabel="아이콘 로딩"
           loading={iconLoading}
@@ -90,13 +95,13 @@ function App() {
           텍스트 증가
         </TextButton>
         <S.CountText>텍스트 카운트: {textCount}</S.CountText>
-        <TextButton
+        <ToggleTextButton
           ariaLabel="텍스트 좋아요"
           pressed={textLiked}
           onPressedChange={setTextLiked}
         >
           {textLiked ? 'ON' : 'OFF'}
-        </TextButton>
+        </ToggleTextButton>
         <TextButton
           ariaLabel="텍스트 로딩 버튼"
           loading={textLoading}
@@ -108,13 +113,13 @@ function App() {
           로딩
         </TextButton>
         <TextButton disabled>비활성 텍스트</TextButton>
-        <RoundButton
+        <ToggleRoundButton
           ariaLabel="라운드 좋아요"
           pressed={roundLiked}
           onPressedChange={setRoundLiked}
         >
           {roundLiked ? <FaThumbsUp /> : <FaRegThumbsUp />}
-        </RoundButton>
+        </ToggleRoundButton>
         <RoundButton size="lg" onClick={() => setRoundCount((c) => c + 1)}>
           GO
         </RoundButton>
@@ -123,6 +128,64 @@ function App() {
           라운드 직사각 버튼
         </RoundedRectangleButton>
         <S.CountText>라운드 직사각 버튼 클릭 횟수: {rrCount}</S.CountText>
+
+        {/* MatchCard 컴포넌트 테스트 */}
+        <h2>MatchCard 컴포넌트 테스트</h2>
+
+        {/* 기본 카드 */}
+        <MatchCard
+          title="부산대 넉넉한 터 농구장"
+          time="8/16 18:00 ~ 22:00"
+          onCardClick={() => console.log('기본 카드 클릭됨')}
+        />
+
+        {/* 사람 수 표시가 있는 카드 */}
+        {/* <MatchCard
+          title="부산대 넉넉한 터 농구장"
+          time="8/16 18:00 ~ 22:00"
+          showPeopleCount={true}
+          peopleCount="8/10"
+          deadline="08/10 23:59"
+          onCardClick={() => console.log('사람 수 카드 클릭됨')}
+        /> */}
+
+        {/* 두 개 버튼이 있는 카드 */}
+        {/* <MatchCard
+          title="부산대 넉넉한 터 농구장"
+          time="8/16 18:00 ~ 22:00"
+          buttons={[
+            {
+              text: '채팅 하기',
+              variant: 'primary',
+              onClick: () => console.log('채팅 버튼 클릭'),
+            },
+            {
+              text: '취소 하기',
+              variant: 'secondary',
+              onClick: () => console.log('취소 버튼 클릭'),
+            },
+          ]}
+          onCardClick={() => console.log('버튼 카드 클릭됨')}
+        /> */}
+
+        {/* 결과 버튼이 있는 카드 */}
+        {/* <MatchCard
+          title="부산대 넉넉한 터 농구장"
+          time="8/16 18:00 ~ 22:00"
+          resultButton={true}
+          onResultClick={() => console.log('결과 버튼 클릭')}
+          onCardClick={() => console.log('결과 카드 클릭됨')}
+        /> */}
+
+        {/* 이미지 없는 카드 */}
+        {/* <MatchCard
+          title="부산대 넉넉한 터 농구장"
+          time="8/16 18:00 ~ 22:00"
+          showPeopleCount={true}
+          peopleCount="8/10"
+          deadline="08/10 23:59"
+          onCardClick={() => console.log('이미지 없는 카드 클릭됨')}
+        /> */}
       </S.Container>
     </>
   );
