@@ -14,7 +14,7 @@ const HomeTitleBar = ({ title, onMenu }: HomeTitleBarProps) => {
     <S.Wrapper
       title={title}
       rightSlot={
-        <IconButton ariaLabel="profile" onClick={onMenu}>
+        <IconButton ariaLabel="프로필" onClick={onMenu}>
           <S.ProfileIcon aria-hidden />
         </IconButton>
       }

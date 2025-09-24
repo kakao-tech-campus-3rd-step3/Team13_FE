@@ -5,7 +5,7 @@ import LoginTitleBar from '@/components/titleBar/loginTitleBar';
 import { colors } from '@/theme/color';
 import { typography } from '@/theme/typography';
 
-describe('LoginTitleBar', () => {
+describe('LoginTitleBar 컴포넌트', () => {
   it('제목을 렌더링한다', () => {
     render(<LoginTitleBar />);
     expect(screen.getByText('로그인')).toBeInTheDocument();

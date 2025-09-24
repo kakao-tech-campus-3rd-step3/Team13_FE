@@ -6,21 +6,21 @@ import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
-describe('OriginTitleBar', () => {
-  it('renders title and back button', () => {
+describe('OriginTitleBar 컴포넌트', () => {
+  it('제목과 뒤로 가기 버튼을 렌더링한다', () => {
     const handleBack = vi.fn();
-    render(<OriginTitleBar title="Origin" onBack={handleBack} />);
+    render(<OriginTitleBar title="기본" onBack={handleBack} />);
 
     const backButton = screen.getByLabelText('뒤로 가기');
     expect(backButton).toBeInTheDocument();
-    expect(screen.getByText('Origin')).toBeInTheDocument();
+    expect(screen.getByText('기본')).toBeInTheDocument();
 
     fireEvent.click(backButton);
     expect(handleBack).toHaveBeenCalled();
   });
 
-  it('applies styles and has empty right slot', () => {
-    render(<OriginTitleBar title="Origin" onBack={() => {}} />);
+  it('스타일을 적용하고 오른쪽 슬롯이 비어 있다', () => {
+    render(<OriginTitleBar title="기본" onBack={() => {}} />);
 
     const backButton = screen.getByLabelText('뒤로 가기');
     expect(backButton).toHaveStyle(`width: ${spacing.spacing10}`);
@@ -29,7 +29,7 @@ describe('OriginTitleBar', () => {
     const icon = backButton.firstChild as HTMLElement;
     expect(icon).toHaveStyle(`color: ${colors.text.default}`);
 
-    const title = screen.getByText('Origin');
+    const title = screen.getByText('기본');
     expect(title).toHaveStyle(
       `font-weight: ${typography.title1Bold.fontWeight}`,
     );
