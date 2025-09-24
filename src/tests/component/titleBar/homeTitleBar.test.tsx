@@ -6,7 +6,7 @@ import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
-describe('HomeTitleBar', () => {
+describe('HomeTitleBar 컴포넌트', () => {
   it('제목을 렌더링한다', () => {
     render(<HomeTitleBar title="홈" onMenu={() => {}} />);
     expect(screen.getByText('홈')).toBeInTheDocument();
@@ -14,20 +14,20 @@ describe('HomeTitleBar', () => {
 
   it('좌측 아이콘 버튼이 존재하지 않는다', () => {
     render(<HomeTitleBar title="홈" onMenu={() => {}} />);
-    expect(screen.queryByRole('button', { name: 'menu' })).toBeNull();
+    expect(screen.queryByRole('button', { name: '메뉴' })).toBeNull();
   });
 
   it('우측 프로필 아이콘이 렌더링된다', () => {
     render(<HomeTitleBar title="홈" onMenu={() => {}} />);
     expect(
-      screen.getByRole('button', { name: 'profile' }).firstChild,
+      screen.getByRole('button', { name: '프로필' }).firstChild,
     ).toBeInTheDocument();
   });
 
   it('우측 프로필 버튼 클릭 시 핸들러가 호출된다', () => {
     const handleMenu = vi.fn();
     render(<HomeTitleBar title="홈" onMenu={handleMenu} />);
-    fireEvent.click(screen.getByRole('button', { name: 'profile' }));
+    fireEvent.click(screen.getByRole('button', { name: '프로필' }));
     expect(handleMenu).toHaveBeenCalled();
   });
 
@@ -37,7 +37,7 @@ describe('HomeTitleBar', () => {
     expect(title).toHaveStyle(
       `font-weight: ${typography.title1Bold.fontWeight}`,
     );
-    const profileButton = screen.getByRole('button', { name: 'profile' });
+    const profileButton = screen.getByRole('button', { name: '프로필' });
     expect(profileButton).toHaveStyle(`width: ${spacing.spacing10}`);
     const profileIcon = profileButton.firstChild as HTMLElement;
     expect(profileIcon).toHaveStyle(`color: ${colors.text.default}`);

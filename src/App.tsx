@@ -10,7 +10,7 @@ import Button, {
 } from '@/components/button';
 import IconButton, { ToggleIconButton } from '@/components/button/iconButton';
 import LoginButton from '@/components/button/loginButton';
-import InputTextWithEmail from '@/components/inputTextWithEmail';
+import InputTextWithEmail from '@/components/InputTextWithEmail';
 import MatchCard from '@/components/matchCard';
 import NavigationTab from '@/components/navigationTab';
 import HomeTitleBar from '@/components/titleBar/homeTitleBar/index.ts';
@@ -35,9 +35,9 @@ function App() {
   const [rrCount, setRrCount] = useState(0);
 
   const tabs = [
-    { label: 'Home', content: <div>Home Content</div> },
-    { label: 'Search', content: <div>Search Content</div> },
-    { label: 'Profile', content: <div>Profile Content</div> },
+    { label: '홈', content: <div>홈 콘텐츠</div> },
+    { label: '검색', content: <div>검색 콘텐츠</div> },
+    { label: '프로필', content: <div>프로필 콘텐츠</div> },
   ];
 
   return (
@@ -52,8 +52,8 @@ function App() {
       />
       <LoginTitleBar />
       <S.Container>
-        <p>Profile 클릭 횟수: {menuCount}</p>
-        <p>Back 클릭 횟수: {backCount}</p>
+        <p>프로필 클릭 횟수: {menuCount}</p>
+        <p>뒤로 가기 클릭 횟수: {backCount}</p>
         <NavigationTab tabs={tabs} />
         <InputTextWithEmail
           value={email}
