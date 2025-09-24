@@ -1,5 +1,3 @@
-import React from 'react';
-
 import IconButton from '@/components/button/iconButton';
 
 import * as S from './homeTitleBar.styled';
