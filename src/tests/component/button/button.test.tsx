@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
-import Button, { ToggleButton } from '@/components/button';
+import Button from '@/components/button';
 import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 
@@ -42,6 +42,36 @@ describe('Button 컴포넌트', () => {
     expect(screen.getByRole('status', { name: '로딩 중' })).toBeInTheDocument();
   });
 
+  it('icon 변형에서 ariaLabel이 없으면 경고를 출력한다', () => {
+    const warnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
+
+    render(<Button variant="icon">아이콘</Button>);
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[Button] `icon` variant requires `ariaLabel` for accessibility.',
+    );
+    warnSpy.mockRestore();
+  });
+
+  it('로딩 중에는 data-loading 속성과 disabled 속성을 설정한다', () => {
+    const handleClick = vi.fn();
+
+    render(
+      <Button loading ariaLabel="로딩" onClick={handleClick}>
+        로딩
+      </Button>,
+    );
+
+    const btn = screen.getByRole('button', { name: '로딩' });
+    expect(btn).toHaveAttribute('data-loading', 'true');
+    expect(btn).toBeDisabled();
+
+    fireEvent.click(btn);
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+
   it('프라이머리 변형 스타일을 적용한다', () => {
     render(<Button variant="primary">스타일</Button>);
     expect(screen.getByRole('button', { name: '스타일' })).toHaveStyle(
@@ -54,23 +84,5 @@ describe('Button 컴포넌트', () => {
     expect(screen.getByRole('button', { name: '큰 버튼' })).toHaveStyle(
       `padding: ${spacing.spacing4} ${spacing.spacing6}`,
     );
-  });
-});
-
-describe('ToggleButton 컴포넌트', () => {
-  it('pressed 상태를 전환한다', () => {
-    const handleChange = vi.fn();
-    render(
-      <ToggleButton
-        variant="icon"
-        ariaLabel="좋아요"
-        pressed={false}
-        onPressedChange={handleChange}
-      >
-        🤍
-      </ToggleButton>,
-    );
-    fireEvent.click(screen.getByRole('button', { name: '좋아요' }));
-    expect(handleChange).toHaveBeenCalledWith(true);
   });
 });

@@ -1,8 +1,8 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { FaThumbsUp } from 'react-icons/fa';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
-import { RoundButton, ToggleRoundButton } from '@/components/button';
+import { RoundButton } from '@/components/button';
 import { spacing } from '@/theme/spacing';
 
 describe('RoundButton 컴포넌트', () => {
@@ -13,21 +13,6 @@ describe('RoundButton 컴포넌트', () => {
       </RoundButton>,
     );
     expect(screen.getByRole('button', { name: '좋아요' })).toBeInTheDocument();
-  });
-
-  it('pressed 상태 변경을 처리한다', () => {
-    const handleChange = vi.fn();
-    render(
-      <ToggleRoundButton
-        ariaLabel="토글"
-        pressed={false}
-        onPressedChange={handleChange}
-      >
-        <FaThumbsUp />
-      </ToggleRoundButton>,
-    );
-    fireEvent.click(screen.getByRole('button', { name: '토글' }));
-    expect(handleChange).toHaveBeenCalledWith(true);
   });
 
   it('로딩 스피너를 표시하고 aria-busy를 설정한다', () => {
