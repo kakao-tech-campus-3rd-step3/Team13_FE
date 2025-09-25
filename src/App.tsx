@@ -10,7 +10,7 @@ import Button, {
 } from '@/components/button';
 import IconButton, { ToggleIconButton } from '@/components/button/iconButton';
 import LoginButton from '@/components/button/loginButton';
-import InputTextWithEmail from '@/components/inputTextWithEmail';
+import InputTextWithEmail from '@/components/inputTextWithEmail/index.ts';
 import MatchCard from '@/components/matchCard';
 import NavigationTab from '@/components/navigationTab';
 import HomeTitleBar from '@/components/titleBar/homeTitleBar/index.ts';
