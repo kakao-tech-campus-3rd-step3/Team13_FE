@@ -1,5 +1,3 @@
-import React from 'react';
-
 import * as S from './loginTitleBar.styled';
 
 const LoginTitleBar = () => {
