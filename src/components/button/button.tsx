@@ -56,7 +56,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...rest}
       >
         {loading ? (
-          <S.Spinner role="status" aria-live="polite" aria-label="loading" />
+          <S.Spinner role="status" aria-live="polite" aria-label="로딩 중" />
         ) : (
           children
         )}

@@ -6,29 +6,29 @@ import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
-describe('TitleBar', () => {
-  it('renders slots and title', () => {
+describe('TitleBar 컴포넌트', () => {
+  it('슬롯과 제목을 렌더링한다', () => {
     render(
       <TitleBar
-        leftSlot={<button>Left</button>}
-        title="Center"
-        rightSlot={<button>Right</button>}
+        leftSlot={<button>왼쪽</button>}
+        title="가운데"
+        rightSlot={<button>오른쪽</button>}
       />,
     );
-    expect(screen.getByText('Left')).toBeInTheDocument();
-    expect(screen.getByText('Center')).toBeInTheDocument();
-    expect(screen.getByText('Right')).toBeInTheDocument();
+    expect(screen.getByText('왼쪽')).toBeInTheDocument();
+    expect(screen.getByText('가운데')).toBeInTheDocument();
+    expect(screen.getByText('오른쪽')).toBeInTheDocument();
   });
 
-  it('applies correct styles', () => {
-    render(<TitleBar title="Center" />);
+  it('올바른 스타일을 적용한다', () => {
+    render(<TitleBar title="가운데" />);
     const header = screen.getByRole('banner');
     expect(header).toHaveStyle(`height: ${spacing.spacing14}`);
     expect(header).toHaveStyle(
       `border-bottom: 1px solid ${colors.border.default}`,
     );
 
-    const title = screen.getByText('Center');
+    const title = screen.getByText('가운데');
     expect(title).toHaveStyle(`font-size: 1.125rem`);
     expect(title).toHaveStyle(
       `font-weight: ${typography.title1Bold.fontWeight}`,

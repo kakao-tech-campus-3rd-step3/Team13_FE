@@ -9,7 +9,7 @@ const renderWithTheme = (ui: React.ReactElement) => {
   return render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>);
 };
 
-describe('MatchCard', () => {
+describe('MatchCard 컴포넌트', () => {
   const defaultProps = {
     title: '부산대 넥서스 E동',
     time: '8/16 18:00 ~ 22:00',
