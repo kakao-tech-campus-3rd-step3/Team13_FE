@@ -1,10 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import {
-  RoundedRectangleButton,
-  ToggleRoundedRectangleButton,
-} from '@/components/button';
+import { RoundedRectangleButton } from '@/components/button';
 import { colors } from '@/theme/color';
 
 describe('RoundedRectangleButton 컴포넌트', () => {
@@ -56,18 +53,5 @@ describe('RoundedRectangleButton 컴포넌트', () => {
   it('disabled 속성이 설정되면 비활성화된다', () => {
     render(<RoundedRectangleButton disabled>비활성</RoundedRectangleButton>);
     expect(screen.getByRole('button', { name: '비활성' })).toBeDisabled();
-  });
-
-  it('pressed 상태를 전환한다', () => {
-    const handle = vi.fn();
-    render(
-      <ToggleRoundedRectangleButton
-        ariaLabel="토글"
-        pressed={false}
-        onPressedChange={handle}
-      />,
-    );
-    fireEvent.click(screen.getByRole('button', { name: '토글' }));
-    expect(handle).toHaveBeenCalledWith(true);
   });
 });

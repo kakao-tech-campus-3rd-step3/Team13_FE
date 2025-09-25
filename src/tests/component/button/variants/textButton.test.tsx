@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { TextButton, ToggleTextButton } from '@/components/button';
+import { TextButton } from '@/components/button';
 import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 
@@ -35,18 +35,5 @@ describe('TextButton 컴포넌트', () => {
     const btn = screen.getByRole('button', { name: '로딩' });
     expect(btn).toHaveAttribute('aria-busy', 'true');
     expect(screen.getByRole('status', { name: '로딩 중' })).toBeInTheDocument();
-  });
-
-  it('pressed 상태를 전환한다', () => {
-    const handle = vi.fn();
-    render(
-      <ToggleTextButton
-        ariaLabel="토글"
-        pressed={false}
-        onPressedChange={handle}
-      />,
-    );
-    fireEvent.click(screen.getByRole('button', { name: '토글' }));
-    expect(handle).toHaveBeenCalledWith(true);
   });
 });

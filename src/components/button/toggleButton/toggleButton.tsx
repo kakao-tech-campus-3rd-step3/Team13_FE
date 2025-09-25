@@ -20,20 +20,20 @@ const ToggleButtonInner = (
   }: ToggleButtonProps,
   ref: ForwardedRef<HTMLButtonElement>,
 ) => {
-  const isDisabled = disabled || loading;
-
   const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     onClick?.(event);
-    if (!isDisabled) {
-      onPressedChange(!pressed);
+    const isDisabled = disabled || loading;
+    if (event.defaultPrevented || isDisabled) {
+      return;
     }
+    onPressedChange(!pressed);
   };
 
   return (
     <Button
       {...rest}
       ref={ref}
-      disabled={disabled}
+      disabled={disabled || loading}
       loading={loading}
       aria-pressed={pressed}
       onClick={handleClick}
