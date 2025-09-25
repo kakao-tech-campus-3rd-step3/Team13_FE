@@ -140,14 +140,15 @@ function App() {
         />
 
         {/* 사람 수 표시가 있는 카드 */}
-        {/* <MatchCard
+        {/* TODO : 현재 "제한 인원"에서 줄바꿈이 발생하는 등의 문제가 발생 → 리팩토링 후 UI 수정 */}
+        <MatchCard
           title="부산대 넉넉한 터 농구장"
           time="8/16 18:00 ~ 22:00"
           showPeopleCount={true}
           peopleCount="8/10"
           deadline="08/10 23:59"
           onCardClick={() => console.log('사람 수 카드 클릭됨')}
-        /> */}
+        />
 
         {/* 두 개 버튼이 있는 카드 */}
         {/* <MatchCard
