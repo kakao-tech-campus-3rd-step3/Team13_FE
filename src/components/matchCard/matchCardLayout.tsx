@@ -33,19 +33,28 @@ export const MatchCardLayout: React.FC<MatchCardLayoutProps> = ({
     }
   };
 
+  // 접근성: onCardClick이 있을 때만 인터랙티브 속성 적용
+  const interactiveProps = onCardClick
+    ? {
+        role: 'button' as const,
+        tabIndex: 0,
+        onKeyPress: (e: React.KeyboardEvent) => {
+          // 접근성: Enter나 Space 키로도 클릭 가능
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onCardClick();
+          }
+        },
+      }
+    : {};
+
   return (
     <S.LayoutContainer
       onClick={handleCardClick}
       className={className}
-      role="button"
-      tabIndex={0}
-      onKeyPress={(e) => {
-        // 접근성: Enter나 Space 키로도 클릭 가능
-        if ((e.key === 'Enter' || e.key === ' ') && onCardClick) {
-          e.preventDefault();
-          onCardClick();
-        }
-      }}
+      role={interactiveProps.role}
+      tabIndex={interactiveProps.tabIndex}
+      onKeyPress={interactiveProps.onKeyPress}
     >
       {/* 왼쪽 슬롯: 이미지 영역 */}
       {leftSlot && <S.LeftSlot>{leftSlot}</S.LeftSlot>}

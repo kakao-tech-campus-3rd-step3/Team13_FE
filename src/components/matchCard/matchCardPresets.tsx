@@ -10,6 +10,21 @@ import {
 } from './matchCardSlots';
 
 /**
+ * 버튼 설정 객체
+ * 버튼 텍스트와 감지 로직을 중앙화하여 관리
+ */
+const BUTTON_CONFIG = {
+  cancel: {
+    text: '취소하기',
+    variant: 'cancel' as const,
+  },
+  result: {
+    text: '결과 보기',
+    variant: 'result' as const,
+  },
+} as const;
+
+/**
  * 기본 매치카드 컴포넌트
  *
  * 사용 케이스: 단순한 매치 정보만 표시 (오른쪽 슬롯 없음)
@@ -126,8 +141,8 @@ export const SetMatchCard: React.FC<SetMatchCardProps> = ({
       centerSlot={<InfoSlot title={title} time={time} />}
       rightSlot={
         <ActionSlot
-          text="취소하기"
-          variant="cancel"
+          text={BUTTON_CONFIG.cancel.text}
+          variant={BUTTON_CONFIG.cancel.variant}
           onClick={onCancelClick}
           disabled={cancelDisabled}
         />
@@ -175,8 +190,8 @@ export const FinishedMatchCard: React.FC<FinishedMatchCardProps> = ({
       centerSlot={<InfoSlot title={title} time={time} />}
       rightSlot={
         <ActionSlot
-          text="결과 보기"
-          variant="result"
+          text={BUTTON_CONFIG.result.text}
+          variant={BUTTON_CONFIG.result.variant}
           onClick={onResultClick}
           disabled={resultDisabled}
         />
@@ -229,7 +244,8 @@ export const LegacyMatchCard: React.FC<CompatibleMatchCardProps> = (props) => {
   // setMatchCard 케이스 (취소 버튼)
   if (buttons && buttons.length > 0) {
     const cancelButton = buttons.find(
-      (btn) => btn.text.includes('취소') || btn.variant === 'secondary',
+      (btn) =>
+        btn.text === BUTTON_CONFIG.cancel.text || btn.variant === 'secondary',
     );
 
     if (cancelButton) {
