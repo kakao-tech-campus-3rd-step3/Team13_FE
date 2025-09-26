@@ -1,90 +1,84 @@
-import * as S from './matchCard.styled';
+import React from 'react';
+
+import { LegacyMatchCard } from './matchCardPresets';
 import type { MatchCardProps } from './types';
 
-const MatchCard = ({
-  title,
-  time,
-  image,
-  showPeopleCount = false,
-  peopleCount,
-  deadline,
-  buttons = [],
-  resultButton = false,
-  onResultClick,
-  onCardClick,
-}: MatchCardProps) => {
-  const handleCardClick = () => {
-    if (onCardClick) {
-      onCardClick();
-    }
-  };
-
-  const handleResultClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // 카드 클릭 이벤트 방지
-    if (onResultClick) {
-      onResultClick();
-    }
-  };
-
+/**
+ * 매치카드 메인 컴포넌트
+ *
+ * 리팩토링 전략:
+ * 1. 기존 코드 수정 없이 동작 보장
+ * 2. 내부 구현은 새로운 Layout + Preset 패턴 사용
+ * 3. 점진적으로 새 컴포넌트들로 마이그레이션 권장
+ *
+ * 사용법 (기존과 동일):
+ * ```tsx
+ * // 기본 매치카드
+ * <MatchCard title="부산대 넉넉한 터 농구장" time="8/16 18:00 ~ 22:00" />
+ *
+ * // 모집중 매치카드
+ * <MatchCard
+ *   title="부산대 넉넉한 터 농구장"
+ *   time="8/16 18:00 ~ 22:00"
+ *   showPeopleCount={true}
+ *   peopleCount="8/10"
+ *   deadline="08/10 23:59"
+ * />
+ *
+ * // 매칭된 매치카드: 취소 가능
+ * <MatchCard
+ *   title="부산대 넉넉한 터 농구장"
+ *   time="8/13 18:00 ~ 22:00"
+ *   buttons={[{
+ *     text: "취소하기",
+ *     variant: "secondary",
+ *     onClick: handleCancel
+ *   }]}
+ * />
+ *
+ * // 종료된 매치카드: 결과 확인 가능
+ * <MatchCard
+ *   title="부산대 넉넉한 터 농구장"
+ *   time="8/3 18:00 ~ 22:00"
+ *   resultButton={true}
+ *   onResultClick={handleResultClick}
+ * />
+ * ```
+ *
+ * 새로운 사용법 (권장):
+ * ```tsx
+ * import {
+ *   BasicMatchCard,
+ *   RecruitingMatchCard,
+ *   SetMatchCard,
+ *   FinishedMatchCard
+ * } from './matchCardPresets';
+ *
+ * <RecruitingMatchCard
+ *   title="부산대 넉넉한 터 농구장"
+ *   time="8/16 18:00 ~ 22:00"
+ *   peopleCount="8/10"
+ *   deadline="08/10 23:59"
+ *   onCardClick={handleCardClick}
+ * />
+ * ```
+ */
+const MatchCard: React.FC<MatchCardProps> = (props) => {
   return (
-    <S.CardContainer onClick={handleCardClick}>
-      <S.CardHeader>
-        {/* 이미지 영역 - 조건부 렌더링 */}
-        {image ? (
-          <S.CardImage src={image} alt={title} />
-        ) : (
-          <S.NoImagePlaceholder>
-            <S.LocationIcon />
-          </S.NoImagePlaceholder>
-        )}
-
-        {/* 콘텐츠 영역 */}
-        <S.CardContent>
-          <S.CardTitle>장소: {title}</S.CardTitle>
-          <S.CardTime>
-            <S.TimeIcon />
-            <span>시간: {time}</span>
-          </S.CardTime>
-
-          {/* 사람 수 정보 - 조건부 렌더링 */}
-          {showPeopleCount && (
-            <S.PeopleInfo>
-              <S.PeopleCount>
-                <S.PeopleIcon />
-                <span>제한 인원 : {peopleCount}</span>
-              </S.PeopleCount>
-              {deadline && <S.Deadline>지원 마감 : {deadline}</S.Deadline>}
-            </S.PeopleInfo>
-          )}
-
-          {/* 버튼 영역 - 조건부 렌더링 */}
-          {buttons.length > 0 && (
-            <S.ButtonContainer>
-              {buttons.map((button, index) => (
-                <S.ActionButton
-                  key={`${button.text}-${index}`}
-                  variant={button.variant}
-                  disabled={button.disabled}
-                  onClick={(e) => {
-                    e.stopPropagation(); // 카드 클릭 이벤트 방지
-                    button.onClick();
-                  }}
-                >
-                  {button.text}
-                </S.ActionButton>
-              ))}
-            </S.ButtonContainer>
-          )}
-
-          {/* 결과 버튼 - 조건부 렌더링 */}
-          {resultButton && (
-            <S.ResultButton onClick={handleResultClick}>
-              결과 보기
-            </S.ResultButton>
-          )}
-        </S.CardContent>
-      </S.CardHeader>
-    </S.CardContainer>
+    <LegacyMatchCard
+      // 현재 title이 너무 크게 보여 디자인대로 UI가 나오지 않는 문제 발생 중
+      // TODO : 추후 디자인 수정할때 해당 내용 반영
+      title={props.title}
+      time={props.time}
+      image={props.image}
+      showPeopleCount={props.showPeopleCount}
+      peopleCount={props.peopleCount}
+      deadline={props.deadline}
+      buttons={props.buttons}
+      resultButton={props.resultButton}
+      onResultClick={props.onResultClick}
+      onCardClick={props.onCardClick}
+    />
   );
 };
 

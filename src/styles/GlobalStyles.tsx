@@ -18,9 +18,12 @@ const GlobalStyle = (): React.ReactElement => (
       }
 
       html,
-      body,
-      #root {
+      body {
         height: 100%;
+      }
+
+      #root {
+        min-height: 100vh;
       }
 
       body {
@@ -45,7 +48,7 @@ const GlobalStyle = (): React.ReactElement => (
       #root {
         position: relative;
         max-width: 720px;
-        min-height: 100%;
+        min-height: 100vh; /* 최소 높이만 뷰포트 높이로 설정 */
         margin: 0 auto;
         padding: 0 ${spacing.spacing4};
         background-color: ${colors.background.default};
