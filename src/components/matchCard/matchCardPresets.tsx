@@ -126,7 +126,7 @@ export const SetMatchCard: React.FC<SetMatchCardProps> = ({
       centerSlot={<InfoSlot title={title} time={time} />}
       rightSlot={
         <ActionSlot
-          text="취소 하기"
+          text="취소하기"
           variant="cancel"
           onClick={onCancelClick}
           disabled={cancelDisabled}

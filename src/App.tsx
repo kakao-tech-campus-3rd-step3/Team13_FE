@@ -176,7 +176,7 @@ function App() {
                 image="/test-match-image.png"
                 buttons={[
                   {
-                    text: '취소 하기',
+                    text: '취소하기',
                     variant: 'secondary',
                     onClick: () => console.log('취소 버튼 클릭'),
                   },

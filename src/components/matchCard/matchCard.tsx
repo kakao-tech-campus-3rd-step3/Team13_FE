@@ -30,7 +30,7 @@ import type { MatchCardProps } from './types';
  *   title="부산대 넉넉한 터 농구장"
  *   time="8/13 18:00 ~ 22:00"
  *   buttons={[{
- *     text: "취소 하기",
+ *     text: "취소하기",
  *     variant: "secondary",
  *     onClick: handleCancel
  *   }]}
