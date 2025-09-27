@@ -45,22 +45,19 @@ export const DropDown: React.FC<DropDownProps> = ({
       );
       return selectedOption?.label || config.label;
     } else {
-      // 다중 선택: 선택된 항목들을 쉼표로 구분하여 표시
-      const selectedLabels = selectedItems
-        .map(
-          (value) =>
-            config.options.find((option) => option.value === value)?.label,
-        )
-        .filter(Boolean);
+      // 다중 선택: 선택된 항목들을 원래 정렬 순서에 맞게 정렬하여 표시
+      const sortedSelectedLabels = config.options
+        .filter((option) => selectedItems.includes(option.value)) // 선택된 항목만 필터링
+        .map((option) => option.label); // 라벨 추출
 
-      if (selectedLabels.length === 0) {
+      if (sortedSelectedLabels.length === 0) {
         return config.label;
       }
 
       // TODO: 고급 텍스트 오버플로우 처리 구현
       // 현재는 단순 join, 추후 CSS 기반 ellipsis와 조합하여
       // "06:00-09:00, 09:00-12:00" -> "06:00-09:00, 09:00-..." 형태로 처리
-      return selectedLabels.join(', ');
+      return sortedSelectedLabels.join(', ');
     }
   };
 
