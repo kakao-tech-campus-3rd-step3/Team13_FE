@@ -1,34 +1,99 @@
 /**
  * DropDown 상태 관리를 위한 커스텀 Hook
- *
- * 구현 예정:
- *
- * 주요 기능:
- * 1. 드롭다운 열림/닫힘 상태 관리
- * 2. 선택된 항목들 상태 관리 (단일/다중 선택 지원)
- * 3. 옵션 클릭 시 선택 로직 처리
- * 4. 상위 컴포넌트로의 콜백 호출
- * 5. 외부 클릭 감지하여 드롭다운 닫기
- *
- * Parameters:
- * - config: DropDownConfig (설정 객체)
- * - onChange: 선택 변경 시 콜백
- * - initialSelected?: 초기 선택 상태
- *
- * Returns:
- * - isOpen: 열림 상태
- * - selectedItems: 선택된 항목들 (단일 선택 시 배열의 첫 번째 요소)
- * - toggleDropdown: 드롭다운 토글 함수
- * - selectOption: 옵션 선택 함수
- * - clearSelection: 선택 초기화 함수
- * - closeDropdown: 드롭다운 닫기 함수
- *
- * 추후 API 연동을 위한 확장점:
- * - 옵션 데이터를 API로부터 로딩하는 로직 추가 가능
- * - 검색 필터링 로직 추가 가능
  */
 
-// TODO: useDropDown Hook 구현
-// TODO: 외부 클릭 감지 로직 구현
-// TODO: 단일/다중 선택 로직 구현
-// TODO: 콜백 처리 로직 구현
+import { useState, useEffect, useCallback, useRef } from 'react';
+
+import type { UseDropDownConfig, UseDropDownReturn } from './types';
+
+export const useDropDown = ({
+  config,
+  onChange,
+  initialSelected = [],
+}: UseDropDownConfig): UseDropDownReturn => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<string[]>(
+    Array.isArray(initialSelected)
+      ? initialSelected
+      : [initialSelected].filter(Boolean),
+  );
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // 외부 클릭 감지하여 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
+
+  // 드롭다운 토글
+  const toggleDropdown = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
+
+  // 드롭다운 닫기
+  const closeDropdown = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
+  // 옵션 선택
+  const selectOption = useCallback(
+    (value: string) => {
+      let newSelected: string[];
+
+      if (config.selectionMode === 'single') {
+        newSelected = [value];
+        // 단일 선택 시 드롭다운 자동 닫기
+        setIsOpen(false);
+      } else {
+        // 다중 선택 시 토글
+        newSelected = selectedItems.includes(value)
+          ? selectedItems.filter((item) => item !== value)
+          : [...selectedItems, value];
+      }
+
+      setSelectedItems(newSelected);
+
+      // 상위 컴포넌트로 콜백 호출
+      if (onChange) {
+        onChange(
+          config.selectionMode === 'single'
+            ? newSelected[0] || ''
+            : newSelected,
+        );
+      }
+    },
+    [config.selectionMode, selectedItems, onChange],
+  );
+
+  // 선택 초기화
+  const clearSelection = useCallback(() => {
+    setSelectedItems([]);
+    if (onChange) {
+      onChange(config.selectionMode === 'single' ? '' : []);
+    }
+  }, [config.selectionMode, onChange]);
+
+  return {
+    isOpen,
+    selectedItems,
+    toggleDropdown,
+    selectOption,
+    clearSelection,
+    closeDropdown,
+    dropdownRef,
+  };
+};

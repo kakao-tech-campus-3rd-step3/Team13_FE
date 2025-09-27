@@ -1,25 +1,70 @@
 /**
  * DropDown 설정 객체 및 상수 정의
- *
- * 구현 예정:
- * - DROPDOWN_CONFIG: matchCard의 BUTTON_CONFIG와 같은 설정 객체 패턴
- *   - timeSlot: 시간대 선택 (다중 선택)
- *   - sports: 종목 선택 (단일 선택)
- *   - location: 장소 선택 (단일 선택, InputPlace 전환 지원)
- *
- * - 목 데이터 정의:
- *   - TIME_SLOT_OPTIONS: ['06:00-09:00', '09:00-12:00', ...]
- *   - SPORTS_OPTIONS: ['풋살', '농구', '배드민턴', ...]
- *   - LOCATION_OPTIONS: ['넓직한 터', '온천천', '금정초', '기타']
- *
- * - 기본 아이콘들:
- *   - DROPDOWN_ICONS: 펼치기/접기, 체크박스, 뒤로가기 등
- *
- * 사용 예시:
- * const config = DROPDOWN_CONFIG.timeSlot;
- * const options = TIME_SLOT_OPTIONS;
  */
 
-// TODO: DROPDOWN_CONFIG 객체 구현
-// TODO: 목 데이터 정의
-// TODO: 아이콘 상수들 정의
+import type { DropDownConfig, DropDownOption } from './types';
+
+/**
+ * 스포츠 옵션 목록
+ */
+export const SPORTS_OPTIONS: DropDownOption[] = [
+  { value: 'futsal', label: '풋살' },
+  { value: 'basketball', label: '농구' },
+] as const;
+
+/**
+ * 시간대 옵션 목록
+ */
+export const TIME_SLOT_OPTIONS: DropDownOption[] = [
+  { value: '06:00-09:00', label: '06:00-09:00' },
+  { value: '09:00-12:00', label: '09:00-12:00' },
+  { value: '12:00-15:00', label: '12:00-15:00' },
+  { value: '15:00-18:00', label: '15:00-18:00' },
+  { value: '18:00-21:00', label: '18:00-21:00' },
+  { value: '21:00-00:00', label: '21:00-00:00' },
+] as const;
+
+/**
+ * 장소 옵션 목록
+ */
+export const LOCATION_OPTIONS: DropDownOption[] = [
+  { value: 'wide_field', label: '넓직한 터' },
+  { value: 'oncheoncheon', label: '온천천 (부산대 ~ 장전역 사이)' },
+  { value: 'geumjeong_elementary', label: '금정초' },
+  { value: 'others', label: '기타' },
+] as const;
+
+/**
+ * 드롭다운 설정 객체 (matchCard의 BUTTON_CONFIG와 같은 패턴)
+ */
+export const DROPDOWN_CONFIG = {
+  sports: {
+    label: '종목 선택',
+    selectionMode: 'single',
+    options: SPORTS_OPTIONS,
+    hasInputOption: false,
+  },
+  timeSlot: {
+    label: '시간대 선택',
+    selectionMode: 'multiple',
+    options: TIME_SLOT_OPTIONS,
+    hasInputOption: false,
+  },
+  location: {
+    label: '장소 선택',
+    selectionMode: 'single',
+    options: LOCATION_OPTIONS,
+    hasInputOption: true, // '기타' 선택 시 InputPlace로 전환
+  },
+} as const satisfies Record<string, DropDownConfig>;
+
+/**
+ * 드롭다운 아이콘 상수들
+ */
+export const DROPDOWN_ICONS = {
+  EXPAND: '▼',
+  COLLAPSE: '▲',
+  BACK: '←',
+  CLEAR: '✕',
+  REFRESH: '↻',
+} as const;

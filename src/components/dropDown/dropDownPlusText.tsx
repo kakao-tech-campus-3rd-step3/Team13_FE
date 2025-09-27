@@ -22,6 +22,24 @@
  * - 드롭다운 선택 시: selectedOption이 '기타'가 아니면 바로 onChange 호출
  * - InputPlace 입력 시: inputValue와 함께 onChange 호출
  *
+ * TODO: 선택된 항목 텍스트 표시 기능
+ * - 일반 항목 선택 시: 선택된 항목의 라벨 표시
+ * - '기타' 선택 후 텍스트 입력 시: "기타: {입력한 텍스트}" 형태로 표시
+ * - 예: "기타: 사용자가 입력한 장소명"
+ *
+ * Props:
+ * - config: DropDownConfig (location용 설정)
+ * - onChange?: (selected: string | null) => void
+ * - className?: 추가 CSS 클래스
+ *
+ * 사용 예시:
+ * <DropDownPlusText
+ *   config={DROPDOWN_CONFIG.location}
+ *   onChange={(location) => console.log('선택된 장소:', location)}
+ * />
+ * - 드롭다운 선택 시: selectedOption이 '기타'가 아니면 바로 onChange 호출
+ * - InputPlace 입력 시: inputValue와 함께 onChange 호출
+ *
  * Props:
  * - config: DropDownConfig (location용 설정)
  * - onChange?: (selected: string | null) => void
