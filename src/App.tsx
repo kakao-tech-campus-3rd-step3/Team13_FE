@@ -10,7 +10,7 @@ import Button, {
 } from '@/components/button';
 import IconButton, { ToggleIconButton } from '@/components/button/iconButton';
 import LoginButton from '@/components/button/loginButton';
-import { SportsDropDown } from '@/components/dropDown';
+import { SportsDropDown, TimeSlotDropDown } from '@/components/dropDown';
 import InputTextWithEmail from '@/components/inputTextWithEmail/index.ts';
 import MatchCard, {
   BasicMatchCard,
@@ -46,6 +46,14 @@ function App() {
   const handleSportChange = (sport: string) => {
     setSelectedSport(sport);
     console.log('선택된 종목:', sport);
+  };
+
+  // TimeSlotDropDown 상태 관리
+  const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([]);
+
+  const handleTimeSlotChange = (timeSlots: string[]) => {
+    setSelectedTimeSlots(timeSlots);
+    console.log('선택된 시간대들:', timeSlots);
   };
 
   const tabs = [
@@ -313,6 +321,37 @@ function App() {
               style={{ marginTop: '8px', fontSize: '14px', color: '#6b7280' }}
             >
               ✅ 선택한 항목이 드롭다운 헤더에 표시됩니다
+            </div>
+          </div>
+        </S.MatchCardTestSection>
+
+        <S.MatchCardTestSection>
+          <h2>TimeSlotDropDown 테스트</h2>
+          <div style={{ padding: '20px', maxWidth: '400px' }}>
+            <h3>시간대 선택 드롭다운 (다중 선택)</h3>
+            <TimeSlotDropDown onChange={handleTimeSlotChange} />
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '8px',
+                backgroundColor: '#f3f4f6',
+                borderRadius: '4px',
+              }}
+            >
+              <strong>선택된 시간대:</strong>{' '}
+              {selectedTimeSlots.length > 0
+                ? selectedTimeSlots.join(', ')
+                : '선택되지 않음'}
+            </div>
+            <div
+              style={{ marginTop: '8px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 다중 선택으로 여러 시간대를 선택할 수 있습니다
+            </div>
+            <div
+              style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 선택한 항목들이 쉼표로 구분되어 헤더에 표시됩니다
             </div>
           </div>
         </S.MatchCardTestSection>
