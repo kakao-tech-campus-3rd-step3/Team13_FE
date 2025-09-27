@@ -188,6 +188,7 @@ export const SelectionIndicator = styled.span<{
           border-radius: 3px;
         `}
 
+  // TODO : 해당 부분 '✓'는 추후 아이콘으로 수정해야할 듯?
   &::after {
     content: ${({ isSelected }) => (isSelected ? "'✓'" : "''")};
     color: white;
