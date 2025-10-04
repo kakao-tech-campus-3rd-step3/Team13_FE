@@ -51,7 +51,12 @@ export default tseslint.config(
         {
           html: 'enforce',
           custom: 'enforce',
-          exceptions: ['Button'],
+          exceptions: [
+            'Button',
+            'ToggleButton',
+            'StyledButton',
+            'S.StyledButton',
+          ],
         },
       ],
       'import/order': [
