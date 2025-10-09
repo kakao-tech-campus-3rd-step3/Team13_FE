@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { MatchCardLayout } from './matchCardLayout';
+import { MatchCardLayout, FinishedMatchCardLayout } from './matchCardLayout';
 import {
   ImageSlot,
   InfoSlot,
@@ -184,7 +184,7 @@ export const FinishedMatchCard: React.FC<FinishedMatchCardProps> = ({
   resultDisabled = false,
 }) => {
   return (
-    <MatchCardLayout
+    <FinishedMatchCardLayout
       leftSlot={<ImageSlot src={image} alt={title} />}
       centerSlot={<InfoSlot title={title} time={time} />}
       rightSlot={

@@ -1,5 +1,5 @@
 // Layout 시스템
-export { MatchCardLayout } from './matchCardLayout';
+export { MatchCardLayout, FinishedMatchCardLayout } from './matchCardLayout';
 export type { MatchCardLayoutProps } from './matchCardLayout.types';
 
 // 슬롯 컴포넌트들

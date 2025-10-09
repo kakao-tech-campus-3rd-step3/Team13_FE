@@ -79,7 +79,8 @@ export const colors = {
   },
   text: {
     default: '#2a3038',
-    sub: '#b0b3ba',
+    // TODO: 매치카드 테스트를 위해 임시로 색상 변경
+    sub: '#393a3cff',
     disabled: '#dcdee3',
     placeholder: '#b0b3ba',
   },

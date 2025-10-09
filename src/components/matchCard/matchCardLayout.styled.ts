@@ -337,3 +337,25 @@ export const ResultButton = styled.button`
     cursor: not-allowed;
   }
 `;
+
+/**
+ * 완료된 매치카드 컨테이너
+ */
+export const FinishedCardContainer = styled(LayoutContainer)`
+  /* 완료된 카드 전체 투명도 효과 */
+  opacity: 0.6;
+
+  /* 완료된 카드 이미지 블러 효과 - 클래스 셀렉터 사용 */
+  .left-slot {
+    filter: blur(1px);
+  }
+
+  /* 호버 시 약간 더 선명하게 */
+  &:hover {
+    opacity: 0.8;
+
+    .left-slot {
+      filter: blur(0.5px);
+    }
+  }
+`;
