@@ -64,33 +64,3 @@ export interface ActionSlotProps {
   /** 비활성화 여부 */
   disabled?: boolean;
 }
-
-/**
- * 기존 MatchCardProps와의 호환성을 위한 props
- * Progressive Enhancement 패턴을 위해 기존 인터페이스도 지원
- */
-// TODO : 추후 기존 인터페이스 관련 코드는 삭제
-export interface CompatibleMatchCardProps {
-  // 기본 정보
-  title: string;
-  time: string;
-  image?: string;
-
-  // 사람 수 관련 (recruitingMatchCard용)
-  showPeopleCount?: boolean;
-  peopleCount?: string;
-  deadline?: string;
-
-  // 버튼 관련 (setMatchCard, finishedMatchCard용)
-  buttons?: Array<{
-    text: string;
-    variant: 'primary' | 'secondary';
-    onClick: () => void;
-    disabled?: boolean;
-  }>;
-  resultButton?: boolean;
-  onResultClick?: () => void;
-
-  // 이벤트 핸들러
-  onCardClick?: () => void;
-}

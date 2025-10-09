@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { MatchCardLayout } from './matchCardLayout';
-import type { CompatibleMatchCardProps } from './matchCardLayout.types';
 import {
   ImageSlot,
   InfoSlot,
@@ -196,91 +195,6 @@ export const FinishedMatchCard: React.FC<FinishedMatchCardProps> = ({
           disabled={resultDisabled}
         />
       }
-      onCardClick={onCardClick}
-    />
-  );
-};
-
-/**
- * 기존 인터페이스와의 호환성을 위한 레거시 매치카드 컴포넌트
- *
- * 이 컴포넌트는 기존 MatchCardProps를 그대로 받아서
- * 내부적으로 적절한 Preset 컴포넌트로 변환합니다.
- *
- * Progressive Enhancement 전략:
- * 1. 기존 코드는 수정 없이 동작
- * 2. 새 코드는 더 명확한 Preset 컴포넌트 사용 권장
- * 3. 점진적으로 새 인터페이스로 마이그레이션
- */
-// TODO : 추후 기존 인터페이스 관련 코드는 삭제
-export const LegacyMatchCard: React.FC<CompatibleMatchCardProps> = (props) => {
-  const {
-    title,
-    time,
-    image,
-    showPeopleCount,
-    peopleCount,
-    deadline,
-    buttons,
-    resultButton,
-    onResultClick,
-    onCardClick,
-  } = props;
-
-  // recruitingMatchCard 케이스
-  if (showPeopleCount && peopleCount) {
-    return (
-      <RecruitingMatchCard
-        title={title}
-        time={time}
-        image={image}
-        peopleCount={peopleCount}
-        deadline={deadline}
-        onCardClick={onCardClick}
-      />
-    );
-  }
-
-  // setMatchCard 케이스 (취소 버튼)
-  if (buttons && buttons.length > 0) {
-    const cancelButton = buttons.find(
-      (btn) =>
-        btn.text === BUTTON_CONFIG.cancel.text || btn.variant === 'secondary',
-    );
-
-    if (cancelButton) {
-      return (
-        <SetMatchCard
-          title={title}
-          time={time}
-          image={image}
-          onCancelClick={cancelButton.onClick}
-          onCardClick={onCardClick}
-          cancelDisabled={cancelButton.disabled}
-        />
-      );
-    }
-  }
-
-  // finishedMatchCard 케이스 (결과 버튼)
-  if (resultButton && onResultClick) {
-    return (
-      <FinishedMatchCard
-        title={title}
-        time={time}
-        image={image}
-        onResultClick={onResultClick}
-        onCardClick={onCardClick}
-      />
-    );
-  }
-
-  // 기본 matchCard 케이스
-  return (
-    <BasicMatchCard
-      title={title}
-      time={time}
-      image={image}
       onCardClick={onCardClick}
     />
   );
