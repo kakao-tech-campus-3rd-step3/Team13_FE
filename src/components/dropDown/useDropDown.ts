@@ -19,11 +19,19 @@ export const useDropDown = ({
   );
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const isOpenRef = useRef(isOpen);
 
-  // 외부 클릭 감지하여 드롭다운 닫기
+  // isOpen 상태를 ref에 동기화
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
+
+  // 외부 클릭 감지하여 드롭다운 닫기 (한 번만 등록)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // isOpen 상태를 ref로 확인하여 닫기 로직 실행
       if (
+        isOpenRef.current &&
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
@@ -31,13 +39,14 @@ export const useDropDown = ({
       }
     };
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [isOpen]);
+    // 컴포넌트 마운트 시 한 번만 이벤트리스너 등록
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // 컴포넌트 언마운트 시에만 이벤트리스너 해제
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []); // 빈 dependency array로 한 번만 실행
 
   // 드롭다운 토글
   const toggleDropdown = useCallback(() => {
