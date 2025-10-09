@@ -12,21 +12,7 @@ import {
   InputActions,
   ActionButton,
 } from './inputPlace.styled.ts';
-
-export interface InputPlaceProps {
-  /** 입력값 */
-  value?: string;
-  /** 입력값 변경 콜백 */
-  onChange?: (value: string) => void;
-  /** 뒤로가기 버튼 클릭 콜백 */
-  onBackClick?: () => void;
-  /** placeholder 텍스트 */
-  placeholder?: string;
-  /** 추가 CSS 클래스 */
-  className?: string;
-  /** 포커스 해제 시 콜백 */
-  onBlur?: () => void;
-}
+import type { InputPlaceProps } from './types';
 
 export const InputPlace: React.FC<InputPlaceProps> = ({
   value = '',
