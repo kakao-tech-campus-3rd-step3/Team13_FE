@@ -89,3 +89,57 @@ export const MatchCardLayout: React.FC<MatchCardLayoutProps> = ({
  */
 
 export default MatchCardLayout;
+
+/**
+ * 완료된 매치카드 레이아웃 컴포넌트
+ * - 일반 MatchCardLayout과 동일하지만 시각적 효과(투명도, 블러) 적용
+ */
+export const FinishedMatchCardLayout: React.FC<MatchCardLayoutProps> = ({
+  leftSlot,
+  centerSlot,
+  rightSlot,
+  onCardClick,
+  className,
+}) => {
+  /**
+   * 카드 전체 클릭 핸들러
+   */
+  const handleCardClick = () => {
+    if (onCardClick) {
+      onCardClick();
+    }
+  };
+
+  // 접근성: onCardClick이 있을 때만 인터랙티브 속성 적용
+  const interactiveProps = onCardClick
+    ? {
+        role: 'button' as const,
+        tabIndex: 0,
+        onKeyPress: (e: React.KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onCardClick();
+          }
+        },
+      }
+    : {};
+
+  return (
+    <S.FinishedCardContainer
+      onClick={handleCardClick}
+      className={className}
+      role={interactiveProps.role}
+      tabIndex={interactiveProps.tabIndex}
+      onKeyPress={interactiveProps.onKeyPress}
+    >
+      {/* 왼쪽 슬롯: 이미지 영역 */}
+      {leftSlot && <S.LeftSlot className="left-slot">{leftSlot}</S.LeftSlot>}
+
+      {/* 가운데 슬롯: 주요 정보 영역 */}
+      {centerSlot && <S.CenterSlot>{centerSlot}</S.CenterSlot>}
+
+      {/* 오른쪽 슬롯: 액션/부가정보 영역 */}
+      {rightSlot && <S.RightSlot>{rightSlot}</S.RightSlot>}
+    </S.FinishedCardContainer>
+  );
+};

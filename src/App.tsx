@@ -10,9 +10,13 @@ import Button, {
 } from '@/components/button';
 import IconButton, { ToggleIconButton } from '@/components/button/iconButton';
 import LoginButton from '@/components/button/loginButton';
-import { SportsDropDown, TimeSlotDropDown } from '@/components/dropDown';
+import {
+  SportsDropDown,
+  TimeSlotDropDown,
+  DropDownPlusText,
+} from '@/components/dropDown';
 import InputTextWithEmail from '@/components/inputTextWithEmail/index.ts';
-import MatchCard, {
+import {
   BasicMatchCard,
   RecruitingMatchCard,
   SetMatchCard,
@@ -54,6 +58,14 @@ function App() {
   const handleTimeSlotChange = (timeSlots: string[]) => {
     setSelectedTimeSlots(timeSlots);
     console.log('선택된 시간대들:', timeSlots);
+  };
+
+  // DropDownPlusText 상태 관리
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+
+  const handleLocationChange = (location: string | null) => {
+    setSelectedLocation(location);
+    console.log('선택된 장소:', location);
   };
 
   const tabs = [
@@ -151,77 +163,16 @@ function App() {
         </RoundedRectangleButton>
         <S.CountText>라운드 직사각 버튼 클릭 횟수: {rrCount}</S.CountText>
 
-        {/* MatchCard 컴포넌트 테스트 (기존 방식 + Preset 방식) */}
-        {/* TODO : 추후 기존 방식 테스트 코드는 삭제 */}
+        {/* MatchCard 컴포넌트 테스트 (Preset 방식) */}
         <S.MatchCardTestSection>
           <h2>MatchCard 컴포넌트 테스트</h2>
 
           <S.MatchCardGroup>
-            <h3>1. 기존 방식 (하위 호환성 테스트)</h3>
-
-            {/* 기본 카드 - 기존 인터페이스 */}
-            <S.MatchCardItem>
-              <h4>기본 매치카드 (기본 인터페이스)</h4>
-              <MatchCard
-                title="부산대 넉넉한 터 농구장"
-                time="8/16 18:00 ~ 22:00"
-                image="/test-match-image.png"
-                onCardClick={() => console.log('기본 카드 클릭됨')}
-              />
-            </S.MatchCardItem>
-
-            {/* 모집중 카드 - 기존 인터페이스 */}
-            <S.MatchCardItem>
-              <h4>모집중 매치카드 (기존 인터페이스)</h4>
-              <MatchCard
-                title="부산대 넉넉한 터 농구장"
-                time="8/16 18:00 ~ 22:00"
-                image="/test-match-image.png"
-                showPeopleCount={true}
-                peopleCount="8/10"
-                deadline="08/10 23:59"
-                onCardClick={() => console.log('모집중 카드 클릭됨')}
-              />
-            </S.MatchCardItem>
-
-            {/* 취소 가능한 카드 - 기존 인터페이스 */}
-            <S.MatchCardItem>
-              <h4>취소 가능한 매치카드 (기존 인터페이스)</h4>
-              <MatchCard
-                title="부산대 넉넉한 터 농구장"
-                time="8/13 18:00 ~ 22:00"
-                image="/test-match-image.png"
-                buttons={[
-                  {
-                    text: '취소하기',
-                    variant: 'secondary',
-                    onClick: () => console.log('취소 버튼 클릭'),
-                  },
-                ]}
-                onCardClick={() => console.log('취소 카드 클릭됨')}
-              />
-            </S.MatchCardItem>
-
-            {/* 결과 확인 카드 - 기존 인터페이스 */}
-            <S.MatchCardItem>
-              <h4>결과 확인 매치카드 (기존 인터페이스)</h4>
-              <MatchCard
-                title="부산대 넉넉한 터 농구장"
-                time="8/3 18:00 ~ 22:00"
-                image="/test-match-image.png"
-                resultButton={true}
-                onResultClick={() => console.log('결과 버튼 클릭')}
-                onCardClick={() => console.log('결과 카드 클릭됨')}
-              />
-            </S.MatchCardItem>
-          </S.MatchCardGroup>
-
-          <S.MatchCardGroup>
-            <h3>2. 새로운 Preset 방식</h3>
+            <h3>1. Preset 방식</h3>
 
             {/* BasicMatchCard */}
             <S.MatchCardItem>
-              <h4>BasicMatchCard (BasicMatchCard preset)</h4>
+              <h4>BasicMatchCard</h4>
               <BasicMatchCard
                 title="부산대 넉넉한 터 농구장"
                 time="8/16 18:00 ~ 22:00"
@@ -232,7 +183,7 @@ function App() {
 
             {/* RecruitingMatchCard */}
             <S.MatchCardItem>
-              <h4>RecruitingMatchCard (RecruitingMatchCard preset)</h4>
+              <h4>RecruitingMatchCard</h4>
               <RecruitingMatchCard
                 title="부산대 넉넉한 터 농구장"
                 time="8/16 18:00 ~ 22:00"
@@ -245,7 +196,7 @@ function App() {
 
             {/* SetMatchCard */}
             <S.MatchCardItem>
-              <h4>SetMatchCard (SetMatchCard preset)</h4>
+              <h4>SetMatchCard</h4>
               <SetMatchCard
                 title="부산대 넉넉한 터 농구장"
                 time="8/13 18:00 ~ 22:00"
@@ -257,7 +208,7 @@ function App() {
 
             {/* FinishedMatchCard */}
             <S.MatchCardItem>
-              <h4>FinishedMatchCard (FinishedMatchCard preset)</h4>
+              <h4>FinishedMatchCard</h4>
               <FinishedMatchCard
                 title="부산대 넉넉한 터 농구장"
                 time="8/3 18:00 ~ 22:00"
@@ -271,7 +222,7 @@ function App() {
           </S.MatchCardGroup>
 
           <S.MatchCardGroup>
-            <h3>3. 이미지 없는 버전들</h3>
+            <h3>2. 이미지 없는 버전들</h3>
 
             {/* 이미지 없는 기본 카드 */}
             <S.MatchCardItem>
@@ -352,6 +303,45 @@ function App() {
               style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
             >
               ✅ 선택한 항목들이 쉼표로 구분되어 헤더에 표시됩니다
+            </div>
+          </div>
+        </S.MatchCardTestSection>
+
+        <S.MatchCardTestSection>
+          <h2>DropDownPlusText 테스트</h2>
+          <div style={{ padding: '20px', maxWidth: '400px' }}>
+            <h3>장소 선택 드롭다운 + 텍스트 입력 (단일 선택)</h3>
+            <DropDownPlusText onChange={handleLocationChange} />
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '8px',
+                backgroundColor: '#f3f4f6',
+                borderRadius: '4px',
+              }}
+            >
+              <strong>선택된 장소:</strong>{' '}
+              {selectedLocation || '선택되지 않음'}
+            </div>
+            <div
+              style={{ marginTop: '8px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 일반 옵션 선택 시 즉시 값이 반영됩니다
+            </div>
+            <div
+              style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ &apos;기타&apos; 선택 시 텍스트 입력으로 전환됩니다
+            </div>
+            <div
+              style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 텍스트 입력 후 포커스 해제 시 값이 반영됩니다
+            </div>
+            <div
+              style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 되돌아가기 버튼으로 드롭다운으로 복귀합니다
             </div>
           </div>
         </S.MatchCardTestSection>

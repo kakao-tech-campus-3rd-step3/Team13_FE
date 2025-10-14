@@ -104,3 +104,32 @@ export interface LocationDropDownProps {
   /** 비활성화 여부 */
   disabled?: boolean;
 }
+
+/**
+ * 복합 컴포넌트 Props 타입들
+ */
+export interface DropDownPlusTextProps {
+  /** 드롭다운 설정 */
+  config?: DropDownConfig;
+  /** 선택 변경 콜백 */
+  onChange?: (selected: string | null) => void;
+  /** 추가 CSS 클래스 */
+  className?: string;
+  /** 비활성화 여부 */
+  disabled?: boolean;
+}
+
+export interface InputPlaceProps {
+  /** 입력값 */
+  value?: string;
+  /** 입력값 변경 콜백 */
+  onChange?: (value: string) => void;
+  /** 뒤로가기 버튼 클릭 콜백 */
+  onBackClick?: () => void;
+  /** placeholder 텍스트 */
+  placeholder?: string;
+  /** 추가 CSS 클래스 */
+  className?: string;
+  /** 포커스 해제 시 콜백 */
+  onBlur?: () => void;
+}

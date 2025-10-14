@@ -6,6 +6,10 @@
 export { DropDown } from './dropDown';
 export { useDropDown } from './useDropDown';
 
+// 복합 컴포넌트들
+export { DropDownPlusText } from './dropDownPlusText';
+export { InputPlace } from './inputPlace';
+
 // 프리셋 컴포넌트들
 export {
   SportsDropDown,
@@ -31,6 +35,8 @@ export type {
   SportsDropDownProps,
   TimeSlotDropDownProps,
   LocationDropDownProps,
+  DropDownPlusTextProps,
+  InputPlaceProps,
   UseDropDownConfig,
   UseDropDownReturn,
 } from './types';

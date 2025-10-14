@@ -28,10 +28,13 @@ export const TIME_SLOT_OPTIONS: DropDownOption[] = [
  * 장소 옵션 목록
  */
 export const LOCATION_OPTIONS: DropDownOption[] = [
-  { value: 'wide_field', label: '넓직한 터' },
-  { value: 'oncheoncheon', label: '온천천 (부산대 ~ 장전역 사이)' },
-  { value: 'geumjeong_elementary', label: '금정초' },
-  { value: 'others', label: '기타' },
+  { value: '넉넉한 터', label: '넉넉한 터' },
+  {
+    value: '온천천 (부산대 ~ 장전역 사이)',
+    label: '온천천 (부산대 ~ 장전역 사이)',
+  },
+  { value: '금정초', label: '금정초' },
+  { value: '기타', label: '기타' },
 ] as const;
 
 /**
