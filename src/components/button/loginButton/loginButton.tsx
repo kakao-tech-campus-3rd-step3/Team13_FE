@@ -22,10 +22,7 @@ const createLoginButton = <P extends ButtonProps | ToggleButtonProps>(
     ...rest
   }: BaseLoginButtonProps<P>) => {
     return (
-      <Component
-        variant="login"
-        {...(rest as P)} /* eslint-disable-line react/jsx-props-no-spreading */
-      >
+      <Component variant="login" {...(rest as P)}>
         {children}
       </Component>
     );
