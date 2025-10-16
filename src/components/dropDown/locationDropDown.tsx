@@ -1,5 +1,6 @@
 /**
- * DropDownPlusText 복합 컴포넌트
+ * 장소 선택 드롭다운 (단일 선택)
+ * "기타" 선택 시 InputPlace로 전환되는 복합 컴포넌트
  */
 
 import React, { useState } from 'react';
@@ -7,21 +8,9 @@ import React, { useState } from 'react';
 import { DROPDOWN_CONFIG } from './constants';
 import { DropDown } from './dropDown';
 import { InputPlace } from './inputPlace';
-import type { DropDownConfig } from './types';
+import type { LocationDropDownWithInputProps } from './types';
 
-export interface DropDownPlusTextProps {
-  /** 드롭다운 설정 (location 설정 사용) */
-  config?: DropDownConfig;
-  /** 선택 변경 콜백 */
-  onChange?: (selected: string | null) => void;
-  /** 추가 CSS 클래스 */
-  className?: string;
-  /** 비활성화 여부 */
-  disabled?: boolean;
-}
-
-export const DropDownPlusText: React.FC<DropDownPlusTextProps> = ({
-  config = DROPDOWN_CONFIG.location,
+export const LocationDropDown: React.FC<LocationDropDownWithInputProps> = ({
   onChange,
   className,
   disabled = false,
@@ -39,7 +28,7 @@ export const DropDownPlusText: React.FC<DropDownPlusTextProps> = ({
       setShowInput(true);
       setSelectedOption('');
     } else {
-      // 일반 옵션 선택 시 - 이제 value와 label이 동일하므로 그대로 전달
+      // 일반 옵션 선택 시
       setSelectedOption(selectedValue);
       setInputValue('');
       onChange?.(selectedValue);
@@ -57,7 +46,6 @@ export const DropDownPlusText: React.FC<DropDownPlusTextProps> = ({
   // InputPlace에서 입력값 변경 시 처리
   const handleInputChange = (value: string) => {
     setInputValue(value);
-    // 실시간으로 상위 컴포넌트에 전달하지 않고 blur 시점에 전달
   };
 
   // InputPlace에서 포커스 해제 시 처리
@@ -85,7 +73,7 @@ export const DropDownPlusText: React.FC<DropDownPlusTextProps> = ({
 
   return (
     <DropDown
-      config={config}
+      config={DROPDOWN_CONFIG.location}
       onChange={handleDropDownChange}
       className={className}
       disabled={disabled}

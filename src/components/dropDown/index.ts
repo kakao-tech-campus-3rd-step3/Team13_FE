@@ -7,7 +7,6 @@ export { DropDown } from './dropDown';
 export { useDropDown } from './useDropDown';
 
 // 복합 컴포넌트들
-export { DropDownPlusText } from './dropDownPlusText';
 export { InputPlace } from './inputPlace';
 
 // 프리셋 컴포넌트들
@@ -16,6 +15,9 @@ export {
   TimeSlotDropDown,
   LocationDropDown,
 } from './dropDownPresets';
+
+// 복합 컴포넌트들
+export { LocationDropDown as LocationDropDownWithInput } from './locationDropDown';
 
 // 설정 객체와 상수들
 export {
@@ -35,7 +37,7 @@ export type {
   SportsDropDownProps,
   TimeSlotDropDownProps,
   LocationDropDownProps,
-  DropDownPlusTextProps,
+  LocationDropDownWithInputProps,
   InputPlaceProps,
   UseDropDownConfig,
   UseDropDownReturn,
