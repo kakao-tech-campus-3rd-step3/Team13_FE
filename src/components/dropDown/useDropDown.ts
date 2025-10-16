@@ -76,13 +76,13 @@ export const useDropDown = ({
 
       setSelectedItems(newSelected);
 
-      // 상위 컴포넌트로 콜백 호출
+      // 상위 컴포넌트로 콜백 호출 (selectionMode에 따라 적절한 타입 호출)
       if (onChange) {
-        onChange(
-          config.selectionMode === 'single'
-            ? newSelected[0] || ''
-            : newSelected,
-        );
+        if (config.selectionMode === 'single') {
+          (onChange as (selected: string) => void)(newSelected[0] || '');
+        } else {
+          (onChange as (selected: string[]) => void)(newSelected);
+        }
       }
     },
     [config.selectionMode, selectedItems, onChange],
@@ -92,7 +92,11 @@ export const useDropDown = ({
   const clearSelection = useCallback(() => {
     setSelectedItems([]);
     if (onChange) {
-      onChange(config.selectionMode === 'single' ? '' : []);
+      if (config.selectionMode === 'single') {
+        (onChange as (selected: string) => void)('');
+      } else {
+        (onChange as (selected: string[]) => void)([]);
+      }
     }
   }, [config.selectionMode, onChange]);
 
