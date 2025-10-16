@@ -13,7 +13,7 @@ import LoginButton from '@/components/button/loginButton';
 import {
   SportsDropDown,
   TimeSlotDropDown,
-  DropDownPlusText,
+  LocationDropDownWithInput,
 } from '@/components/dropDown';
 import InputTextWithEmail from '@/components/inputTextWithEmail/index.ts';
 import {
@@ -60,7 +60,7 @@ function App() {
     console.log('선택된 시간대들:', timeSlots);
   };
 
-  // DropDownPlusText 상태 관리
+  // LocationDropDownWithInput 상태 관리
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
 
   const handleLocationChange = (location: string | null) => {
@@ -308,10 +308,10 @@ function App() {
         </S.MatchCardTestSection>
 
         <S.MatchCardTestSection>
-          <h2>DropDownPlusText 테스트</h2>
+          <h2>LocationDropDownWithInput 테스트</h2>
           <div style={{ padding: '20px', maxWidth: '400px' }}>
             <h3>장소 선택 드롭다운 + 텍스트 입력 (단일 선택)</h3>
-            <DropDownPlusText onChange={handleLocationChange} />
+            <LocationDropDownWithInput onChange={handleLocationChange} />
             <div
               style={{
                 marginTop: '16px',
