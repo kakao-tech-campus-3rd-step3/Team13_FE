@@ -37,10 +37,9 @@ export const MatchCardLayout: React.FC<MatchCardLayoutProps> = ({
         role: 'button' as const,
         tabIndex: 0,
         onKeyPress: (e: React.KeyboardEvent) => {
-          // 접근성: Enter나 Space 키로도 클릭 가능
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === 'Enter') {
             e.preventDefault();
-            onCardClick();
+            onCardClick?.();
           }
         },
       }
@@ -112,9 +111,9 @@ export const FinishedMatchCardLayout: React.FC<MatchCardLayoutProps> = ({
         role: 'button' as const,
         tabIndex: 0,
         onKeyPress: (e: React.KeyboardEvent) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === 'Enter') {
             e.preventDefault();
-            onCardClick();
+            onCardClick?.();
           }
         },
       }
