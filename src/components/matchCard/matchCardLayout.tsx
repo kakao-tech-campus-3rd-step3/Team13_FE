@@ -28,9 +28,7 @@ export const MatchCardLayout: React.FC<MatchCardLayoutProps> = ({
    * - 내부 버튼 클릭시에는 이벤트 버블링으로 인해 실행되지 않음
    */
   const handleCardClick = () => {
-    if (onCardClick) {
-      onCardClick();
-    }
+    onCardClick?.();
   };
 
   // 접근성: onCardClick이 있을 때만 인터랙티브 속성 적용
@@ -39,10 +37,9 @@ export const MatchCardLayout: React.FC<MatchCardLayoutProps> = ({
         role: 'button' as const,
         tabIndex: 0,
         onKeyPress: (e: React.KeyboardEvent) => {
-          // 접근성: Enter나 Space 키로도 클릭 가능
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === 'Enter') {
             e.preventDefault();
-            onCardClick();
+            onCardClick?.();
           }
         },
       }
@@ -105,9 +102,7 @@ export const FinishedMatchCardLayout: React.FC<MatchCardLayoutProps> = ({
    * 카드 전체 클릭 핸들러
    */
   const handleCardClick = () => {
-    if (onCardClick) {
-      onCardClick();
-    }
+    onCardClick?.();
   };
 
   // 접근성: onCardClick이 있을 때만 인터랙티브 속성 적용
@@ -116,9 +111,9 @@ export const FinishedMatchCardLayout: React.FC<MatchCardLayoutProps> = ({
         role: 'button' as const,
         tabIndex: 0,
         onKeyPress: (e: React.KeyboardEvent) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === 'Enter') {
             e.preventDefault();
-            onCardClick();
+            onCardClick?.();
           }
         },
       }
