@@ -105,12 +105,7 @@ export interface LocationDropDownProps {
   disabled?: boolean;
 }
 
-/**
- * 복합 컴포넌트 Props 타입들
- */
-export interface DropDownPlusTextProps {
-  /** 드롭다운 설정 */
-  config?: DropDownConfig;
+export interface LocationDropDownWithInputProps {
   /** 선택 변경 콜백 */
   onChange?: (selected: string | null) => void;
   /** 추가 CSS 클래스 */
@@ -119,6 +114,9 @@ export interface DropDownPlusTextProps {
   disabled?: boolean;
 }
 
+/**
+ * 복합 컴포넌트 Props 타입들
+ */
 export interface InputPlaceProps {
   /** 입력값 */
   value?: string;
