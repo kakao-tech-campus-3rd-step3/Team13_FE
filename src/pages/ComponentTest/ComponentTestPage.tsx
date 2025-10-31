@@ -15,7 +15,7 @@ import {
   TimeSlotDropDown,
   LocationDropDownWithInput,
 } from '@/components/dropDown';
-import InputTextWithEmail from '@/components/inputTextWithEmail/index.ts';
+import InputTextWithEmail from '@/components/inputTextWithEmail';
 import {
   BasicMatchCard,
   RecruitingMatchCard,
@@ -24,9 +24,9 @@ import {
 } from '@/components/matchCard';
 import { MatchExplain } from '@/components/matchExplain';
 import NavigationTab from '@/components/navigationTab';
-import HomeTitleBar from '@/components/titleBar/homeTitleBar/index.ts';
-import LoginTitleBar from '@/components/titleBar/loginTitleBar/index.ts';
-import OriginTitleBar from '@/components/titleBar/originTitleBar/index.ts';
+import HomeTitleBar from '@/components/titleBar/homeTitleBar';
+import LoginTitleBar from '@/components/titleBar/loginTitleBar';
+import OriginTitleBar from '@/components/titleBar/originTitleBar';
 
 import * as S from './ComponentTestPage.styled';
 
@@ -54,6 +54,7 @@ function ComponentTestPage() {
 
   const handleSportChange = (sport: string) => {
     setSelectedSport(sport);
+    // TODO: 배포 시 console.log 제거 필요
     console.log('선택된 종목:', sport);
   };
 
@@ -62,6 +63,7 @@ function ComponentTestPage() {
 
   const handleTimeSlotChange = (timeSlots: string[]) => {
     setSelectedTimeSlots(timeSlots);
+    // TODO: 배포 시 console.log 제거 필요
     console.log('선택된 시간대들:', timeSlots);
   };
 
@@ -70,6 +72,7 @@ function ComponentTestPage() {
 
   const handleLocationChange = (location: string | null) => {
     setSelectedLocation(location);
+    // TODO: 배포 시 console.log 제거 필요
     console.log('선택된 장소:', location);
   };
 
@@ -182,7 +185,10 @@ function ComponentTestPage() {
                 title="부산대 넉넉한 터 농구장"
                 time="8/16 18:00 ~ 22:00"
                 image="/test-match-image.png"
-                onCardClick={() => console.log('BasicMatchCard 클릭됨')}
+                onCardClick={() => {
+                  // TODO: 배포 시 console.log 제거 필요
+                  console.log('BasicMatchCard 클릭됨');
+                }}
               />
             </S.MatchCardItem>
 
@@ -195,7 +201,10 @@ function ComponentTestPage() {
                 image="/test-match-image.png"
                 peopleCount="8/10"
                 deadline="08/10 23:59"
-                onCardClick={() => console.log('RecruitingMatchCard 클릭됨')}
+                onCardClick={() => {
+                  // TODO: 배포 시 console.log 제거 필요
+                  console.log('RecruitingMatchCard 클릭됨');
+                }}
               />
             </S.MatchCardItem>
 
@@ -206,8 +215,14 @@ function ComponentTestPage() {
                 title="부산대 넉넉한 터 농구장"
                 time="8/13 18:00 ~ 22:00"
                 image="/test-match-image.png"
-                onCancelClick={() => console.log('SetMatchCard 취소 클릭됨')}
-                onCardClick={() => console.log('SetMatchCard 클릭됨')}
+                onCancelClick={() => {
+                  // TODO: 배포 시 console.log 제거 필요
+                  console.log('SetMatchCard 취소 클릭됨');
+                }}
+                onCardClick={() => {
+                  // TODO: 배포 시 console.log 제거 필요
+                  console.log('SetMatchCard 클릭됨');
+                }}
               />
             </S.MatchCardItem>
 
@@ -218,10 +233,14 @@ function ComponentTestPage() {
                 title="부산대 넉넉한 터 농구장"
                 time="8/3 18:00 ~ 22:00"
                 image="/test-match-image.png"
-                onResultClick={() =>
-                  console.log('FinishedMatchCard 결과 클릭됨')
-                }
-                onCardClick={() => console.log('FinishedMatchCard 클릭됨')}
+                onResultClick={() => {
+                  // TODO: 배포 시 console.log 제거 필요
+                  console.log('FinishedMatchCard 결과 클릭됨');
+                }}
+                onCardClick={() => {
+                  // TODO: 배포 시 console.log 제거 필요
+                  console.log('FinishedMatchCard 클릭됨');
+                }}
               />
             </S.MatchCardItem>
           </S.MatchCardGroup>
@@ -235,9 +254,10 @@ function ComponentTestPage() {
               <BasicMatchCard
                 title="실내 체육관"
                 time="8/20 14:00 ~ 16:00"
-                onCardClick={() =>
-                  console.log('이미지 없는 BasicMatchCard 클릭됨')
-                }
+                onCardClick={() => {
+                  // TODO: 배포 시 console.log 제거 필요
+                  console.log('이미지 없는 BasicMatchCard 클릭됨');
+                }}
               />
             </S.MatchCardItem>
 
@@ -249,9 +269,10 @@ function ComponentTestPage() {
                 time="8/25 10:00 ~ 12:00"
                 peopleCount="5/8"
                 deadline="08/24 18:00"
-                onCardClick={() =>
-                  console.log('이미지 없는 RecruitingMatchCard 클릭됨')
-                }
+                onCardClick={() => {
+                  // TODO: 배포 시 console.log 제거 필요
+                  console.log('이미지 없는 RecruitingMatchCard 클릭됨');
+                }}
               />
             </S.MatchCardItem>
           </S.MatchCardGroup>
