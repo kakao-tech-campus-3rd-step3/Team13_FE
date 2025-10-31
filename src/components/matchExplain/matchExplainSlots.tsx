@@ -33,25 +33,25 @@ export const HeaderSlot: React.FC<HeaderSlotProps> = ({
 
 /**
  * StatusSlot - 상단 영역
- * 모집 상태 배지 + 시간 범위를 표시
+ * 모집 상태 + 시간 범위를 첫 번째 줄에 표시
  */
 export const StatusSlot: React.FC<StatusSlotProps> = ({
   isOpen,
   timeRange,
 }) => {
   return (
-    <S.StatusSection>
-      <S.RecruitmentBadge isOpen={isOpen}>
+    <S.StatusRow>
+      <S.RecruitmentText isOpen={isOpen}>
         {isOpen ? '모집중' : '모집완료'}
-      </S.RecruitmentBadge>
+      </S.RecruitmentText>
       <S.TimeRange>{timeRange}</S.TimeRange>
-    </S.StatusSection>
+    </S.StatusRow>
   );
 };
 
 /**
- * InfoSlot - 중단 영역
- * 현재 인원 + 마감 시간을 표시
+ * InfoSlot
+ * 2 번째 줄에 현재 인원 + 3 번째 줄에 마감 시간을 표시
  */
 export const InfoSlot: React.FC<InfoSlotProps> = ({
   currentPeople,
@@ -61,10 +61,11 @@ export const InfoSlot: React.FC<InfoSlotProps> = ({
   return (
     <S.InfoSection>
       <S.PeopleInfo>
-        <S.PeopleIcon />
         현재 매칭 인원: {currentPeople}/{maxPeople}
       </S.PeopleInfo>
-      <S.DeadlineInfo>지원 마감 시간: {deadline}</S.DeadlineInfo>
+      <S.DeadlineInfo>
+        지원 마감 시간: <S.DeadlineTime>{deadline}</S.DeadlineTime>
+      </S.DeadlineInfo>
     </S.InfoSection>
   );
 };

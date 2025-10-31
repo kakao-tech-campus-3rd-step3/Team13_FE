@@ -71,6 +71,6 @@ export const isRecruitmentOpen = (
   const now = new Date();
   const deadlineDate = new Date(deadline);
 
-  // 현재시간 < 마감시간 && 현재인원 < 제한인원
-  return now < deadlineDate && currentPeople < maxPeople;
+  // 현재인원 < 제한인원 && 현재시간 < 마감시간
+  return currentPeople < maxPeople && now < deadlineDate;
 };

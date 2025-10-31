@@ -5,7 +5,8 @@ import type { MatchExplainLayoutProps } from './matchExplain.types';
 
 /**
  * MatchExplainLayout
- * 4개의 슬롯을 세로로 배치하는 레이아웃 컴포넌트
+ * 슬롯들을 배치하는 레이아웃 컴포넌트
+ * StatusSlot과 InfoSlot을 같은 StatusSection 안에 통합
  */
 export const MatchExplainLayout: React.FC<MatchExplainLayoutProps> = ({
   headerSlot,
@@ -17,8 +18,10 @@ export const MatchExplainLayout: React.FC<MatchExplainLayoutProps> = ({
   return (
     <S.LayoutContainer className={className}>
       {headerSlot}
-      {statusSlot}
-      {infoSlot}
+      <S.StatusSection>
+        {statusSlot}
+        {infoSlot}
+      </S.StatusSection>
       {descriptionSlot}
     </S.LayoutContainer>
   );

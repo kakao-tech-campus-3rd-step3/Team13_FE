@@ -22,6 +22,7 @@ import {
   SetMatchCard,
   FinishedMatchCard,
 } from '@/components/matchCard';
+import { MatchExplain } from '@/components/matchExplain';
 import NavigationTab from '@/components/navigationTab';
 import HomeTitleBar from '@/components/titleBar/homeTitleBar/index.ts';
 import LoginTitleBar from '@/components/titleBar/loginTitleBar/index.ts';
@@ -344,6 +345,183 @@ function App() {
               ✅ 되돌아가기 버튼으로 드롭다운으로 복귀합니다
             </div>
           </div>
+        </S.MatchCardTestSection>
+
+        {/* MatchExplain 테스트 섹션 */}
+        <S.MatchCardTestSection>
+          <h2>MatchExplain 컴포넌트 테스트</h2>
+
+          <S.MatchCardGroup>
+            <h3>1. 모집 중 - 농구 (Basketball)</h3>
+            <div
+              style={{
+                height: '600px',
+                border: '2px solid #ddd',
+                borderRadius: '8px',
+                padding: '8px',
+              }}
+            >
+              <MatchExplain
+                sportType="basketball"
+                location="부산 금정구 부산대학로63번길 2 낙차원1동 농구코트"
+                startTime="2025-11-09T20:00:00"
+                duration={120}
+                currentPeople={8}
+                maxPeople={10}
+                deadline="2025-11-09T23:59:00"
+                description={`카테캠 부산대 4팀과 농구하실 사람을 구합니다.
+
+이길 자신 있는 사람들만 도전하세요.
+
+선수 약력
+• 23, 24, 25년 부산대 총장배 우승
+• 23, 24, 25년 부산대 학장배 우승`}
+              />
+            </div>
+            <div
+              style={{ marginTop: '8px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 모집 중 상태 (현재인원 &lt; 제한인원 && 현재시간 &lt; 마감시간)
+            </div>
+            <div
+              style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 초록색 &quot;모집중&quot; 텍스트 표시
+            </div>
+            <div
+              style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 시간 자동 포맷: ISO 8601 → &quot;2025년 11월 09일 20:00 ~
+              22:00&quot;
+            </div>
+            <div
+              style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 레이블(검은색) + 시간(빨간색) 분리
+            </div>
+          </S.MatchCardGroup>
+
+          <S.MatchCardGroup>
+            <h3>2. 모집 완료 - 풋살 (Futsal)</h3>
+            <div
+              style={{
+                height: '600px',
+                border: '2px solid #ddd',
+                borderRadius: '8px',
+                padding: '8px',
+              }}
+            >
+              <MatchExplain
+                sportType="futsal"
+                location="서울 강남구 테헤란로 축구장"
+                startTime="2025-07-20T18:00:00"
+                duration={90}
+                currentPeople={10}
+                maxPeople={10}
+                deadline="2025-07-19T23:59:00"
+                description={`풋살 경기에 참여하실 분들을 모집합니다!
+
+⚽ 경기 정보:
+- 레벨: 초급~중급
+- 준비물: 운동화, 개인 물병
+- 주차: 가능
+
+많은 참여 부탁드립니다!`}
+              />
+            </div>
+            <div
+              style={{ marginTop: '8px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 모집 완료 상태 (인원 꽉 참: 10/10)
+            </div>
+            <div
+              style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 빨간색 &quot;모집완료&quot; 텍스트 표시
+            </div>
+            <div
+              style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 풋살 아이콘 자동 매핑
+            </div>
+          </S.MatchCardGroup>
+
+          <S.MatchCardGroup>
+            <h3>3. 긴 설명 텍스트 - 스크롤 테스트</h3>
+            <div
+              style={{
+                height: '500px',
+                border: '2px solid #ddd',
+                borderRadius: '8px',
+                padding: '8px',
+              }}
+            >
+              <MatchExplain
+                sportType="basketball"
+                location="부산대학교 체육관"
+                startTime="2025-09-15T14:00:00"
+                duration={180}
+                currentPeople={5}
+                maxPeople={12}
+                deadline="2025-09-14T18:00:00"
+                description={`🏀 농구 동아리 정기 모임
+
+안녕하세요! 부산대 농구 동아리입니다.
+
+📅 일정 안내:
+- 날짜: 2025년 9월 15일 (토)
+- 시간: 14:00 ~ 17:00 (3시간)
+- 장소: 부산대학교 체육관 2층
+
+👥 모집 대상:
+- 농구에 관심 있는 분이라면 누구나 환영!
+- 초보자도 대환영입니다
+- 레벨 무관, 열정만 있으면 OK!
+
+🎯 진행 방식:
+1. 14:00 - 14:30 : 웜업 & 스트레칭
+2. 14:30 - 16:00 : 5 vs 5 게임
+3. 16:00 - 16:30 : 휴식 & 간식
+4. 16:30 - 17:00 : 자유 농구
+
+💰 참가비:
+- 1인당 5,000원
+- 간식 & 음료 제공
+- 체육관 대관료 포함
+
+📝 준비물:
+✓ 운동화 (농구화 권장)
+✓ 운동복
+✓ 개인 수건
+✓ 물통
+
+⚠️ 주의사항:
+• 부상 방지를 위해 스트레칭 필수!
+• 과격한 플레이는 자제해주세요
+• 안전이 최우선입니다
+
+💬 문의사항:
+카카오톡 오픈채팅방으로 문의 바랍니다.
+
+많은 참여 부탁드립니다! 🙌`}
+              />
+            </div>
+            <div
+              style={{ marginTop: '8px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 긴 설명 텍스트 스크롤 가능
+            </div>
+            <div
+              style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ Description 영역만 스크롤 (나머지는 고정)
+            </div>
+            <div
+              style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}
+            >
+              ✅ 줄바꿈 유지 (pre-wrap)
+            </div>
+          </S.MatchCardGroup>
         </S.MatchCardTestSection>
       </S.Container>
     </>
