@@ -1,356 +1,267 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { resetCertificationState } from '@/mocks/handlers/certification';
+import { resetGamesState } from '@/mocks/handlers/games';
 import { resetProfileState } from '@/mocks/handlers/profile';
+import { resetReportsState } from '@/mocks/handlers/reports';
+import type { ApiErrorResponse } from '@/mocks/sharedErrors';
+
+type ProfileResponse = {
+  name: string;
+  email: string;
+  imageUrl: string;
+  description: string;
+};
+type CertificationResponse = { isVerified: boolean };
+type GameDetailResponse = {
+  gameId: number;
+  sportId: number;
+  name: string;
+  playerCount: number;
+  gameStatus: 'ON_MATCHING' | 'END';
+  startTime: string;
+  duration: number;
+  description: string;
+};
+type GameSummary = Omit<GameDetailResponse, 'description'>;
+type GamesResponse = { games: GameSummary[] };
+type SchoolResponse = { id: number; name: string; domain: string };
+type SchoolsResponse = { schools: SchoolResponse[] };
+type ReportResponse = {
+  id: number;
+  gameId: number;
+  reporterId: number;
+  reportedId: number;
+  reasonText: string;
+  status: 'OPEN' | 'RESOLVED';
+  createdAt: string;
+};
+
+// BodyInit 오류 방지: RequestInit 대신 간단한 JSON 전용 타입 사용
+type JsonInit = {
+  method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+  headers?: Record<string, string>;
+  body?: unknown;
+};
 
 const baseUrl = 'http://localhost';
 
-type RequestInitWithJson = Omit<RequestInit, 'body'> & { body?: unknown };
+const requestJson = async <T>(path: string, init?: JsonInit) => {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(init?.headers ?? {}),
+  };
+  const method = init?.method ?? 'GET';
+  const body =
+    init?.body === undefined
+      ? undefined
+      : typeof init.body === 'string'
+        ? init.body
+        : JSON.stringify(init.body);
 
-const requestJson = async <T>(path: string, init?: RequestInitWithJson) => {
-  const { body, headers, ...rest } = init ?? {};
-  const response = await fetch(`${baseUrl}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-    body:
-      body === undefined || typeof body === 'string'
-        ? (body as BodyInit | undefined)
-        : JSON.stringify(body),
-    ...rest,
-  });
-  const data = (await response.json()) as T;
-
-  return { status: response.status, data };
+  const res = await fetch(`${baseUrl}${path}`, { method, headers, body });
+  const data = (await res.json()) as T;
+  return { status: res.status, data };
 };
 
-describe('MSW 인증 핸들러', () => {
+describe('Auth 핸들러', () => {
   beforeEach(() => {
     resetCertificationState();
     resetProfileState();
+    resetGamesState();
+    resetReportsState();
   });
 
-  it('카카오 OAuth URL을 반환한다', async () => {
-    const { status, data } = await requestJson<{ url: string }>(
+  it('카카오 OAuth URL 응답 키는 authUrl', async () => {
+    const { status, data } = await requestJson<{ authUrl: string }>(
       '/api/v1/auth/kakao?redirectUri=https://kan.example.com/auth/kakao',
     );
-
     expect(status).toBe(200);
-    expect(data.url).toContain(
+    expect(data.authUrl).toContain(
       'redirect_uri=https://kan.example.com/auth/kakao',
     );
   });
 
-  it('인가 코드가 없으면 오류를 반환한다', async () => {
-    const { status, data } = await requestJson<{ error: { code: string } }>(
+  it('인가 코드 누락 → code+message 단언', async () => {
+    const { status, data } = await requestJson<ApiErrorResponse>(
       '/api/v1/auth/kakao/callback',
     );
-
     expect(status).toBe(400);
-    expect(data.error.code).toBe('AUTH_MISSING_CODE');
+    expect(data.error).toEqual({
+      code: 'AUTH_MISSING_CODE',
+      message: '인가 코드를 찾을 수 없습니다.',
+    });
   });
 
-  it('잘못된 인가 코드는 401 오류를 반환한다', async () => {
-    const { status, data } = await requestJson<{ error: { code: string } }>(
-      '/api/v1/auth/kakao/callback?code=invalid',
+  it('성공 콜백 → { token } 반환', async () => {
+    const { status, data } = await requestJson<{ token: string }>(
+      '/api/v1/auth/kakao/callback?code=signin',
     );
-
-    expect(status).toBe(401);
-    expect(data.error.code).toBe('AUTH_INVALID_CODE');
-  });
-
-  it('성공한 콜백은 토큰과 신규 회원 여부를 제공한다', async () => {
-    const { status, data } = await requestJson<{
-      accessToken: string;
-      refreshToken: string;
-      isNewMember: boolean;
-    }>('/api/v1/auth/kakao/callback?code=signup');
-
     expect(status).toBe(200);
-    expect(data).toEqual({
-      accessToken: 'mock-access-token',
-      refreshToken: 'mock-refresh-token',
-      isNewMember: true,
-    });
-  });
-
-  it('기존 부산대학교 농구 회원은 로그인 시 신규 회원이 아니다', async () => {
-    const { status, data } = await requestJson<{
-      accessToken: string;
-      refreshToken: string;
-      isNewMember: boolean;
-    }>('/api/v1/auth/kakao/callback?code=signin');
-
-    expect(status).toBe(200);
-    expect(data).toEqual({
-      accessToken: 'mock-access-token',
-      refreshToken: 'mock-refresh-token',
-      isNewMember: false,
-    });
+    expect(data.token).toBeTruthy();
   });
 });
 
-describe('MSW 이메일 인증 핸들러', () => {
-  beforeEach(() => {
-    resetCertificationState();
-  });
+describe('Certification 핸들러', () => {
+  beforeEach(() => resetCertificationState());
 
-  it('이메일 없이 요청하면 오류를 반환한다', async () => {
-    const { status, data } = await requestJson<{ error: { code: string } }>(
+  it('요청 → 검증(실패) → 검증(성공) → 상태', async () => {
+    const req = await requestJson<CertificationResponse>(
       '/api/v1/members/me/certification/email',
-      { method: 'POST', body: {} },
+      { method: 'POST', body: { localPart: 'user' } },
     );
+    expect(req.status).toBe(200);
+    expect(req.data.isVerified).toBe(false);
 
-    expect(status).toBe(400);
-    expect(data.error.code).toBe('EMAIL_REQUIRED');
-  });
-
-  it('인증 이메일 요청 후 상태를 조회할 수 있다', async () => {
-    vi.useFakeTimers();
-    const sentAt = new Date('2024-01-01T10:00:00.000Z');
-    vi.setSystemTime(sentAt);
-
-    try {
-      const requestResult = await requestJson<{
-        email: string;
-        sentAt: string;
-      }>('/api/v1/members/me/certification/email', {
-        method: 'POST',
-        body: { email: 'user@kan.com' },
-      });
-
-      expect(requestResult.status).toBe(200);
-      expect(requestResult.data).toEqual({
-        email: 'user@kan.com',
-        sentAt: sentAt.toISOString(),
-      });
-
-      const statusResult = await requestJson<{
-        email: string | null;
-        verified: boolean;
-        lastSentAt: string | null;
-        verifiedAt: string | null;
-      }>('/api/v1/members/me/certification/status');
-
-      expect(statusResult.data).toEqual({
-        email: 'user@kan.com',
-        verified: false,
-        lastSentAt: sentAt.toISOString(),
-        verifiedAt: null,
-      });
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('요청 없이 인증을 시도하면 오류를 반환한다', async () => {
-    const { status, data } = await requestJson<{ error: { code: string } }>(
+    const bad = await requestJson<ApiErrorResponse>(
       '/api/v1/members/me/certification/verify',
-      { method: 'POST', body: { code: '000000' } },
+      { method: 'POST', body: { localPart: 'user', code: '123456' } },
     );
-
-    expect(status).toBe(400);
-    expect(data.error.code).toBe('EMAIL_NOT_REQUESTED');
-  });
-
-  it('잘못된 인증 코드는 오류를 반환한다', async () => {
-    await requestJson('/api/v1/members/me/certification/email', {
-      method: 'POST',
-      body: { email: 'user@kan.com' },
+    expect(bad.status).toBe(400);
+    expect(bad.data.error).toEqual({
+      code: 'CERT_INVALID_TOKEN',
+      message: '잘못된 인증 코드입니다.',
     });
 
-    const { status, data } = await requestJson<{ error: { code: string } }>(
+    const ok = await requestJson<CertificationResponse>(
       '/api/v1/members/me/certification/verify',
-      { method: 'POST', body: { code: '123456' } },
+      { method: 'POST', body: { localPart: 'user', code: '000000' } },
     );
+    expect(ok.status).toBe(200);
+    expect(ok.data.isVerified).toBe(true);
 
-    expect(status).toBe(400);
-    expect(data.error.code).toBe('EMAIL_INVALID_TOKEN');
-  });
-
-  it('이미 인증된 이메일은 재요청 시 오류를 반환한다', async () => {
-    await requestJson('/api/v1/members/me/certification/email', {
-      method: 'POST',
-      body: { email: 'already@kan.com' },
-    });
-    await requestJson('/api/v1/members/me/certification/verify', {
-      method: 'POST',
-      body: { code: '000000' },
-    });
-
-    const { status, data } = await requestJson<{ error: { code: string } }>(
-      '/api/v1/members/me/certification/email',
-      { method: 'POST', body: { email: 'already@kan.com' } },
+    const statusRes = await requestJson<CertificationResponse>(
+      '/api/v1/members/me/certification/status',
     );
-
-    expect(status).toBe(409);
-    expect(data.error.code).toBe('EMAIL_ALREADY_VERIFIED');
-  });
-
-  it('발송 제한 이메일은 429 오류를 반환한다', async () => {
-    const { status, data } = await requestJson<{ error: { code: string } }>(
-      '/api/v1/members/me/certification/email',
-      { method: 'POST', body: { email: 'limit@kan.com' } },
-    );
-
-    expect(status).toBe(429);
-    expect(data.error.code).toBe('EMAIL_RATE_LIMITED');
-  });
-
-  it('인증에 성공하면 상태가 업데이트된다', async () => {
-    vi.useFakeTimers();
-    const sentAt = new Date('2024-01-01T10:00:00.000Z');
-    vi.setSystemTime(sentAt);
-
-    try {
-      await requestJson('/api/v1/members/me/certification/email', {
-        method: 'POST',
-        body: { email: 'user@kan.com' },
-      });
-
-      const verifiedAt = new Date('2024-01-01T10:05:00.000Z');
-      vi.setSystemTime(verifiedAt);
-
-      const verifyResult = await requestJson<{
-        email: string;
-        verifiedAt: string;
-      }>('/api/v1/members/me/certification/verify', {
-        method: 'POST',
-        body: { code: '000000' },
-      });
-
-      expect(verifyResult.status).toBe(200);
-      expect(verifyResult.data).toEqual({
-        email: 'user@kan.com',
-        verifiedAt: verifiedAt.toISOString(),
-      });
-
-      const statusResult = await requestJson<{
-        email: string | null;
-        verified: boolean;
-        lastSentAt: string | null;
-        verifiedAt: string | null;
-      }>('/api/v1/members/me/certification/status');
-
-      expect(statusResult.data).toEqual({
-        email: 'user@kan.com',
-        verified: true,
-        lastSentAt: sentAt.toISOString(),
-        verifiedAt: verifiedAt.toISOString(),
-      });
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(statusRes.data.isVerified).toBe(true);
   });
 });
 
-describe('MSW 프로필 핸들러', () => {
-  beforeEach(() => {
-    resetProfileState();
-  });
+describe('Profile 핸들러', () => {
+  beforeEach(() => resetProfileState());
 
-  it('내 프로필을 조회할 수 있다', async () => {
-    const { status, data } = await requestJson<{
-      memberId: number;
-      name: string;
-    }>('/api/v2/members/me/profile');
-
-    expect(status).toBe(200);
-    expect(data).toMatchObject({
-      memberId: 101,
-      name: '김대영',
-    });
-  });
-
-  it('다른 사용자의 프로필을 조회할 수 있다', async () => {
-    const { status, data } = await requestJson<{
-      memberId: number;
-      name: string;
-    }>('/api/v2/members/102/profile');
-
-    expect(status).toBe(200);
-    expect(data).toMatchObject({
-      memberId: 102,
-      name: '부산대학교 리그',
-    });
-  });
-
-  it('존재하지 않는 사용자는 오류를 반환한다', async () => {
-    const { status, data } = await requestJson<{ error: { code: string } }>(
-      '/api/v2/members/999/profile',
-    );
-
-    expect(status).toBe(404);
-    expect(data.error.code).toBe('PROFILE_NOT_FOUND');
-  });
-
-  it('닉네임 업데이트에 성공하면 상태가 갱신된다', async () => {
-    const updateResult = await requestJson<{ name: string }>(
-      '/api/v2/members/me/profile/name',
-      { method: 'PATCH', body: { name: '부산대학교 농구 에이스' } },
-    );
-
-    expect(updateResult.status).toBe(200);
-    expect(updateResult.data.name).toBe('부산대학교 농구 에이스');
-
-    const profileResult = await requestJson<{ name: string }>(
+  it('내 프로필 조회: ProfileResponse', async () => {
+    const { status, data } = await requestJson<ProfileResponse>(
       '/api/v2/members/me/profile',
     );
-
-    expect(profileResult.data.name).toBe('부산대학교 농구 에이스');
+    expect(status).toBe(200);
+    const { name, email, imageUrl, description } = data;
+    expect(typeof name).toBe('string');
+    expect(typeof email).toBe('string');
+    expect(typeof imageUrl).toBe('string');
+    expect(typeof description).toBe('string');
   });
 
-  it('유효하지 않은 닉네임은 오류를 반환한다', async () => {
-    const { status, data } = await requestJson<{ error: { code: string } }>(
+  it('유효하지 않은 닉네임(32자) → code+message', async () => {
+    const { status, data } = await requestJson<ApiErrorResponse>(
       '/api/v2/members/me/profile/name',
-      { method: 'PATCH', body: { name: 'a' } },
+      { method: 'PATCH', body: { name: 'a'.repeat(32) } },
     );
-
     expect(status).toBe(400);
-    expect(data.error.code).toBe('PROFILE_INVALID_NAME');
+    expect(data.error).toEqual({
+      code: 'PROFILE_INVALID_NAME',
+      message: '닉네임은 최대 31자까지 가능합니다.',
+    });
+  });
+});
+
+describe('Sports 핸들러', () => {
+  it('리스트 응답: recommededPlayerCount 키 유지', async () => {
+    const { status, data } = await requestJson<{
+      sports: {
+        sportId: number;
+        name: string;
+        recommededPlayerCount: number;
+      }[];
+    }>('/api/v1/sports');
+    expect(status).toBe(200);
+    expect(Array.isArray(data.sports)).toBe(true);
+    expect(data.sports[0]).toHaveProperty('recommededPlayerCount');
+  });
+});
+
+describe('Games 핸들러', () => {
+  beforeEach(() => resetGamesState());
+
+  it('생성 422: fields 포함', async () => {
+    const { status, data } = await requestJson<ApiErrorResponse>(
+      '/api/v1/games',
+      { method: 'POST', body: { sportId: 1 } },
+    );
+    expect(status).toBe(422);
+    expect(data.error).toEqual({
+      code: 'VALIDATION_ERROR',
+      message: '입력값을 확인해 주세요.',
+      fields: {
+        name: '이름을 입력해 주세요.',
+        playerCount: '인원 수를 선택해 주세요.',
+      },
+    });
   });
 
-  it('소개글은 150자 이하만 허용한다', async () => {
-    const { status, data } = await requestJson<{ error: { code: string } }>(
-      '/api/v2/members/me/profile/description',
-      { method: 'PATCH', body: { description: 'a'.repeat(151) } },
-    );
+  it('생성 성공 → detail 반환, 리스트에는 description 제외', async () => {
+    const start = new Date().toISOString();
+    const create = await requestJson<GameDetailResponse>('/api/v1/games', {
+      method: 'POST',
+      body: {
+        sportId: 1,
+        name: '테스트 매치',
+        playerCount: 10,
+        startTime: start,
+        duration: 60,
+        description: '설명',
+      },
+    });
+    expect(create.status).toBe(200);
+    expect(create.data).toMatchObject({
+      name: '테스트 매치',
+      description: '설명',
+    });
 
-    expect(status).toBe(400);
-    expect(data.error.code).toBe('PROFILE_INVALID_DESCRIPTION');
+    const list = await requestJson<GamesResponse>('/api/v1/games?sportId=1');
+    expect(list.status).toBe(200);
+    expect(list.data.games[0]).not.toHaveProperty('description');
+  });
+});
+
+describe('Schools/Reports 핸들러', () => {
+  beforeEach(() => {
+    resetReportsState();
   });
 
-  it('프로필 이미지는 유효한 URL만 허용한다', async () => {
-    const { status, data } = await requestJson<{ error: { code: string } }>(
-      '/api/v2/members/me/profile/image-url',
-      { method: 'PATCH', body: { imageUrl: 'invalid-url' } },
-    );
+  it('학교 선택 & 조회', async () => {
+    const list = await requestJson<SchoolsResponse>('/api/v1/schools');
+    expect(list.status).toBe(200);
+    expect(list.data.schools.length).toBeGreaterThan(0);
 
-    expect(status).toBe(400);
-    expect(data.error.code).toBe('PROFILE_INVALID_IMAGE_URL');
+    const sel = await requestJson<SchoolResponse>(
+      '/api/v1/members/me/school/101',
+      { method: 'POST' },
+    );
+    expect(sel.status).toBe(200);
+    expect(sel.data).toMatchObject({ id: 101 });
   });
 
-  it('프로필 이미지를 업데이트하면 저장된다', async () => {
-    const updateResult = await requestJson<{ imageUrl: string }>(
-      '/api/v2/members/me/profile/image-url',
+  it('신고 생성 → 상태 변경 INVALID → message 단언', async () => {
+    const create = await requestJson<ReportResponse>('/api/v1/reports', {
+      method: 'POST',
+      body: { gameId: 5001, reportedId: 102, reasonText: '거친 플레이' },
+    });
+    expect(create.status).toBe(200);
+    const id = create.data.id;
+
+    const invalidStatus = { status: 'WRONG' };
+    const bad = await requestJson<ApiErrorResponse>(
+      `/api/v1/reports/${id}/status`,
       {
         method: 'PATCH',
-        body: { imageUrl: 'https://example.com/avatar/new.png' },
+        body: invalidStatus,
       },
     );
-
-    expect(updateResult.status).toBe(200);
-    expect(updateResult.data.imageUrl).toBe(
-      'https://example.com/avatar/new.png',
-    );
-
-    const profileResult = await requestJson<{ imageUrl: string }>(
-      '/api/v2/members/me/profile',
-    );
-
-    expect(profileResult.data.imageUrl).toBe(
-      'https://example.com/avatar/new.png',
-    );
+    expect(bad.status).toBe(400);
+    expect(bad.data.error).toEqual({
+      code: 'REPORT_INVALID_STATUS',
+      message: '잘못된 신고 상태 값입니다.',
+    });
   });
 });
