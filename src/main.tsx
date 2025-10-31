@@ -6,10 +6,14 @@ import { createRoot } from 'react-dom/client';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import { setupInterceptors } from '@/api/core/interceptors';
 import { queryClient } from '@/api/core/queryClient';
 import App from '@/App.tsx';
 import GlobalStyles from '@/styles/GlobalStyles.tsx';
 import { theme } from '@/theme';
+
+// Axios 인터셉터 설정 (앱 시작 시 한 번만 실행)
+setupInterceptors();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
