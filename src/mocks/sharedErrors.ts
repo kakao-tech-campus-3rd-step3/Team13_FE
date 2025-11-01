@@ -4,6 +4,7 @@ export type ErrorCode =
   // Auth
   | 'AUTH_MISSING_CODE'
   | 'AUTH_INVALID_CODE'
+  | 'AUTH_INVALID_REFRESH_TOKEN'
   // Certification
   | 'CERT_LOCAL_PART_REQUIRED'
   | 'CERT_RATE_LIMITED'
@@ -43,6 +44,10 @@ const errorCatalog: Record<ErrorCode, { status: number; message: string }> = {
   AUTH_INVALID_CODE: {
     status: 401,
     message: '유효하지 않은 카카오 인가 코드입니다.',
+  },
+  AUTH_INVALID_REFRESH_TOKEN: {
+    status: 400,
+    message: '유효하지 않은 갱신 토큰입니다.',
   },
 
   // Certification
