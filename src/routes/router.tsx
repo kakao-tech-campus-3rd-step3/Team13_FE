@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import GameListPage from '@/features/games/pages/GameListPage';
 import SportsPage from '@/features/sports/pages/SportsPage';
+import KakaoCallbackPage from '@/pages/Auth/KakaoCallbackPage';
 import LoginPage from '@/pages/Auth/LoginPage';
 import ComponentTestPage from '@/pages/ComponentTest/ComponentTestPage';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
       {
         path: '/login',
         element: <LoginPage />,
+      },
+      {
+        path: '/auth/kakao/callback',
+        element: <KakaoCallbackPage />,
       },
       // TODO: 회원가입, 비밀번호 찾기 등 추가
     ],
