@@ -13,8 +13,9 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
-import React from 'react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import type { ReactElement, ReactNode } from 'react';
+import type { MemoryRouterProps } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import GameListPage from '@/features/games/pages/GameListPage';
@@ -29,29 +30,36 @@ const makeClient = () =>
     defaultOptions: { queries: { retry: false } },
   });
 
+type RenderOptions = {
+  initialEntries?: MemoryRouterProps['initialEntries'];
+};
+
 const renderWithProviders = (
-  ui: React.ReactElement,
-  initialEntries = ['/'],
+  ui: ReactElement,
+  { initialEntries = ['/test'] }: RenderOptions = {},
 ) => {
   const client = makeClient();
-  return render(
+  const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>
       <ThemeProvider theme={theme}>
-        <MemoryRouter initialEntries={initialEntries}>
-          <Routes>
-            <Route path="/sports" element={<SportsPage />} />
-            <Route path="/games" element={<GameListPage />} />
-          </Routes>
-        </MemoryRouter>
+        <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>
       </ThemeProvider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
+  return render(ui, { wrapper });
 };
+const renderSportsPage = () =>
+  renderWithProviders(<SportsPage />, { initialEntries: ['/test/sports'] });
+
+const renderGameListPage = (options?: RenderOptions) =>
+  renderWithProviders(<GameListPage />, {
+    initialEntries: ['/test/games'],
+    ...options,
+  });
 
 describe('useSports × UI', () => {
   it('스켈레톤 → 데이터 전환', async () => {
-    renderWithProviders(<SportsPage />, ['/sports']);
-
+    renderSportsPage();
     // 스켈레톤 보임
     expect(screen.getByTestId('sports-skeleton')).toBeInTheDocument();
 
@@ -68,8 +76,7 @@ describe('useSports × UI', () => {
     server.use(
       http.get('*/api/v1/sports', () => HttpResponse.json({ sports: [] })),
     );
-    renderWithProviders(<SportsPage />, ['/sports']);
-
+    renderSportsPage();
     expect(await screen.findByTestId('sports-empty')).toBeInTheDocument();
     expect(screen.getByLabelText('cta-add-sport')).toBeInTheDocument();
   });
@@ -81,8 +88,7 @@ describe('useSports × UI', () => {
         createErrorResponse('INTERNAL_SERVER_ERROR'),
       ),
     );
-    renderWithProviders(<SportsPage />, ['/sports']);
-
+    renderSportsPage();
     expect(await screen.findByTestId('sports-error')).toBeInTheDocument();
     // 2차 성공으로 변경
     server.use(
@@ -104,8 +110,7 @@ describe('useGameList × UI', () => {
   });
 
   it('모바일: 스켈레톤 → 데이터 전환', async () => {
-    renderWithProviders(<GameListPage />, ['/games']);
-
+    renderGameListPage();
     expect(screen.getByTestId('gamelist-skeleton')).toBeInTheDocument();
     expect(await screen.findByTestId('gamelist')).toBeInTheDocument();
     await waitFor(() => {
@@ -117,17 +122,16 @@ describe('useGameList × UI', () => {
     server.use(
       http.get('*/api/v1/games', () => HttpResponse.json({ games: [] })),
     );
-    renderWithProviders(<GameListPage />, ['/games']);
-
+    renderGameListPage();
     expect(await screen.findByTestId('gamelist-empty')).toBeInTheDocument();
     expect(screen.getByLabelText('cta-create-game')).toBeInTheDocument();
   });
 
   it('파라미터 변경 시 URL 쿼리와 동기화', async () => {
     // sportId=1&timePeriod=morning (소문자) → 내부적으로 upper 처리
-    renderWithProviders(<GameListPage />, [
-      '/games?sportId=1&timePeriod=morning',
-    ]);
+    renderGameListPage({
+      initialEntries: ['/test/games?sportId=1&timePeriod=morning'],
+    });
 
     // 필터 적용 결과: 농구 아침 매치만 보일 수 있음
     expect(await screen.findByTestId('gamelist')).toBeInTheDocument();
@@ -159,7 +163,7 @@ describe('useGameList × UI', () => {
   });
 
   it('refetchOnWindowFocus="always" → 포커스 시 최신 데이터 반영', async () => {
-    renderWithProviders(<GameListPage />, ['/games']);
+    renderGameListPage();
 
     // 1차 로드
     expect(await screen.findByTestId('gamelist')).toBeInTheDocument();
@@ -197,7 +201,7 @@ describe('useGameList × UI', () => {
         createErrorResponse('INTERNAL_SERVER_ERROR'),
       ),
     );
-    renderWithProviders(<GameListPage />, ['/games']);
+    renderGameListPage();
 
     expect(await screen.findByTestId('gamelist-error')).toBeInTheDocument();
 
