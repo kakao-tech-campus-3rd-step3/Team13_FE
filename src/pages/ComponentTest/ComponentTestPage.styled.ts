@@ -11,6 +11,37 @@ export const Container = styled.div`
   padding: ${spacing.spacing4};
 `;
 
+export const Section = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: ${spacing.spacing2};
+
+  h2 {
+    ${typography.title2Bold};
+    margin: 0;
+    color: ${colors.text.default};
+  }
+`;
+
+export const TestLinks = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${spacing.spacing2};
+
+  a {
+    ${typography.body2Bold};
+    padding: ${spacing.spacing1} ${spacing.spacing2};
+    border-radius: 999px;
+    background-color: ${colors.gray[100]};
+    color: ${colors.text.default};
+    text-decoration: none;
+
+    &:hover {
+      background-color: ${colors.gray[200]};
+    }
+  }
+`;
+
 export const EmailText = styled.p`
   margin: 0;
   ${typography.body1Regular};

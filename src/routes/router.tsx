@@ -1,6 +1,8 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import App from '@/App';
+import GameListPage from '@/features/games/pages/GameListPage';
+import SportsPage from '@/features/sports/pages/SportsPage';
 import ComponentTestPage from '@/pages/ComponentTest/ComponentTestPage';
 import { ProtectedRoute, PublicRoute } from '@/routes/ProtectedRoute';
 
@@ -59,6 +61,14 @@ export const router = createBrowserRouter([
   {
     path: '/test',
     element: <ComponentTestPage />,
+  },
+  {
+    path: '/test/sports',
+    element: <SportsPage />,
+  },
+  {
+    path: '/test/games',
+    element: <GameListPage />,
   },
 
   // 404 페이지
