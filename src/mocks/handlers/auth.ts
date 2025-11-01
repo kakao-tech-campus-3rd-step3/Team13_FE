@@ -60,11 +60,14 @@ const getGoogleAuthUrl = http.get<never, never, OAuthUrlResponse>(
 const getKakaoAuthUrl = http.get<never, never, OAuthUrlResponse>(
   '*/api/v1/auth/kakao',
   ({ request }) => {
-    const redirectUri = new URL(request.url).searchParams.get('redirectUri');
+    const url = new URL(request.url);
+    const redirectUri = url.searchParams.get('redirectUri');
+    const state = url.searchParams.get('state') ?? undefined;
     const authUrl = createOAuthUrl('https://kauth.kakao.com/oauth/authorize', {
       client_id: 'mock-kakao-client-id',
-      redirect_uri: redirectUri ?? 'https://localhost:5173/auth/kakao',
+      redirect_uri: redirectUri ?? 'https://localhost:5173/auth/kakao/callback',
       response_type: 'code',
+      state,
     });
     return HttpResponse.json<OAuthUrlResponse>({ authUrl });
   },
