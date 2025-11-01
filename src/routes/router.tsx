@@ -4,6 +4,7 @@ import App from '@/App';
 import GameListPage from '@/features/games/pages/GameListPage';
 import SportsPage from '@/features/sports/pages/SportsPage';
 import ComponentTestPage from '@/pages/ComponentTest/ComponentTestPage';
+import StoreDemoPage from '@/pages/StoreDemo/StoreDemoPage';
 import { ProtectedRoute, PublicRoute } from '@/routes/ProtectedRoute';
 
 /**
@@ -69,6 +70,10 @@ export const router = createBrowserRouter([
   {
     path: '/test/games',
     element: <GameListPage />,
+  },
+  {
+    path: '/test/store',
+    element: <StoreDemoPage />,
   },
 
   // 404 페이지
