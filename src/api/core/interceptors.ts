@@ -17,7 +17,7 @@ import { apiClient } from './axiosInstance';
 export const setupRequestInterceptor = () => {
   apiClient.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      // Zustand 스토어에서 액세스 토큰 가져오기
+      // Zustand 스토어에서 액세스 토큰 가져오기 (useAuthStore는 토큰/사용자 인증 상태 전용)
       const { accessToken } = useAuthStore.getState();
 
       // 토큰이 있으면 헤더에 추가
