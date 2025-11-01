@@ -9,9 +9,14 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { setupInterceptors } from '@/api/core/interceptors';
 import { queryClient } from '@/api/core/queryClient';
+import { bootstrapMSW } from '@/mocks/bootstrap';
 import { router } from '@/routes/router';
 import GlobalStyles from '@/styles/GlobalStyles.tsx';
 import { theme } from '@/theme';
+
+if (import.meta.env.DEV && import.meta.env.VITE_USE_MSW === 'true') {
+  await bootstrapMSW();
+}
 
 // Axios 인터셉터 설정 (앱 시작 시 한 번만 실행)
 setupInterceptors();
