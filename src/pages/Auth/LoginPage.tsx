@@ -3,7 +3,13 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import Button from '@/components/button';
 import RouteSkeleton from '@/components/RouteSkeleton';
+import { resolveFrom } from '@/routes/resolveFrom';
 import { useActions, useHasHydrated, useIsLoggedIn } from '@/stores/appStore';
+import {
+  useHasSession,
+  useSessionActions,
+  useSessionHydrated,
+} from '@/stores/sessionStore';
 
 import * as S from './LoginPage.styled';
 
@@ -19,10 +25,10 @@ function useLoginFlow() {
   const location = useLocation();
   const navigate = useNavigate();
   const { setUser, clearSessionExpired } = useActions();
+  const { setSession } = useSessionActions();
 
   const redirectPath = useMemo(() => {
-    const state = location.state as { from?: { pathname?: string } } | null;
-    return state?.from?.pathname ?? '/my';
+    return resolveFrom(location.state);
   }, [location.state]);
 
   const expired = searchParams.get('expired') === '1';
@@ -30,29 +36,37 @@ function useLoginFlow() {
   const handleLogin = useCallback(() => {
     setUser(DUMMY_USER);
     clearSessionExpired();
+    setSession('dummy-access-token');
     void navigate(redirectPath, { replace: true });
-  }, [clearSessionExpired, navigate, redirectPath, setUser]);
-
+  }, [clearSessionExpired, navigate, redirectPath, setSession, setUser]);
   return { expired, handleLogin, redirectPath };
 }
 
 export default function LoginPage() {
   const hydrated = useHasHydrated();
+  const sessionHydrated = useSessionHydrated();
   const isLoggedIn = useIsLoggedIn();
+  const hasSession = useHasSession();
   const navigate = useNavigate();
   const { expired, handleLogin, redirectPath } = useLoginFlow();
 
   useEffect(() => {
-    if (hydrated && isLoggedIn) {
+    if (hydrated && sessionHydrated && (isLoggedIn || hasSession)) {
       void navigate(redirectPath, { replace: true });
     }
-  }, [hydrated, isLoggedIn, navigate, redirectPath]);
-
-  if (!hydrated) {
+  }, [
+    hasSession,
+    hydrated,
+    isLoggedIn,
+    navigate,
+    redirectPath,
+    sessionHydrated,
+  ]);
+  if (!hydrated || !sessionHydrated) {
     return <RouteSkeleton />;
   }
 
-  if (isLoggedIn) {
+  if (isLoggedIn || hasSession) {
     return <RouteSkeleton />;
   }
 
