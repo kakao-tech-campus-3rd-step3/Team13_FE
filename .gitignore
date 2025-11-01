@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Build outputs
 node_modules
 dist
 dist-ssr
@@ -16,6 +17,11 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+.env.development
+.env.staging
+.env.test
+.env.production
+
 
 # Editor directories and files
 .vscode/*
@@ -28,6 +34,13 @@ dist-ssr
 *.sln
 *.sw?
 
+# Mock & test artifacts
+coverage/
+.vitest/
+*.tsbuildinfo
+msw.log
+
+# Temporary documentation / research notes
 GEMINI.md
 requirements.md
 temp.md
