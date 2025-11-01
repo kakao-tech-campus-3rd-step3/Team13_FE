@@ -2,76 +2,72 @@ import axios, { type AxiosError } from 'axios';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { resetCertificationState } from '@/mocks/handlers/certification';
+import { resetGamesState } from '@/mocks/handlers/games';
 import { resetProfileState } from '@/mocks/handlers/profile';
+import { resetReportsState } from '@/mocks/handlers/reports';
 import type { ApiErrorResponse } from '@/mocks/sharedErrors';
 
 const client = axios.create({
   baseURL: 'http://localhost',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 5000,
 });
 
 const expectAxiosError = async <T>(
   request: Promise<unknown>,
   assertions: (error: AxiosError<T>) => void,
 ) => {
-  await expect(request).rejects.toSatisfy((error: unknown) => {
-    if (!axios.isAxiosError<T>(error)) {
-      return false;
-    }
-
-    assertions(error);
+  await expect(request).rejects.toSatisfy((e: unknown) => {
+    if (!axios.isAxiosError<T>(e)) return false;
+    assertions(e);
     return true;
   });
 };
 
-describe('MSW와 axios 통합 동작', () => {
+describe('MSW × axios 통합', () => {
   beforeEach(() => {
     resetCertificationState();
     resetProfileState();
+    resetGamesState();
+    resetReportsState();
   });
 
-  it('카카오 OAuth URL 요청을 msw가 가로채어 응답한다', async () => {
-    const response = await client.get<{ url: string }>('/api/v1/auth/kakao', {
+  it('카카오 OAuth URL: authUrl 키로 응답', async () => {
+    const res = await client.get<{ authUrl: string }>('/api/v1/auth/kakao', {
       params: { redirectUri: 'https://kan.example.com/auth/kakao' },
     });
-
-    expect(response.status).toBe(200);
-    expect(response.data.url).toContain(
+    expect(res.status).toBe(200);
+    expect(res.data.authUrl).toContain(
       'redirect_uri=https://kan.example.com/auth/kakao',
     );
   });
 
-  it('axios POST 요청에서도 에러 응답을 재현할 수 있다', async () => {
+  it('인증 이메일 요청: localPart 누락 → code+message 단언', async () => {
     await expectAxiosError<ApiErrorResponse>(
       client.post('/api/v1/members/me/certification/email', {}),
-      (error) => {
-        const { response } = error;
-
+      ({ response }) => {
         expect(response?.status).toBe(400);
-        expect(response?.data.error.code).toBe('EMAIL_REQUIRED');
+        expect(response?.data.error).toEqual({
+          code: 'CERT_LOCAL_PART_REQUIRED',
+          message: '학교 이메일 localPart가 필요합니다.',
+        });
       },
     );
   });
 
-  it('프로필 수정 요청이 axios를 통해 성공적으로 처리된다', async () => {
-    const response = await client.patch<{ name: string }>(
-      '/api/v2/members/me/profile/name',
-      { name: '부산대학교 농구 주장' },
-    );
-
-    expect(response.status).toBe(200);
-    expect(response.data).toEqual({ name: '부산대학교 농구 주장' });
-
-    const profile = await client.get<{
-      memberId: number;
+  it('프로필 이름 수정 성공: ProfileResponse 반환', async () => {
+    const res = await client.patch<{
       name: string;
-      description: string;
+      email: string;
       imageUrl: string;
-    }>('/api/v2/members/me/profile');
+      description: string;
+    }>('/api/v2/members/me/profile/name', { name: '부산대 농구 에이스' });
 
-    expect(profile.status).toBe(200);
-    expect(profile.data).toMatchObject({ name: '부산대학교 농구 주장' });
+    expect(res.status).toBe(200);
+    const { name, email, imageUrl, description } = res.data;
+    expect(name).toBe('부산대 농구 에이스');
+    expect(typeof email).toBe('string');
+    expect(typeof imageUrl).toBe('string');
+    expect(typeof description).toBe('string');
   });
 });
