@@ -8,11 +8,7 @@ import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import ErrorPage from '@/pages/Error/ErrorPage';
 import MyPage from '@/pages/My/MyPage';
 import StoreDemoPage from '@/pages/StoreDemo/StoreDemoPage';
-import {
-  ProtectedRoute,
-  PublicRoute,
-  VerifiedRoute,
-} from '@/routes/ProtectedRoute';
+import { ProtectedRoute, PublicRoute, VerifiedRoute } from '@/routes/Guards';
 
 /**
  * 임시 페이지 컴포넌트들
