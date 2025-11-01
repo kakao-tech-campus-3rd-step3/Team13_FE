@@ -12,18 +12,12 @@ const schools = new Map<number, School>([
   [102, { id: 102, name: '서울대학교', domain: 'snu.ac.kr' }],
 ]);
 
-let mySchoolId: number | null = 101;
-
 export const resetSchoolsState = () => {
   nextSchoolId = 200;
   schools.clear();
   schools.set(101, { id: 101, name: '부산대학교', domain: 'pusan.ac.kr' });
   schools.set(102, { id: 102, name: '서울대학교', domain: 'snu.ac.kr' });
-  mySchoolId = 101;
 };
-
-// ❗ 변수를 실제로 "읽어" ESLint 경고 제거
-export const getSelectedSchoolId = () => mySchoolId;
 
 // GET /api/v1/schools
 const list = http.get<never, never, SchoolsResponse>('*/api/v1/schools', () =>
@@ -66,7 +60,6 @@ const select = http.post<
   const id = Number(params.schoolId);
   const s = schools.get(id);
   if (!s) return createErrorResponse('SCHOOL_NOT_FOUND');
-  mySchoolId = id;
   return HttpResponse.json<School>(s);
 });
 
