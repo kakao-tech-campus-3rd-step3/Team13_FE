@@ -48,3 +48,33 @@ export const NavLink = styled.a`
     text-decoration: underline;
   }
 `;
+
+export const PreviewSection = styled.section`
+  margin-top: ${({ theme }) => theme.spacing5};
+  display: grid;
+  gap: ${({ theme }) => theme.spacing3};
+  padding: ${({ theme }) => `${theme.spacing4}`};
+  border-radius: ${({ theme }) => theme.spacing3};
+  background: linear-gradient(
+    145deg,
+    ${({ theme }) => theme.gray[0]},
+    ${({ theme }) => theme.gray[100]}
+  );
+  box-shadow: 0 4px 24px rgba(26, 28, 32, 0.08);
+`;
+
+export const PreviewTitle = styled.h2`
+  margin: 0;
+  color: ${({ theme }) => theme.text.default};
+  font-size: ${({ theme }) => theme.subtitle1Bold.fontSize};
+  font-weight: ${({ theme }) => theme.subtitle1Bold.fontWeight};
+  line-height: ${({ theme }) => theme.subtitle1Bold.lineHeight};
+`;
+
+export const PreviewDescription = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.text.sub};
+  font-size: ${({ theme }) => theme.body2Regular.fontSize};
+  font-weight: ${({ theme }) => theme.body2Regular.fontWeight};
+  line-height: ${({ theme }) => theme.body2Regular.lineHeight};
+`;

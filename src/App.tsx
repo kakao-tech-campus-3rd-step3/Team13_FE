@@ -1,11 +1,17 @@
 import React from 'react';
 
+import UserHeader from '@/components/Header/UserHeader';
+import PreferenceToggles from '@/components/Toggles/PreferenceToggles';
+
 import {
   Description,
   Nav,
   NavItem,
   NavLink,
   NavList,
+  PreviewDescription,
+  PreviewSection,
+  PreviewTitle,
   Title,
   Container,
 } from './App.styled';
@@ -27,8 +33,20 @@ const App: React.FC = () => {
           <NavItem>
             <NavLink href="/test/games">게임 리스트 테스트</NavLink>
           </NavItem>
+          <NavItem>
+            <NavLink href="/test/store">스토어 상태 테스트</NavLink>
+          </NavItem>
         </NavList>
       </Nav>
+      <PreviewSection aria-label="store-preview">
+        <PreviewTitle>스토어 상태 UI 미리보기</PreviewTitle>
+        <PreviewDescription>
+          아래 토글과 헤더를 조작해 새로고침 후에도 상태가 유지되는지 확인해
+          보세요.
+        </PreviewDescription>
+        <UserHeader />
+        <PreferenceToggles />
+      </PreviewSection>
     </Container>
   );
 };
