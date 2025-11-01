@@ -30,11 +30,13 @@ type CreateGameRequest = {
 
 let nextGameId = 5000;
 const games = new Map<number, GameDetailResponse>();
+const finishedGames = new Set<number>();
 
 const iso = (d: Date) => d.toISOString();
 
 const seedGames = () => {
   games.clear();
+  finishedGames.clear();
   const now = new Date();
   const g1: GameDetailResponse = {
     gameId: ++nextGameId,
@@ -118,9 +120,14 @@ const joinGame = http.post<
   const id = Number(params.gameId);
   const g = games.get(id);
   if (!g) return createErrorResponse('GAME_NOT_FOUND');
-  if (g.gameStatus !== 'ON_MATCHING')
+  if (finishedGames.has(id) || g.gameStatus !== 'ON_MATCHING')
     return createErrorResponse('GAME_JOIN_NOT_ALLOWED');
-  return HttpResponse.json<GameDetailResponse>(g);
+
+  const updated: GameDetailResponse = { ...g, gameStatus: 'END' };
+  games.set(id, updated);
+  finishedGames.add(id);
+
+  return HttpResponse.json<GameDetailResponse>(updated);
 });
 
 // GET /api/v1/games?sportId=&timePeriod= → GamesResponse { games: GameResponse[] }

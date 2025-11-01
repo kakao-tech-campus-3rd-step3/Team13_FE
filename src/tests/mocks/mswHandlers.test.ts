@@ -100,6 +100,16 @@ describe('Auth 핸들러', () => {
     expect(status).toBe(200);
     expect(data.token).toBeTruthy();
   });
+  it('유효하지 않은 코드 → 401 AUTH_INVALID_CODE', async () => {
+    const { status, data } = await requestJson<ApiErrorResponse>(
+      '/api/v1/auth/kakao/callback?code=invalid',
+    );
+    expect(status).toBe(401);
+    expect(data.error).toEqual({
+      code: 'AUTH_INVALID_CODE',
+      message: '유효하지 않은 카카오 인가 코드입니다.',
+    });
+  });
 });
 
 describe('Certification 핸들러', () => {
@@ -222,6 +232,23 @@ describe('Games 핸들러', () => {
     expect(list.status).toBe(200);
     expect(list.data.games[0]).not.toHaveProperty('description');
   });
+
+  it('매치 상태가 종료되면 참여 불가', async () => {
+    const join = await requestJson<GameDetailResponse>('/api/v1/games/5001', {
+      method: 'POST',
+    });
+    expect(join.status).toBe(200);
+    expect(join.data.gameStatus).toBe('END');
+
+    const finished = await requestJson<ApiErrorResponse>('/api/v1/games/5001', {
+      method: 'POST',
+    });
+    expect(finished.status).toBe(409);
+    expect(finished.data.error).toEqual({
+      code: 'GAME_JOIN_NOT_ALLOWED',
+      message: '해당 매치에는 참여할 수 없습니다.',
+    });
+  });
 });
 
 describe('Schools/Reports 핸들러', () => {
@@ -262,6 +289,17 @@ describe('Schools/Reports 핸들러', () => {
     expect(bad.data.error).toEqual({
       code: 'REPORT_INVALID_STATUS',
       message: '잘못된 신고 상태 값입니다.',
+    });
+  });
+  it('없는 신고 ID → REPORT_NOT_FOUND', async () => {
+    const bad = await requestJson<ApiErrorResponse>(
+      '/api/v1/reports/9999/status',
+      { method: 'PATCH', body: { status: 'OPEN' } },
+    );
+    expect(bad.status).toBe(404);
+    expect(bad.data.error).toEqual({
+      code: 'REPORT_NOT_FOUND',
+      message: '요청한 신고를 찾을 수 없습니다.',
     });
   });
 });
