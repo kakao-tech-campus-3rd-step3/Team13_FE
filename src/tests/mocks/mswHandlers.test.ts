@@ -77,8 +77,12 @@ describe('Auth 핸들러', () => {
       '/api/v1/auth/kakao?redirectUri=https://kan.example.com/auth/kakao',
     );
     expect(status).toBe(200);
-    expect(data.authUrl).toContain(
-      'redirect_uri=https://kan.example.com/auth/kakao',
+    const url = new URL(data.authUrl);
+    expect(url.origin + url.pathname).toBe(
+      'https://kauth.kakao.com/oauth/authorize',
+    );
+    expect(url.searchParams.get('redirect_uri')).toBe(
+      'https://kan.example.com/auth/kakao',
     );
   });
 

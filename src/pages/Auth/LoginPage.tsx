@@ -1,8 +1,12 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import Button from '@/components/button';
 import RouteSkeleton from '@/components/RouteSkeleton';
+import { getOAuthUrl, type OAuthProvider } from '@/features/auth/api/authApi';
+import { AuthCard } from '@/features/auth/components/AuthCard';
+import { AuthProviderButton } from '@/features/auth/components/AuthProviderButton';
+import { notify } from '@/pages/notifications/notify';
 import { resolveFrom } from '@/routes/resolveFrom';
 import { useActions, useHasHydrated, useIsLoggedIn } from '@/stores/appStore';
 import {
@@ -10,6 +14,7 @@ import {
   useSessionActions,
   useSessionHydrated,
 } from '@/stores/sessionStore';
+import { redirectTo } from '@/utils/navigation';
 
 import * as S from './LoginPage.styled';
 
@@ -49,6 +54,26 @@ export default function LoginPage() {
   const hasSession = useHasSession();
   const navigate = useNavigate();
   const { expired, handleLogin, redirectPath } = useLoginFlow();
+  const [searchParams] = useSearchParams();
+  const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(
+    null,
+  );
+
+  const startOAuth = useCallback(
+    async (provider: OAuthProvider) => {
+      try {
+        setLoadingProvider(provider);
+        const redirect = searchParams.get('redirect') ?? undefined;
+        const url = await getOAuthUrl(provider, redirect);
+        redirectTo(url);
+      } catch {
+        notify.error('로그인을 시작하지 못했어요. 잠시 후 다시 시도해주세요.');
+      } finally {
+        setLoadingProvider(null);
+      }
+    },
+    [searchParams],
+  );
 
   useEffect(() => {
     if (hydrated && sessionHydrated && (isLoggedIn || hasSession)) {
@@ -71,24 +96,46 @@ export default function LoginPage() {
   }
 
   return (
-    <S.Page aria-label="login-page">
-      <S.Card>
-        <S.Heading>로그인</S.Heading>
-        <S.Description>
-          보호된 서비스를 이용하려면 로그인해 주세요. 더미 계정으로 진행하면
-          인증 플로우를 확인할 수 있습니다.
-        </S.Description>
+    <AuthCard>
+      <S.Section aria-label="login-page">
+        <S.Header>
+          <S.Title>로그인</S.Title>
+          <S.Description>
+            보호된 서비스를 이용하려면 소셜 계정을 연결해 주세요. 연결 후에는
+            다시 돌아오지 않아도 자동으로 로그인됩니다.
+          </S.Description>
+        </S.Header>
         {expired && (
-          <S.Toast role="alert" data-testid="toast">
+          <S.ExpiredNotice role="alert" data-testid="toast">
             세션이 만료되었어요. 다시 로그인해 주세요.
-          </S.Toast>
+          </S.ExpiredNotice>
         )}
-        <S.ButtonGroup>
+        <S.ButtonStack>
+          <AuthProviderButton
+            provider="google"
+            loading={loadingProvider === 'google'}
+            onClick={() => {
+              void startOAuth('google');
+            }}
+          />
+          <AuthProviderButton
+            provider="kakao"
+            loading={loadingProvider === 'kakao'}
+            onClick={() => {
+              void startOAuth('kakao');
+            }}
+          />
+        </S.ButtonStack>
+        <S.Divider>또는</S.Divider>
+        <S.DummyButtonWrapper>
           <Button onClick={handleLogin} ariaLabel="login-submit">
             더미 계정으로 로그인
           </Button>
-        </S.ButtonGroup>
-      </S.Card>
-    </S.Page>
+          <S.Description>
+            테스트 환경에서는 더미 계정을 사용해 인증 흐름을 검증할 수 있어요.
+          </S.Description>
+        </S.DummyButtonWrapper>
+      </S.Section>
+    </AuthCard>
   );
 }

@@ -37,8 +37,12 @@ describe('MSW × axios 통합', () => {
       params: { redirectUri: 'https://kan.example.com/auth/kakao' },
     });
     expect(res.status).toBe(200);
-    expect(res.data.authUrl).toContain(
-      'redirect_uri=https://kan.example.com/auth/kakao',
+    const url = new URL(res.data.authUrl);
+    expect(url.origin + url.pathname).toBe(
+      'https://kauth.kakao.com/oauth/authorize',
+    );
+    expect(url.searchParams.get('redirect_uri')).toBe(
+      'https://kan.example.com/auth/kakao',
     );
   });
 
