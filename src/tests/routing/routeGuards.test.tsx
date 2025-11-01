@@ -7,12 +7,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import LoginPage from '@/pages/Auth/LoginPage';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import MyPage from '@/pages/My/MyPage';
-import {
-  ProtectedRoute,
-  PublicRoute,
-  VerifiedRoute,
-} from '@/routes/ProtectedRoute';
+import { ProtectedRoute, PublicRoute, VerifiedRoute } from '@/routes/Guards';
 import { useAppStore } from '@/stores/appStore';
+import { useSessionStore } from '@/stores/sessionStore';
 import { theme } from '@/theme';
 
 const renderRoutes = (initialEntries: string[]) =>
@@ -39,6 +36,7 @@ const renderRoutes = (initialEntries: string[]) =>
 
 const resetStore = () => {
   localStorage.removeItem('app-store-v1');
+  localStorage.removeItem('session-store-v1');
   useAppStore.setState((state) => ({
     ...state,
     hasHydrated: true,
@@ -46,6 +44,12 @@ const resetStore = () => {
     notificationsEnabled: true,
     emailVerified: true,
     sessionExpired: false,
+  }));
+  useSessionStore.setState((state) => ({
+    ...state,
+    hasHydrated: true,
+    accessToken: null,
+    refreshToken: null,
   }));
 };
 

@@ -3,7 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import Button from '@/components/button';
 import RouteSkeleton from '@/components/RouteSkeleton';
+import { resolveFrom } from '@/routes/resolveFrom';
 import { useActions, useHasHydrated } from '@/stores/appStore';
+import { useSessionHydrated } from '@/stores/sessionStore';
 
 import * as S from './EmailCertPage.styled';
 
@@ -11,11 +13,11 @@ export default function EmailCertPage() {
   const { setEmailVerified } = useActions();
   const location = useLocation();
   const navigate = useNavigate();
-  const hydrated = useHasHydrated();
+  const appHydrated = useHasHydrated();
+  const sessionHydrated = useSessionHydrated();
 
   const redirectPath = useMemo(() => {
-    const state = location.state as { from?: { pathname?: string } } | null;
-    return state?.from?.pathname ?? '/my';
+    return resolveFrom(location.state);
   }, [location.state]);
 
   const handleVerify = useCallback(() => {
@@ -23,7 +25,7 @@ export default function EmailCertPage() {
     void navigate(redirectPath, { replace: true });
   }, [navigate, redirectPath, setEmailVerified]);
 
-  if (!hydrated) {
+  if (!appHydrated || !sessionHydrated) {
     return <RouteSkeleton />;
   }
 

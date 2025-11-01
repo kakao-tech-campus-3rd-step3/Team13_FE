@@ -5,16 +5,18 @@ import {
   useHasHydrated,
   useSessionExpired,
 } from '@/stores/appStore';
+import { useSessionHydrated } from '@/stores/sessionStore';
 
 import * as S from './MyPage.styled';
 
 export default function MyPage() {
-  const hydrated = useHasHydrated();
+  const appHydrated = useHasHydrated();
+  const sessionHydrated = useSessionHydrated();
   const user = useCurrentUser();
   const emailVerified = useEmailVerified();
   const sessionExpired = useSessionExpired();
 
-  if (!hydrated) {
+  if (!appHydrated || !sessionHydrated) {
     return <RouteSkeleton />;
   }
 
