@@ -6,6 +6,7 @@ import RouteSkeleton from '@/components/RouteSkeleton';
 import { getOAuthUrl, type OAuthProvider } from '@/features/auth/api/authApi';
 import { AuthCard } from '@/features/auth/components/AuthCard';
 import { AuthProviderButton } from '@/features/auth/components/AuthProviderButton';
+import KakaoButton from '@/features/auth/components/KakaoButton';
 import { notify } from '@/pages/notifications/notify';
 import { resolveFrom } from '@/routes/resolveFrom';
 import { useActions, useHasHydrated, useIsLoggedIn } from '@/stores/appStore';
@@ -118,13 +119,7 @@ export default function LoginPage() {
               void startOAuth('google');
             }}
           />
-          <AuthProviderButton
-            provider="kakao"
-            loading={loadingProvider === 'kakao'}
-            onClick={() => {
-              void startOAuth('kakao');
-            }}
-          />
+          <KakaoButton />
         </S.ButtonStack>
         <S.Divider>또는</S.Divider>
         <S.DummyButtonWrapper>
