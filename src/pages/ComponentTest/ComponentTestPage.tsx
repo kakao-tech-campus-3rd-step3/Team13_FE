@@ -84,6 +84,13 @@ function ComponentTestPage() {
 
   return (
     <>
+      <S.Section>
+        <h2>데이터 훅 테스트</h2>
+        <S.TestLinks>
+          <a href="/test/sports">스포츠 목록 테스트 보기</a>
+          <a href="/test/games">게임 리스트 테스트 보기</a>
+        </S.TestLinks>
+      </S.Section>
       <HomeTitleBar
         title="홈 타이틀바"
         onMenu={() => setMenuCount((c) => c + 1)}

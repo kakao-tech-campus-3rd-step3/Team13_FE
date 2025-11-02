@@ -1,83 +1,74 @@
 import { http, HttpResponse } from 'msw';
 
 import { createErrorResponse } from '../sharedErrors';
+import type { ApiErrorResponse } from '../sharedErrors';
 
-type CertificationState = {
-  email: string | null;
-  verified: boolean;
-  lastSentAt: string | null;
-  verifiedAt: string | null;
+type CertificationResponse = { isVerified: boolean };
+
+type CertState = {
+  localPart: string | null;
+  requested: boolean;
+  isVerified: boolean;
 };
 
-const certificationState: CertificationState = {
-  email: null,
-  verified: false,
-  lastSentAt: null,
-  verifiedAt: null,
+const certState: CertState = {
+  localPart: null,
+  requested: false,
+  isVerified: false,
 };
 
 export const resetCertificationState = () => {
-  certificationState.email = null;
-  certificationState.verified = false;
-  certificationState.lastSentAt = null;
-  certificationState.verifiedAt = null;
+  certState.localPart = null;
+  certState.requested = false;
+  certState.isVerified = false;
 };
 
-export const certificationHandlers = [
-  http.post('*/api/v1/members/me/certification/email', async ({ request }) => {
-    const body = (await request.json()) as { email?: string };
+const requestEmail = http.post<
+  never,
+  { localPart?: string },
+  CertificationResponse | ApiErrorResponse
+>('*/api/v1/members/me/certification/email', async ({ request }) => {
+  const { localPart } = (await request.json()) as { localPart?: string };
 
-    if (!body?.email) {
-      return createErrorResponse('EMAIL_REQUIRED');
-    }
+  if (!localPart || !localPart.trim())
+    return createErrorResponse('CERT_LOCAL_PART_REQUIRED');
+  if (localPart === 'limit') return createErrorResponse('CERT_RATE_LIMITED');
+  if (certState.isVerified && certState.localPart === localPart)
+    return createErrorResponse('CERT_ALREADY_VERIFIED');
 
-    if (body.email === 'already@kan.com' && certificationState.verified) {
-      return createErrorResponse('EMAIL_ALREADY_VERIFIED');
-    }
+  certState.localPart = localPart.trim();
+  certState.requested = true;
+  certState.isVerified = false;
 
-    if (body.email === 'limit@kan.com') {
-      return createErrorResponse('EMAIL_RATE_LIMITED');
-    }
+  return HttpResponse.json<CertificationResponse>({ isVerified: false });
+});
 
-    const now = new Date().toISOString();
+const verifyEmail = http.post<
+  never,
+  { localPart?: string; code?: string },
+  CertificationResponse | ApiErrorResponse
+>('*/api/v1/members/me/certification/verify', async ({ request }) => {
+  const { localPart, code } = (await request.json()) as {
+    localPart?: string;
+    code?: string;
+  };
 
-    certificationState.email = body.email;
-    certificationState.lastSentAt = now;
-    certificationState.verified = false;
-    certificationState.verifiedAt = null;
+  if (!certState.requested || !certState.localPart)
+    return createErrorResponse('CERT_NOT_REQUESTED');
+  if (!localPart || localPart.trim() !== certState.localPart)
+    return createErrorResponse('CERT_NOT_REQUESTED');
+  if (code !== '000000') return createErrorResponse('CERT_INVALID_TOKEN');
 
-    return HttpResponse.json({
-      email: body.email,
-      sentAt: now,
-    });
-  }),
-  http.post('*/api/v1/members/me/certification/verify', async ({ request }) => {
-    const body = (await request.json()) as { code?: string };
+  certState.isVerified = true;
+  return HttpResponse.json<CertificationResponse>({ isVerified: true });
+});
 
-    if (!certificationState.email) {
-      return createErrorResponse('EMAIL_NOT_REQUESTED');
-    }
-
-    if (!body?.code || body.code !== '000000') {
-      return createErrorResponse('EMAIL_INVALID_TOKEN');
-    }
-
-    const now = new Date().toISOString();
-
-    certificationState.verified = true;
-    certificationState.verifiedAt = now;
-
-    return HttpResponse.json({
-      email: certificationState.email,
-      verifiedAt: now,
-    });
-  }),
-  http.get('*/api/v1/members/me/certification/status', () =>
-    HttpResponse.json({
-      email: certificationState.email,
-      verified: certificationState.verified,
-      lastSentAt: certificationState.lastSentAt,
-      verifiedAt: certificationState.verifiedAt,
+const status = http.get<never, never, CertificationResponse>(
+  '*/api/v1/members/me/certification/status',
+  () =>
+    HttpResponse.json<CertificationResponse>({
+      isVerified: certState.isVerified,
     }),
-  ),
-];
+);
+
+export const certificationHandlers = [requestEmail, verifyEmail, status];

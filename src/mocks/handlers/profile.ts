@@ -1,127 +1,134 @@
 import { http, HttpResponse } from 'msw';
 
 import { createErrorResponse } from '../sharedErrors';
+import type { ApiErrorResponse } from '../sharedErrors';
 
-type MemberProfile = {
+type Profile = {
   memberId: number;
   name: string;
-  description: string;
+  email: string;
   imageUrl: string;
+  description: string;
 };
 
-const defaultMembers: MemberProfile[] = [
+type ProfileResponse = {
+  name: string;
+  email: string;
+  imageUrl: string;
+  description: string;
+};
+
+const defaultMembers: Profile[] = [
   {
     memberId: 101,
     name: '김대영',
+    email: 'kimdy@pusan.ac.kr',
     description: '부산대학교 농구 동아리 주장',
     imageUrl: 'https://example.com/avatar/kimdaeyoung.png',
   },
   {
     memberId: 102,
     name: '부산대학교 리그',
+    email: 'league@pusan.ac.kr',
     description: '부산대학교 농구 리그 운영진',
     imageUrl: 'https://example.com/avatar/busan-league.png',
   },
 ];
 
-let myProfile: MemberProfile = { ...defaultMembers[0] };
+let myProfile: Profile = { ...defaultMembers[0] };
+const directory = new Map<number, Profile>();
 
-const memberDirectory = new Map<number, MemberProfile>();
-
-const seedDirectory = () => {
-  memberDirectory.clear();
-  memberDirectory.set(myProfile.memberId, myProfile);
-  for (const member of defaultMembers.slice(1)) {
-    memberDirectory.set(member.memberId, { ...member });
-  }
+const seed = () => {
+  directory.clear();
+  directory.set(myProfile.memberId, myProfile);
+  for (const m of defaultMembers.slice(1)) directory.set(m.memberId, { ...m });
 };
+seed();
 
 export const resetProfileState = () => {
   myProfile = { ...defaultMembers[0] };
-  seedDirectory();
+  seed();
 };
-
-seedDirectory();
 
 const isValidUrl = (url: string) => {
   try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    const u = new URL(url);
+    return u.protocol === 'http:' || u.protocol === 'https:';
   } catch {
     return false;
   }
 };
 
+const toResponse = (p: Profile): ProfileResponse => ({
+  name: p.name,
+  email: p.email,
+  imageUrl: p.imageUrl,
+  description: p.description,
+});
+
+const getMe = http.get<never, never, ProfileResponse>(
+  '*/api/v2/members/me/profile',
+  () => HttpResponse.json<ProfileResponse>(toResponse(myProfile)),
+);
+
+const getMember = http.get<
+  { memberId: string },
+  never,
+  ProfileResponse | ApiErrorResponse
+>('*/api/v2/members/:memberId/profile', ({ params }) => {
+  const memberId = Number(params.memberId);
+  if (Number.isNaN(memberId)) return createErrorResponse('PROFILE_NOT_FOUND');
+  const p = directory.get(memberId);
+  if (!p) return createErrorResponse('PROFILE_NOT_FOUND');
+  return HttpResponse.json<ProfileResponse>(toResponse(p));
+});
+
+const patchName = http.patch<
+  never,
+  { name?: string },
+  ProfileResponse | ApiErrorResponse
+>('*/api/v2/members/me/profile/name', async ({ request }) => {
+  const body = (await request.json()) as { name?: string };
+  const name = body?.name?.trim() ?? '';
+  if (!name || name.length > 31)
+    return createErrorResponse('PROFILE_INVALID_NAME');
+  myProfile = { ...myProfile, name };
+  directory.set(myProfile.memberId, myProfile);
+  return HttpResponse.json<ProfileResponse>(toResponse(myProfile));
+});
+
+const patchImageUrl = http.patch<
+  never,
+  { imageUrl?: string },
+  ProfileResponse | ApiErrorResponse
+>('*/api/v2/members/me/profile/image-url', async ({ request }) => {
+  const body = (await request.json()) as { imageUrl?: string };
+  const imageUrl = body?.imageUrl?.trim() ?? '';
+  if (!imageUrl || imageUrl.length > 255 || !isValidUrl(imageUrl))
+    return createErrorResponse('PROFILE_INVALID_IMAGE_URL');
+  myProfile = { ...myProfile, imageUrl };
+  directory.set(myProfile.memberId, myProfile);
+  return HttpResponse.json<ProfileResponse>(toResponse(myProfile));
+});
+
+const patchDescription = http.patch<
+  never,
+  { description?: string },
+  ProfileResponse | ApiErrorResponse
+>('*/api/v2/members/me/profile/description', async ({ request }) => {
+  const body = (await request.json()) as { description?: string };
+  const description = (body?.description ?? '').toString();
+  if (description.length > 255)
+    return createErrorResponse('PROFILE_INVALID_DESCRIPTION');
+  myProfile = { ...myProfile, description };
+  directory.set(myProfile.memberId, myProfile);
+  return HttpResponse.json<ProfileResponse>(toResponse(myProfile));
+});
+
 export const profileHandlers = [
-  http.get('*/api/v2/members/me/profile', () =>
-    HttpResponse.json({
-      memberId: myProfile.memberId,
-      name: myProfile.name,
-      description: myProfile.description,
-      imageUrl: myProfile.imageUrl,
-    }),
-  ),
-  http.get('*/api/v2/members/:memberId/profile', ({ params }) => {
-    const memberId = Number(params.memberId);
-
-    if (Number.isNaN(memberId)) {
-      return createErrorResponse('PROFILE_NOT_FOUND');
-    }
-
-    const profile = memberDirectory.get(memberId);
-
-    if (!profile) {
-      return createErrorResponse('PROFILE_NOT_FOUND');
-    }
-
-    return HttpResponse.json(profile);
-  }),
-  http.patch('*/api/v2/members/me/profile/name', async ({ request }) => {
-    const body = (await request.json()) as { name?: string };
-    const name = body?.name?.trim();
-
-    if (!name || name.length < 2 || name.length > 20) {
-      return createErrorResponse('PROFILE_INVALID_NAME');
-    }
-
-    myProfile = {
-      ...myProfile,
-      name,
-    };
-    memberDirectory.set(myProfile.memberId, myProfile);
-
-    return HttpResponse.json({ name });
-  }),
-  http.patch('*/api/v2/members/me/profile/description', async ({ request }) => {
-    const body = (await request.json()) as { description?: string };
-    const description = body?.description ?? '';
-
-    if (description.length > 150) {
-      return createErrorResponse('PROFILE_INVALID_DESCRIPTION');
-    }
-
-    myProfile = {
-      ...myProfile,
-      description,
-    };
-    memberDirectory.set(myProfile.memberId, myProfile);
-
-    return HttpResponse.json({ description });
-  }),
-  http.patch('*/api/v2/members/me/profile/image-url', async ({ request }) => {
-    const body = (await request.json()) as { imageUrl?: string };
-    const imageUrl = body?.imageUrl?.trim();
-
-    if (!imageUrl || !isValidUrl(imageUrl)) {
-      return createErrorResponse('PROFILE_INVALID_IMAGE_URL');
-    }
-
-    myProfile = {
-      ...myProfile,
-      imageUrl,
-    };
-    memberDirectory.set(myProfile.memberId, myProfile);
-
-    return HttpResponse.json({ imageUrl });
-  }),
+  getMe,
+  getMember,
+  patchName,
+  patchImageUrl,
+  patchDescription,
 ];
