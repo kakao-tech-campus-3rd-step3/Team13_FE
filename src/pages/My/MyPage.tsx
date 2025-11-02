@@ -1,11 +1,15 @@
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import RouteSkeleton from '@/components/RouteSkeleton';
 import {
   useCurrentUser,
   useEmailVerified,
   useHasHydrated,
   useSessionExpired,
+  useActions,
 } from '@/stores/appStore';
-import { useSessionHydrated } from '@/stores/sessionStore';
+import { useSessionActions, useSessionHydrated } from '@/stores/sessionStore';
 
 import * as S from './MyPage.styled';
 
@@ -15,7 +19,15 @@ export default function MyPage() {
   const user = useCurrentUser();
   const emailVerified = useEmailVerified();
   const sessionExpired = useSessionExpired();
+  const { logout } = useActions();
+  const { clearSession } = useSessionActions();
+  const navigate = useNavigate();
 
+  const handleLogout = useCallback(() => {
+    logout();
+    clearSession();
+    void navigate('/login', { replace: true });
+  }, [clearSession, logout, navigate]);
   if (!appHydrated || !sessionHydrated) {
     return <RouteSkeleton />;
   }
@@ -45,6 +57,15 @@ export default function MyPage() {
                 </S.StatusValue>
               </S.StatusItem>
             </S.StatusList>
+            <S.Actions>
+              <S.LogoutButton
+                type="button"
+                onClick={handleLogout}
+                aria-label="logout"
+              >
+                로그아웃
+              </S.LogoutButton>
+            </S.Actions>
           </>
         ) : (
           <S.EmptyState>

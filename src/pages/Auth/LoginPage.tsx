@@ -29,6 +29,8 @@ const DUMMY_USER = {
   email: 'kimdy@pusan.ac.kr',
   avatarUrl: 'https://via.placeholder.com/120',
 };
+const DUMMY_ACCESS_TOKEN =
+  'eyJhbGciOiJIUzUxMiJ9.eyJtZW1iZXJJZCI6MX0.xJ4MVDKX19ri1pP4HggrLMNyPwC2SVpH7JuifBH8YpR7c3aW4ytlDivm8RFLxrrAiK00KXBOebVTMWSri8HNUg';
 
 function useLoginFlow() {
   const [searchParams] = useSearchParams();
@@ -49,7 +51,7 @@ function useLoginFlow() {
   const handleLogin = useCallback(() => {
     setUser(DUMMY_USER);
     clearSessionExpired();
-    setSession('dummy-access-token');
+    setSession(DUMMY_ACCESS_TOKEN);
     void navigate(redirectTarget, { replace: true });
   }, [clearSessionExpired, navigate, redirectTarget, setSession, setUser]);
   return { expired, handleLogin, redirectTarget };

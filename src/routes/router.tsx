@@ -25,7 +25,7 @@ const NotFoundPage = () => <div>404 - 페이지를 찾을 수 없습니다</div>
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/test" replace />, // 루트 접근 시 테스트 페이지로 리다이렉트
+    element: <Navigate to="/login" replace />, // 루트 접근 시 로그인 페이지로 리다이렉트
   },
 
   // 공개 라우트 (미인증 사용자용)

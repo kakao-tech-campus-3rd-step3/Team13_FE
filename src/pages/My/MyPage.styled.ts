@@ -94,3 +94,32 @@ export const StatusValue = styled.dd`
   color: ${colors.text.default};
   margin: 0;
 `;
+
+export const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: ${spacing.spacing4};
+`;
+
+export const LogoutButton = styled.button`
+  padding: ${spacing.spacing2} ${spacing.spacing4};
+  border-radius: 9999px;
+  border: none;
+  background-color: ${colors.blue[700]};
+  color: ${colors.gray[0]};
+  ${typography.body1Bold};
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(33, 124, 249, 0.25);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(19, 95, 205, 0.35);
+  }
+`;

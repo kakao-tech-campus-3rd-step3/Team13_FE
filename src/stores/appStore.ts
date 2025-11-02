@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { useSessionStore } from './sessionStore';
+
 export type User = {
   id: number;
   name: string;
@@ -38,6 +40,7 @@ export const useAppStore = create<AppState>()(
         setUser: (user) => set({ user, sessionExpired: false }),
         logout: () => {
           const { resetAll } = get().actions;
+          useSessionStore.getState().actions.clearSession();
           resetAll();
         },
         toggleNotifications: () =>
