@@ -20,8 +20,8 @@ export default function KakaoCallbackPage() {
     }
 
     void (async () => {
-      const nextPath = await handleKakaoCallback({ code, state });
-      void navigate(nextPath, { replace: true });
+      const { to, options } = await handleKakaoCallback({ code, state });
+      void navigate(to, { replace: true, ...(options ?? {}) });
     })();
   }, [appHydrated, sessionHydrated, code, state, navigate]);
 

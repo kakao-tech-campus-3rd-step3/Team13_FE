@@ -3,6 +3,12 @@ import { apiClient } from '@/api/core/axiosInstance';
 type NestedOAuthUrlResponse = {
   authUrl?: string;
   url?: string;
+  href?: string;
+  location?: string;
+  redirectUrl?: string;
+  redirectUri?: string;
+  authorizeUrl?: string;
+  loginUrl?: string;
   data?: NestedOAuthUrlResponse;
   result?: NestedOAuthUrlResponse;
   payload?: NestedOAuthUrlResponse;
@@ -17,19 +23,49 @@ type NestedAuthResponse = {
   payload?: NestedAuthResponse;
 };
 const nestedKeys = ['data', 'result', 'payload'] as const;
+const urlKeys = [
+  'authUrl',
+  'url',
+  'href',
+  'location',
+  'redirectUrl',
+  'redirectUri',
+  'authorizeUrl',
+  'loginUrl',
+] as const satisfies readonly (keyof NestedOAuthUrlResponse)[];
+
+function sanitizeUrl(candidate: string): string | null {
+  const trimmed = candidate.trim();
+  if (!trimmed) return null;
+
+  const lowered = trimmed.toLowerCase();
+  if (lowered === 'undefined' || lowered === 'null') {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.toString();
+  } catch {
+    return /^https?:\/\//i.test(trimmed) ? trimmed : null;
+  }
+}
 
 function extractAuthUrl(raw: unknown): string | null {
   if (!raw) return null;
-  if (typeof raw === 'string') return raw;
+  if (typeof raw === 'string') return sanitizeUrl(raw);
   if (typeof raw !== 'object') return null;
 
-  const candidate =
-    (raw as NestedOAuthUrlResponse).authUrl ??
-    (raw as NestedOAuthUrlResponse).url ??
-    null;
-
-  if (typeof candidate === 'string' && candidate.length > 0) {
-    return candidate;
+  for (const key of urlKeys) {
+    const candidate = (raw as NestedOAuthUrlResponse)[key];
+    if (typeof candidate === 'string') {
+      const sanitized = sanitizeUrl(candidate);
+      if (sanitized) return sanitized;
+    }
+    if (candidate) {
+      const nestedCandidate = extractAuthUrl(candidate);
+      if (nestedCandidate) return nestedCandidate;
+    }
   }
 
   for (const key of nestedKeys) {

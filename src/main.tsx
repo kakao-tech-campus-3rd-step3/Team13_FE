@@ -25,6 +25,8 @@ setupInterceptors();
 registerNotifier({
   error: (message) => toast.error(message),
   info: (message) => toast.info(message),
+  success: (message) => toast.success(message),
+  warning: (message) => toast.warn(message),
 });
 
 createRoot(document.getElementById('root')!).render(
