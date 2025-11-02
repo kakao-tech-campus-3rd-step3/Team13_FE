@@ -1,38 +1,50 @@
 /* @vitest-environment jsdom */
 import { ThemeProvider } from '@emotion/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { resetCertificationState } from '@/mocks/handlers/certification';
 import LoginPage from '@/pages/Auth/LoginPage';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import MyPage from '@/pages/My/MyPage';
+import { registerNotifier } from '@/pages/notifications/notify';
 import { ProtectedRoute, PublicRoute, VerifiedRoute } from '@/routes/Guards';
 import { useAppStore } from '@/stores/appStore';
 import { useSessionStore } from '@/stores/sessionStore';
 import { theme } from '@/theme';
 
-const renderRoutes = (initialEntries: string[]) =>
-  render(
+let queryClient: QueryClient;
+
+const renderRoutes = (initialEntries: string[]) => {
+  queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: 0 }, mutations: { retry: 0 } },
+  });
+
+  return render(
     <ThemeProvider theme={theme}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <Routes>
-          <Route element={<PublicRoute />}>
-            <Route path="/login" element={<LoginPage />} />
-          </Route>
-
-          <Route element={<ProtectedRoute />}>
-            <Route path="/email-cert" element={<EmailCertPage />} />
-            <Route element={<VerifiedRoute />}>
-              <Route path="/my" element={<MyPage />} />
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={initialEntries}>
+          <Routes>
+            <Route element={<PublicRoute />}>
+              <Route path="/login" element={<LoginPage />} />
             </Route>
-          </Route>
 
-          <Route path="*" element={<div>404</div>} />
-        </Routes>
-      </MemoryRouter>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/email-cert" element={<EmailCertPage />} />
+              <Route element={<VerifiedRoute />}>
+                <Route path="/my" element={<MyPage />} />
+              </Route>
+            </Route>
+
+            <Route path="*" element={<div>404</div>} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
     </ThemeProvider>,
   );
+};
 
 const resetStore = () => {
   localStorage.removeItem('app-store-v1');
@@ -55,7 +67,18 @@ const resetStore = () => {
 
 describe('Route Guards', () => {
   beforeEach(() => {
+    registerNotifier({
+      error: vi.fn(),
+      info: vi.fn(),
+      success: vi.fn(),
+      warning: vi.fn(),
+    });
+    resetCertificationState();
     resetStore();
+  });
+
+  afterEach(() => {
+    queryClient.clear();
   });
 
   it('/my 진입 시 미로그인 사용자는 /login 으로 이동한다', () => {
@@ -72,7 +95,7 @@ describe('Route Guards', () => {
     expect(screen.getByLabelText('my-page')).toBeInTheDocument();
   });
 
-  it('이메일 미인증 사용자는 /email-cert 로 유도된다', () => {
+  it('이메일 미인증 사용자는 /email-cert 로 유도된다', async () => {
     useAppStore.setState((state) => ({
       ...state,
       user: {
@@ -86,10 +109,12 @@ describe('Route Guards', () => {
 
     renderRoutes(['/my']);
 
-    expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
+    });
   });
 
-  it('/email-cert 에서 인증 완료 시 /my 로 이동한다', () => {
+  it('/email-cert 에서 인증 완료 시 /my 로 이동한다', async () => {
     useAppStore.setState((state) => ({
       ...state,
       user: {
@@ -103,9 +128,29 @@ describe('Route Guards', () => {
 
     renderRoutes(['/email-cert']);
 
-    fireEvent.click(screen.getByLabelText('email-verify-complete'));
+    await waitFor(() => {
+      expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
+    });
 
-    expect(screen.getByLabelText('my-page')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
+      target: { value: 'user@pusan.ac.kr' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'send-cert-code' }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/재전송 대기/)).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText('인증 코드 6자리'), {
+      target: { value: '000000' },
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'submit-certification' }),
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('my-page')).toBeInTheDocument();
+    });
   });
 
   it('세션 만료 사용자는 /login?expired=1 로 이동하고 토스트를 본다', () => {
