@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import RouteSkeleton from '@/components/RouteSkeleton';
 import { resolveFrom } from '@/routes/resolveFrom';
 import {
+  useActions,
   useEmailVerified,
   useHasHydrated,
   useIsLoggedIn,
@@ -40,11 +41,15 @@ export function ProtectedRoute() {
   const sessionExpired = useSessionExpired();
   const location = useLocation();
   const { clearSession } = useSessionActions();
+  const { logout } = useActions();
 
   if (!appHydrated || !sessionHydrated) return <RouteSkeleton />;
   if ((!isLoggedIn && !hasSession) || sessionExpired) {
-    if (sessionExpired && hasSession) {
+    if (hasSession) {
       clearSession();
+    }
+    if (isLoggedIn) {
+      logout();
     }
     const suffix = sessionExpired ? '?expired=1' : '';
     return (

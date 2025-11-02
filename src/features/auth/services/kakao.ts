@@ -16,8 +16,16 @@ const AFTER_LOGIN_DEFAULT =
 
 export async function startKakaoLogin(fromPath: string) {
   const state = buildOAuthState(fromPath);
-  const { authUrl } = await getKakaoOAuthUrl({ state });
+  const redirectUri =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/auth/kakao/callback`
+      : undefined;
+  const authUrl = await getKakaoOAuthUrl({ state, redirectUri });
 
+  if (!authUrl) {
+    notify.error('카카오 로그인 주소를 불러오지 못했어요. 다시 시도해 주세요.');
+    return;
+  }
   window.location.assign(authUrl);
 }
 
@@ -34,8 +42,17 @@ export async function handleKakaoCallback({
   }
 
   try {
-    const { token } = await exchangeKakaoCode(code);
-    useSessionStore.getState().actions.setSession(token);
+    const { token, accessToken, refreshToken } = await exchangeKakaoCode(code);
+    const sessionToken = accessToken ?? token ?? null;
+
+    if (!sessionToken) {
+      notify.error('인증 토큰을 확인하지 못했어요. 다시 로그인해 주세요.');
+      return '/login';
+    }
+
+    useSessionStore
+      .getState()
+      .actions.setSession(sessionToken, refreshToken ?? null);
 
     const profile = await getMyProfile();
     useAppStore.getState().actions.setUser({
