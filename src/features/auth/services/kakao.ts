@@ -69,26 +69,26 @@ export async function handleKakaoCallback({
       avatarUrl: profile.imageUrl,
     });
 
-    let isVerified = true;
+    const resolvedPath = resolveOAuthState(state, AFTER_LOGIN_DEFAULT);
     try {
       const status = await getCertificationStatus();
-      isVerified = Boolean(status?.isVerified);
+      const isVerified = Boolean(status?.isVerified);
       setEmailVerified(isVerified);
+      if (!isVerified) {
+        return {
+          to: '/email-cert',
+          options: { state: { from: resolvedPath } },
+        };
+      }
+
+      return { to: resolvedPath };
     } catch {
-      // 인증 상태 확인 실패 시 기본 경로로 이동하지만 토스트만 안내
-      setEmailVerified(true);
+      setEmailVerified(false);
       notify.info(
-        '이메일 인증 상태를 확인하지 못했어요. 마이페이지에서 다시 시도해 주세요.',
+        '이메일 인증 상태 확인에 실패했어요. 인증을 먼저 완료해 주세요.',
       );
     }
-
-    const resolvedPath = resolveOAuthState(state, AFTER_LOGIN_DEFAULT);
-
-    if (!isVerified) {
-      return { to: '/email-cert', options: { state: { from: resolvedPath } } };
-    }
-
-    return { to: resolvedPath };
+    return { to: '/email-cert', options: { state: { from: resolvedPath } } };
   } catch {
     notify.error('인증 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.');
     return { to: '/login' };
