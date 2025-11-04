@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
+import { getCertificationStatus } from '@/api/certification';
 import Button from '@/components/button';
 import RouteSkeleton from '@/components/RouteSkeleton';
 import LoginTitleBar from '@/components/titleBar/loginTitleBar';
@@ -36,7 +37,7 @@ function useLoginFlow() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { setUser, clearSessionExpired } = useActions();
+  const { setUser, clearSessionExpired, setEmailVerified } = useActions();
   const { setSession } = useSessionActions();
 
   const redirectPath = useMemo(() => {
@@ -49,11 +50,45 @@ function useLoginFlow() {
   const expired = searchParams.get('expired') === '1';
 
   const handleLogin = useCallback(() => {
-    setUser(DUMMY_USER);
-    clearSessionExpired();
-    setSession(DUMMY_ACCESS_TOKEN);
-    void navigate(redirectTarget, { replace: true });
-  }, [clearSessionExpired, navigate, redirectTarget, setSession, setUser]);
+    void (async () => {
+      clearSessionExpired();
+      setSession(DUMMY_ACCESS_TOKEN);
+      setUser(DUMMY_USER);
+
+      try {
+        const status = await getCertificationStatus();
+        const isVerified = Boolean(status?.isVerified);
+        setEmailVerified(isVerified);
+
+        if (!isVerified) {
+          void navigate('/email-cert', {
+            replace: true,
+            state: { from: redirectTarget },
+          });
+          return;
+        }
+      } catch {
+        setEmailVerified(false);
+        notify.info(
+          '이메일 인증 상태 확인에 실패했어요. 인증을 먼저 완료해 주세요.',
+        );
+        void navigate('/email-cert', {
+          replace: true,
+          state: { from: redirectTarget },
+        });
+        return;
+      }
+
+      void navigate(redirectTarget, { replace: true });
+    })();
+  }, [
+    clearSessionExpired,
+    navigate,
+    redirectTarget,
+    setEmailVerified,
+    setSession,
+    setUser,
+  ]);
   return { expired, handleLogin, redirectTarget };
 }
 
