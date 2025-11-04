@@ -9,6 +9,12 @@ import {
   useSessionExpired,
   useActions,
 } from '@/stores/appStore';
+import {
+  mapSlotToPeriod,
+  usePrefActions,
+  useSelectedSports,
+  useSelectedTimeSlots,
+} from '@/stores/preferencesStore';
 import { useSessionActions, useSessionHydrated } from '@/stores/sessionStore';
 
 import * as S from './MyPage.styled';
@@ -22,12 +28,19 @@ export default function MyPage() {
   const { logout } = useActions();
   const { clearSession } = useSessionActions();
   const navigate = useNavigate();
+  const sports = useSelectedSports();
+  const timeSlots = useSelectedTimeSlots();
+  const { resetAll } = usePrefActions();
+  const preferredPeriods = Array.from(
+    new Set(timeSlots.map((slot) => mapSlotToPeriod(slot))),
+  );
 
   const handleLogout = useCallback(() => {
     logout();
     clearSession();
+    resetAll();
     void navigate('/login', { replace: true });
-  }, [clearSession, logout, navigate]);
+  }, [clearSession, logout, navigate, resetAll]);
   if (!appHydrated || !sessionHydrated) {
     return <RouteSkeleton />;
   }
@@ -54,6 +67,20 @@ export default function MyPage() {
                 <S.StatusLabel>세션 상태</S.StatusLabel>
                 <S.StatusValue>
                   {sessionExpired ? '만료됨' : '활성'}
+                </S.StatusValue>
+              </S.StatusItem>
+              <S.StatusItem>
+                <S.StatusLabel>선호 종목</S.StatusLabel>
+                <S.StatusValue>
+                  {sports.length > 0 ? `${sports.length}개` : '미선택'}
+                </S.StatusValue>
+              </S.StatusItem>
+              <S.StatusItem>
+                <S.StatusLabel>선호 시간대</S.StatusLabel>
+                <S.StatusValue>
+                  {preferredPeriods.length > 0
+                    ? preferredPeriods.join(', ')
+                    : '미선택'}
                 </S.StatusValue>
               </S.StatusItem>
             </S.StatusList>
