@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 import {
   getCertificationStatus,
@@ -11,13 +12,17 @@ export const CERTIFICATION_STATUS_KEY = ['certification', 'status'] as const;
 export function useCertificationStatus() {
   const { setEmailVerified } = useActions();
 
-  return useQuery<CertificationStatusResponse>({
+  const queryResult = useQuery<CertificationStatusResponse>({
     queryKey: CERTIFICATION_STATUS_KEY,
     queryFn: getCertificationStatus,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
-    onSuccess: ({ isVerified }) => {
-      setEmailVerified(Boolean(isVerified));
-    },
   });
+
+  useEffect(() => {
+    if (queryResult.data?.isVerified === undefined) return;
+    setEmailVerified(Boolean(queryResult.data.isVerified));
+  }, [queryResult.data?.isVerified, setEmailVerified]);
+
+  return queryResult;
 }
