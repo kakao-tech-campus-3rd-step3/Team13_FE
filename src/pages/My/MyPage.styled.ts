@@ -13,6 +13,12 @@ export const Page = styled.main`
   background-color: ${colors.background.fill};
 `;
 
+export const TitleBarWrapper = styled.div`
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+`;
+
 export const ProfileSection = styled.section`
   display: flex;
   flex-direction: column;

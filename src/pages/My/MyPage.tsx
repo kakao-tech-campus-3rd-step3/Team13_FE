@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import RouteSkeleton from '@/components/RouteSkeleton';
+import OriginTitleBar from '@/components/titleBar/originTitleBar';
 import {
   useCurrentUser,
   useEmailVerified,
@@ -35,6 +36,14 @@ export default function MyPage() {
     new Set(timeSlots.map((slot) => mapSlotToPeriod(slot))),
   );
 
+  const handleBack = useCallback(() => {
+    if (window.history.length > 1) {
+      void navigate(-1);
+      return;
+    }
+    void navigate('/onboarding/times', { replace: true });
+  }, [navigate]);
+
   const handleLogout = useCallback(() => {
     logout();
     clearSession();
@@ -47,6 +56,9 @@ export default function MyPage() {
 
   return (
     <S.Page aria-label="my-page">
+      <S.TitleBarWrapper>
+        <OriginTitleBar title="내 계정" onBack={handleBack} />
+      </S.TitleBarWrapper>
       <S.ProfileSection>
         <S.Heading>내 계정</S.Heading>
         {user ? (

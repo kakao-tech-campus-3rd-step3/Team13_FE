@@ -13,7 +13,9 @@ const shimmer = keyframes`
 export const HeaderContainer = styled.header`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing3};
+  row-gap: ${({ theme }) => theme.spacing2};
   padding: ${({ theme }) => `${theme.spacing3} ${theme.spacing4}`};
   border-bottom: 1px solid ${({ theme }) => theme.border.default};
   background: linear-gradient(
@@ -76,8 +78,62 @@ export const UserEmail = styled.span`
   line-height: ${({ theme }) => theme.body2Regular.lineHeight};
 `;
 
-export const ActionArea = styled.div`
+export const Controls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing2};
   margin-left: auto;
+`;
+
+export const Navigation = styled.nav`
+  display: flex;
+  align-items: center;
+`;
+
+export const NavList = styled.ul`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing2};
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`;
+
+export const NavItem = styled.li`
+  display: flex;
+`;
+
+export const NavButton = styled.button`
+  padding: ${({ theme }) => `${theme.spacing1} ${theme.spacing2}`};
+  border-radius: ${({ theme }) => theme.spacing2};
+  border: none;
+  background: transparent;
+  color: ${({ theme }) => theme.text.sub};
+  font-size: ${({ theme }) => theme.body2Bold.fontSize};
+  font-weight: ${({ theme }) => theme.body2Bold.fontWeight};
+  line-height: ${({ theme }) => theme.body2Bold.lineHeight};
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+
+  &:hover {
+    color: ${({ theme }) => theme.blue[700]};
+  }
+
+  &[data-active='true'] {
+    color: ${({ theme }) => theme.blue[700]};
+    background-color: ${({ theme }) => theme.blue[100]};
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+`;
+
+export const ActionArea = styled.div`
+  display: flex;
 `;
 
 export const PrimaryButton = styled.button`

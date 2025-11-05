@@ -9,6 +9,12 @@ export const Page = styled.main`
   background: ${({ theme }) => theme.background.fill};
 `;
 
+export const TitleBarWrapper = styled.div`
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+`;
+
 export const Card = styled.section`
   display: grid;
   gap: ${({ theme }) => theme.spacing4};
