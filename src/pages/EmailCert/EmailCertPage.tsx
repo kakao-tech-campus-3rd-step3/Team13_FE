@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import RouteSkeleton from '@/components/RouteSkeleton';
+import OriginTitleBar from '@/components/titleBar/originTitleBar';
 import {
   formatMMSS,
   isValidCode,
@@ -34,6 +35,13 @@ export default function EmailCertPage() {
     () => resolveFrom(location.state, '/my'),
     [location.state],
   );
+  const handleBack = useCallback(() => {
+    if (window.history.length > 1) {
+      void navigate(-1);
+      return;
+    }
+    void navigate('/login', { replace: true });
+  }, [navigate]);
 
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -117,6 +125,9 @@ export default function EmailCertPage() {
 
   return (
     <S.Page aria-label="email-cert-page">
+      <S.TitleBarWrapper>
+        <OriginTitleBar title="학교 이메일 인증" onBack={handleBack} />
+      </S.TitleBarWrapper>
       <S.Card>
         <S.Heading>학교 이메일 인증</S.Heading>
         <S.Description>
@@ -172,7 +183,7 @@ export default function EmailCertPage() {
         <S.Row>
           <S.Secondary
             type="button"
-            onClick={() => window.history.back()}
+            onClick={handleBack}
             aria-label="email-cert-go-back"
           >
             나중에 하기
