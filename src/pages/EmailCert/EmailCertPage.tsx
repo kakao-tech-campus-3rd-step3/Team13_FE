@@ -32,7 +32,7 @@ export default function EmailCertPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const redirectPath = useMemo(
-    () => resolveFrom(location.state, '/my'),
+    () => resolveFrom(location.state, '/home'),
     [location.state],
   );
   const handleBack = useCallback(() => {
@@ -108,7 +108,7 @@ export default function EmailCertPage() {
     try {
       await verifyMutation.mutateAsync({ localPart, code });
       notify.success('이메일 인증이 완료됐어요.');
-      void navigate(redirectPath, { replace: true });
+      void navigate(redirectPath);
     } catch (error) {
       const serverMessage = extractServerMessage(error);
       if (serverMessage) {

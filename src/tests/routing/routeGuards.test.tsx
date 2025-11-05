@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { resetCertificationState } from '@/mocks/handlers/certification';
 import LoginPage from '@/pages/Auth/LoginPage';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
+import HomePage from '@/pages/Home/HomePage';
 import MyPage from '@/pages/My/MyPage';
 import { registerNotifier } from '@/pages/notifications/notify';
 import { ProtectedRoute, PublicRoute, VerifiedRoute } from '@/routes/Guards';
@@ -34,6 +35,7 @@ const renderRoutes = (initialEntries: string[]) => {
             <Route element={<ProtectedRoute />}>
               <Route path="/email-cert" element={<EmailCertPage />} />
               <Route element={<VerifiedRoute />}>
+                <Route path="/home" element={<HomePage />} />
                 <Route path="/my" element={<MyPage />} />
               </Route>
             </Route>
@@ -114,7 +116,7 @@ describe('Route Guards', () => {
     });
   });
 
-  it('/email-cert 에서 인증 완료 시 /my 로 이동한다', async () => {
+  it('/email-cert 에서 인증 완료 시 /home 으로 이동한다', async () => {
     useAppStore.setState((state) => ({
       ...state,
       user: {
@@ -149,7 +151,7 @@ describe('Route Guards', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText('my-page')).toBeInTheDocument();
+      expect(screen.getByLabelText('home-page')).toBeInTheDocument();
     });
   });
 

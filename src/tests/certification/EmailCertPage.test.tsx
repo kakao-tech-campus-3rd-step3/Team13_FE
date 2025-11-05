@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { resetCertificationState } from '@/mocks/handlers/certification';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
+import HomePage from '@/pages/Home/HomePage';
 import { registerNotifier } from '@/pages/notifications/notify';
 import { useAppStore } from '@/stores/appStore';
 import { useSessionStore } from '@/stores/sessionStore';
@@ -28,10 +29,7 @@ const renderEmailCertPage = (initialEntry = '/email-cert') => {
         <MemoryRouter initialEntries={[initialEntry]}>
           <Routes>
             <Route path="/email-cert" element={<EmailCertPage />} />
-            <Route
-              path="/my"
-              element={<div aria-label="my-page">My Page</div>}
-            />
+            <Route path="/home" element={<HomePage />} />
           </Routes>
         </MemoryRouter>
       </QueryClientProvider>
@@ -105,7 +103,7 @@ describe('EmailCertPage', () => {
     });
   });
 
-  it('인증 성공 시 /my 로 이동한다', async () => {
+  it('인증 성공 시 /home 으로 이동한다', async () => {
     renderEmailCertPage();
 
     await waitFor(() => {
@@ -129,7 +127,7 @@ describe('EmailCertPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText('my-page')).toBeInTheDocument();
+      expect(screen.getByLabelText('home-page')).toBeInTheDocument();
     });
   });
 });
