@@ -97,10 +97,6 @@ export const router = createBrowserRouter([
     path: '/test/store',
     element: <StoreDemoPage />,
   },
-  {
-    path: '/test/profile-form',
-    element: <ProfileFormDemo />,
-  },
 
   // 404 페이지
   {
