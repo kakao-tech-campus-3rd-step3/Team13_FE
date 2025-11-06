@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import RouteSkeleton from '@/components/RouteSkeleton';
@@ -48,22 +49,43 @@ export function ProtectedRoute() {
   const location = useLocation();
   const { clearSession } = useSessionActions();
   const { logout } = useActions();
+  const expiredRedirectRef = useRef(false);
 
-  if (!appHydrated || !sessionHydrated) return <RouteSkeleton />;
-  if ((!isLoggedIn && !hasSession) || sessionExpired) {
+  useEffect(() => {
+    if (!sessionExpired) return;
+    if (!appHydrated || !sessionHydrated) return;
+
+    expiredRedirectRef.current = true;
+
     if (hasSession) {
       clearSession();
     }
     if (isLoggedIn) {
       logout();
     }
-    const suffix = sessionExpired ? '?expired=1' : '';
+  }, [
+    appHydrated,
+    sessionHydrated,
+    sessionExpired,
+    hasSession,
+    isLoggedIn,
+    clearSession,
+    logout,
+  ]);
+
+  if (!appHydrated || !sessionHydrated) return <RouteSkeleton />;
+  if (sessionExpired) {
     return (
-      <Navigate to={`/login${suffix}`} replace state={{ from: location }} />
+      <Navigate to="/login?expired=1" replace state={{ from: location }} />
     );
   }
 
-  // 인증된 경우 자식 라우트 렌더링
+  if (!isLoggedIn && !hasSession) {
+    const target = expiredRedirectRef.current ? '/login?expired=1' : '/login';
+    expiredRedirectRef.current = false;
+    return <Navigate to={target} replace state={{ from: location }} />;
+  }
+
   return <Outlet />;
 }
 

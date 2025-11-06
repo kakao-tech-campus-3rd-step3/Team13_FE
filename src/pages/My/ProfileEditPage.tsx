@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { type ProfileResponse, type UpdateProfileRequest } from '@/api/profile';
 import RouteSkeleton from '@/components/RouteSkeleton';
@@ -14,7 +14,7 @@ import { useUpdateProfile } from '@/hooks/mutations/profile';
 import { useProfileQuery } from '@/hooks/queries/profile';
 import type { ProfileFormValues } from '@/libs/validation/zodSchemas';
 import { notify } from '@/pages/notifications/notify';
-import { useHasHydrated } from '@/stores/appStore';
+import { useEmailVerified, useHasHydrated } from '@/stores/appStore';
 
 import * as S from './ProfileEditPage.styled';
 
@@ -31,7 +31,9 @@ const toFormValues = (profile: ProfileResponse): ProfileFormValues => {
 
 export default function ProfileEditPage() {
   const hasHydrated = useHasHydrated();
+  const emailVerified = useEmailVerified();
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     data: profile,
     isLoading,
@@ -71,6 +73,26 @@ export default function ProfileEditPage() {
       void navigate('/my', { replace: true });
     }
   }, [navigate]);
+
+  const handleEmailFieldClick = useCallback(() => {
+    if (emailVerified) return;
+    notify.info('학교 이메일 인증 화면으로 이동합니다.');
+    void navigate('/email-cert', {
+      state: {
+        from: {
+          pathname: location.pathname,
+          search: location.search,
+          hash: location.hash,
+        },
+      },
+    });
+  }, [
+    emailVerified,
+    navigate,
+    location.hash,
+    location.pathname,
+    location.search,
+  ]);
 
   const handleSubmit = useCallback(
     async (values: ProfileFormValues) => {
@@ -206,6 +228,13 @@ export default function ProfileEditPage() {
           cancelLabel="취소"
           onChange={handleFormChange}
           onImageUploaded={handleImageUploadedDirect}
+          emailFieldHint={
+            emailVerified
+              ? '학교 인증된 이메일'
+              : '클릭하면 학교 이메일 인증 화면으로 이동합니다.'
+          }
+          emailFieldInteractive={!emailVerified}
+          onEmailFieldClick={!emailVerified ? handleEmailFieldClick : undefined}
         />
       </S.Card>
     </S.Page>

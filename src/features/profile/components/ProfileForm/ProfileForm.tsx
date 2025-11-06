@@ -1,6 +1,12 @@
 import { zodResolver } from '@form-kit/hookform-resolvers/zod-lite';
 import { useForm } from '@form-kit/react-hook-form-lite';
-import { useCallback, useEffect, useId, useMemo } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  type KeyboardEvent,
+} from 'react';
 
 import TextField from '@/components/form/TextField';
 import {
@@ -54,6 +60,9 @@ export type ProfileFormProps = {
   cancelLabel?: string;
   onChange?: (values: ProfileFormValues) => void;
   onImageUploaded?: (imageUrl: string) => Promise<void> | void;
+  emailFieldHint?: string;
+  onEmailFieldClick?: () => void;
+  emailFieldInteractive?: boolean;
 };
 
 export default function ProfileForm({
@@ -65,6 +74,9 @@ export default function ProfileForm({
   cancelLabel = '취소',
   onChange,
   onImageUploaded,
+  emailFieldHint,
+  onEmailFieldClick,
+  emailFieldInteractive = false,
 }: ProfileFormProps) {
   const memoizedInitial = useMemo(
     () => deriveInitialValues(initialValues),
@@ -113,6 +125,11 @@ export default function ProfileForm({
 
   const busy = submitting || isSubmitting;
   const directUploadId = useId();
+  const imageUrlValue = form.watch('imageUrl');
+  const normalizedImageUrl = imageUrlValue ?? '';
+  const trimmedImageUrl = normalizedImageUrl.trim();
+  const emailHint = emailFieldHint ?? '학교 인증된 이메일';
+  const emailClickable = emailFieldInteractive && !busy;
 
   const handleImageUploaded = useCallback(
     (url: string) => {
@@ -123,6 +140,20 @@ export default function ProfileForm({
       void onImageUploaded?.(trimmed);
     },
     [onImageUploaded, setValue],
+  );
+
+  const handleClearImageUrl = useCallback(() => {
+    setValue('imageUrl', '');
+  }, [setValue]);
+
+  const handleEmailKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (!onEmailFieldClick) return;
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      onEmailFieldClick();
+    },
+    [onEmailFieldClick],
   );
 
   const handleCancel = () => {
@@ -151,12 +182,15 @@ export default function ProfileForm({
         <TextField
           name="email"
           label="이메일"
-          hint="학교 인증된 이메일"
+          hint={emailHint}
           register={register('email')}
           errors={errors}
           type="email"
           readOnly
           disabled={busy}
+          clickable={emailClickable}
+          onContainerClick={emailClickable ? onEmailFieldClick : undefined}
+          onInputKeyDown={emailClickable ? handleEmailKeyDown : undefined}
         />
 
         <TextField
@@ -172,12 +206,26 @@ export default function ProfileForm({
         <TextField
           name="imageUrl"
           label="프로필 이미지 URL"
-          hint="https:// 로 시작하는 주소"
+          hint="이미지 주소를 입력해 주세요."
           register={register('imageUrl')}
           errors={errors}
           type="url"
           disabled={busy}
           autoComplete="off"
+          suffix={
+            trimmedImageUrl ? (
+              <S.ImageUrlClearButton
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleClearImageUrl();
+                }}
+                aria-label="프로필 이미지 URL 지우기"
+              >
+                ✕
+              </S.ImageUrlClearButton>
+            ) : undefined
+          }
         />
 
         <S.DirectUploadCard
