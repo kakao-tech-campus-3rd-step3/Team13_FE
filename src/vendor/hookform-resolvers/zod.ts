@@ -1,6 +1,5 @@
-import type { FieldErrors, FieldValues, Resolver } from 'react-hook-form';
-
-import type { SafeParseReturnType, ZodIssue } from '@/vendor/zod';
+import type { FieldErrors, FieldValues, Resolver } from '../react-hook-form';
+import type { SafeParseReturnType, ZodIssue } from '../zod';
 
 interface ZodSchema<TOutput> {
   safeParse: (data: unknown) => SafeParseReturnType<TOutput>;

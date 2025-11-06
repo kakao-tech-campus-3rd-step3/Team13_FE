@@ -10,6 +10,7 @@ import ErrorPage from '@/pages/Error/ErrorPage';
 import ProfileFormDemo from '@/pages/Forms/ProfileFormDemo';
 import HomePage from '@/pages/Home/HomePage';
 import MyPage from '@/pages/My/MyPage';
+import ProfileEditPage from '@/pages/My/ProfileEditPage';
 import SportSelectPage from '@/pages/Onboarding/SportSelectPage';
 import TimeSelectPage from '@/pages/Onboarding/TimeSelectPage';
 import StoreDemoPage from '@/pages/StoreDemo/StoreDemoPage';
@@ -67,10 +68,8 @@ export const router = createBrowserRouter([
           {
             element: <OnboardingGuard />,
             children: [
-              {
-                path: '/my',
-                element: <MyPage />,
-              },
+              { path: '/my', element: <MyPage /> },
+              { path: '/my/profile/edit', element: <ProfileEditPage /> },
             ],
           },
           // TODO: 매치 생성, 매치 상세, 검색 등 추가

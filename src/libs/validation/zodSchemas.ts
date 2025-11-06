@@ -1,4 +1,4 @@
-import { z, type infer as ZodInfer } from 'zod';
+import { z, type infer as ZodInfer } from '@form-kit/zod-lite';
 
 import { validationMessages as msg } from './messages';
 

@@ -8,13 +8,15 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      'react-hook-form': fileURLToPath(
+      '@form-kit/react-hook-form-lite': fileURLToPath(
         new URL('./src/vendor/react-hook-form.ts', import.meta.url),
       ),
-      '@hookform/resolvers/zod': fileURLToPath(
+      '@form-kit/hookform-resolvers/zod-lite': fileURLToPath(
         new URL('./src/vendor/hookform-resolvers/zod.ts', import.meta.url),
       ),
-      zod: fileURLToPath(new URL('./src/vendor/zod.ts', import.meta.url)),
+      '@form-kit/zod-lite': fileURLToPath(
+        new URL('./src/vendor/zod.ts', import.meta.url),
+      ),
     },
   },
   test: {

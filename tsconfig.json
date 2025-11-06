@@ -3,9 +3,11 @@
     "baseUrl": "src",
     "paths": {
       "@/*": ["*"],
-      "react-hook-form": ["vendor/react-hook-form"],
-      "@hookform/resolvers/zod": ["vendor/hookform-resolvers/zod"],
-      "zod": ["vendor/zod"]
+      "@form-kit/react-hook-form-lite": ["vendor/react-hook-form"],
+      "@form-kit/hookform-resolvers/zod-lite": [
+        "vendor/hookform-resolvers/zod"
+      ],
+      "@form-kit/zod-lite": ["vendor/zod"]
     }
   },
   "files": [],

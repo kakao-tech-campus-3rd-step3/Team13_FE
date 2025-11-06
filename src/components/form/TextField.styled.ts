@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 
 import type { Theme } from '@/theme';
 
-export const Field = styled.div<{ invalid?: boolean }>`
+export const Field = styled.div<{ invalid?: boolean; disabled?: boolean }>`
   display: grid;
   gap: ${({ theme }) => theme.spacing2};
   padding: ${({ theme }) => `${theme.spacing3} ${theme.spacing4}`};
@@ -24,6 +24,7 @@ export const Field = styled.div<{ invalid?: boolean }>`
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s ease;
+  opacity: ${({ disabled }) => (disabled ? 0.75 : 1)};
 
   &:focus-within {
     border-color: ${({ theme }) => theme.blue[500]};
@@ -31,6 +32,14 @@ export const Field = styled.div<{ invalid?: boolean }>`
       0 16px 36px rgba(33, 124, 249, 0.22),
       inset 0 0 0 1px rgba(255, 255, 255, 0.4);
     transform: translateY(-1px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:focus-within {
+      transform: none;
+    }
   }
 `;
 
@@ -52,6 +61,10 @@ const interactiveField = ({ theme }: { theme: Theme }) => css`
   font-weight: ${theme.body1Regular.fontWeight};
   line-height: ${theme.body1Regular.lineHeight};
   min-height: 40px;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    opacity 0.2s ease;
 
   &::placeholder {
     color: ${theme.text.placeholder};
@@ -59,6 +72,20 @@ const interactiveField = ({ theme }: { theme: Theme }) => css`
 
   &:focus-visible {
     outline: none;
+  }
+
+  &:disabled {
+    color: ${theme.text.sub};
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
+
+  &[readonly] {
+    color: ${theme.text.sub};
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 `;
 

@@ -1,5 +1,5 @@
+import type { FieldErrors } from '@form-kit/react-hook-form-lite';
 import { useEffect } from 'react';
-import type { FieldErrors } from 'react-hook-form';
 
 export const makeIds = (name: string) => ({
   inputId: `${name}-input`,
@@ -17,6 +17,7 @@ export function getAriaFor(name: string, errors: FieldErrors, hintId?: string) {
   return {
     'aria-invalid': hasError || undefined,
     'aria-describedby': describedBy || undefined,
+    'aria-errormessage': hasError ? errorId : undefined,
   } as const;
 }
 
