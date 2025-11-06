@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import RouteSkeleton from '@/components/RouteSkeleton';
+import OriginTitleBar from '@/components/titleBar/originTitleBar';
 import {
   formatMMSS,
   isValidCode,
@@ -31,9 +32,12 @@ export default function EmailCertPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const redirectPath = useMemo(
-    () => resolveFrom(location.state, '/my'),
+    () => resolveFrom(location.state, '/home'),
     [location.state],
   );
+  const handleBack = useCallback(() => {
+    void navigate(redirectPath, { replace: true });
+  }, [navigate, redirectPath]);
 
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -100,7 +104,7 @@ export default function EmailCertPage() {
     try {
       await verifyMutation.mutateAsync({ localPart, code });
       notify.success('이메일 인증이 완료됐어요.');
-      void navigate(redirectPath, { replace: true });
+      void navigate(redirectPath);
     } catch (error) {
       const serverMessage = extractServerMessage(error);
       if (serverMessage) {
@@ -117,6 +121,9 @@ export default function EmailCertPage() {
 
   return (
     <S.Page aria-label="email-cert-page">
+      <S.TitleBarWrapper>
+        <OriginTitleBar title="학교 이메일 인증" onBack={handleBack} />
+      </S.TitleBarWrapper>
       <S.Card>
         <S.Heading>학교 이메일 인증</S.Heading>
         <S.Description>
@@ -172,7 +179,7 @@ export default function EmailCertPage() {
         <S.Row>
           <S.Secondary
             type="button"
-            onClick={() => window.history.back()}
+            onClick={handleBack}
             aria-label="email-cert-go-back"
           >
             나중에 하기
