@@ -3,6 +3,10 @@ import { useForm } from '@form-kit/react-hook-form-lite';
 import { useCallback, useEffect, useId, useMemo } from 'react';
 
 import TextField from '@/components/form/TextField';
+import {
+  DEFAULT_PROFILE_IMAGE_URL,
+  DEFAULT_PROFILE_NAME,
+} from '@/features/profile/constants';
 import ImageUploader from '@/features/upload/components/ImageUploader';
 import { useAutoFocusError } from '@/libs/a11y/formA11y';
 import {
@@ -19,11 +23,26 @@ const fieldOrder: Array<keyof ProfileFormValues> = [
   'imageUrl',
 ];
 
-const defaultValues: ProfileFormValues = {
-  nickname: '',
+const baseValues: ProfileFormValues = {
+  nickname: DEFAULT_PROFILE_NAME,
   email: '',
   description: '',
-  imageUrl: undefined,
+  imageUrl: DEFAULT_PROFILE_IMAGE_URL,
+};
+
+const deriveInitialValues = (
+  values?: ProfileFormValues | null,
+): ProfileFormValues => {
+  if (!values) {
+    return { ...baseValues };
+  }
+
+  return {
+    nickname: values.nickname?.trim() || DEFAULT_PROFILE_NAME,
+    email: values.email ?? baseValues.email,
+    description: values.description ?? baseValues.description,
+    imageUrl: values.imageUrl?.trim() || DEFAULT_PROFILE_IMAGE_URL,
+  };
 };
 
 export type ProfileFormProps = {
@@ -48,7 +67,7 @@ export default function ProfileForm({
   onImageUploaded,
 }: ProfileFormProps) {
   const memoizedInitial = useMemo(
-    () => initialValues ?? defaultValues,
+    () => deriveInitialValues(initialValues),
     [initialValues],
   );
 

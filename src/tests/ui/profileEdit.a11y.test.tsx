@@ -13,6 +13,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ProfileResponse, UpdateProfileRequest } from '@/api/profile';
 import { getMyProfile, updateMyProfile } from '@/api/profile';
+import {
+  DEFAULT_PROFILE_IMAGE_URL,
+  DEFAULT_PROFILE_NAME,
+} from '@/features/profile/constants';
 import ProfileEditPage from '@/pages/My/ProfileEditPage';
 import { notify } from '@/pages/notifications/notify';
 import { useAppStore } from '@/stores/appStore';
@@ -162,6 +166,32 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
       expect(screen.getByText('필수 입력 항목입니다.')).toBeInTheDocument();
       expect(document.activeElement).toBe(nicknameInput);
     });
+  });
+
+  it('프로필 이름과 이미지가 비어 있을 때 기본값을 노출한다', async () => {
+    currentProfile = {
+      ...baseProfile,
+      name: '',
+      imageUrl: '',
+    } satisfies ProfileResponse;
+
+    renderProfileEdit();
+
+    const nicknameInput = await screen.findByLabelText('닉네임');
+    expect(nicknameInput).toHaveValue(DEFAULT_PROFILE_NAME);
+
+    const imageUrlInput = screen.getByLabelText('프로필 이미지 URL');
+    expect(imageUrlInput).toHaveValue(DEFAULT_PROFILE_IMAGE_URL);
+
+    const avatarImage = await screen.findByRole('img', {
+      name: `${DEFAULT_PROFILE_NAME} 아바타 미리보기`,
+    });
+    expect(avatarImage).toHaveAttribute('src', DEFAULT_PROFILE_IMAGE_URL);
+
+    expect(useAppStore.getState().user?.name).toBe(DEFAULT_PROFILE_NAME);
+    expect(useAppStore.getState().user?.avatarUrl).toBe(
+      DEFAULT_PROFILE_IMAGE_URL,
+    );
   });
 
   it('닉네임을 변경하면 성공 알림과 함께 값이 반영된다', async () => {

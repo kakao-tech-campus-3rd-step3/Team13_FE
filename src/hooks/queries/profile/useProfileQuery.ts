@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import { getMyProfile, type ProfileResponse } from '@/api/profile';
+import { ensureProfileDefaults } from '@/features/profile/constants';
 import { PROFILE_ME_KEY } from '@/features/profile/keys';
 import { useActions, useAppStore, type User } from '@/stores/appStore';
 
@@ -19,6 +20,7 @@ export function useProfileQuery(options: UseProfileQueryOptions = {}) {
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
+    select: ensureProfileDefaults,
   });
 
   useEffect(() => {
