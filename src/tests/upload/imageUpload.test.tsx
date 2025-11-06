@@ -60,9 +60,7 @@ describe('ImageUploader', () => {
     if (hasOriginalCreateObjectURL && originalCreateObjectURL) {
       vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob://preview');
     } else {
-      (
-        URL as { createObjectURL?: typeof URL.createObjectURL }
-      ).createObjectURL = vi
+      urlWithOptional.createObjectURL = vi
         .fn(() => 'blob://preview')
         .mockName('createObjectURL');
     }
@@ -70,9 +68,9 @@ describe('ImageUploader', () => {
     if (hasOriginalRevokeObjectURL && originalRevokeObjectURL) {
       vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
     } else {
-      (
-        URL as { revokeObjectURL?: typeof URL.revokeObjectURL }
-      ).revokeObjectURL = vi.fn(() => undefined).mockName('revokeObjectURL');
+      urlWithOptional.revokeObjectURL = vi
+        .fn(() => undefined)
+        .mockName('revokeObjectURL');
     }
 
     vi.spyOn(notify, 'success').mockImplementation(() => undefined);
