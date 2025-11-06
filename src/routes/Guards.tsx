@@ -23,12 +23,16 @@ export function PublicRoute() {
   const isLoggedIn = useIsLoggedIn();
   const hasSession = useHasSession();
   const location = useLocation();
+  const currentPath = `${location.pathname}${location.search}${location.hash}`;
+  const defaultRedirect = resolveFrom(null);
+  const resolvedRedirect = resolveFrom(location.state, defaultRedirect);
+  const redirectTarget =
+    resolvedRedirect === currentPath ? defaultRedirect : resolvedRedirect;
 
   if (!appHydrated || !sessionHydrated) return <RouteSkeleton />;
 
   if (isLoggedIn || hasSession) {
-    const from = resolveFrom(location.state);
-    return <Navigate to={from} replace />;
+    return <Navigate to={redirectTarget} replace />;
   }
 
   return <Outlet />;

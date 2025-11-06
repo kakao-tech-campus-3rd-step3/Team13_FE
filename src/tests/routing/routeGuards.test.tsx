@@ -2,6 +2,7 @@
 import { ThemeProvider } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { InitialEntry } from 'history';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -18,7 +19,7 @@ import { theme } from '@/theme';
 
 let queryClient: QueryClient;
 
-const renderRoutes = (initialEntries: string[]) => {
+const renderRoutes = (initialEntries: InitialEntry[]) => {
   queryClient = new QueryClient({
     defaultOptions: { queries: { retry: 0 }, mutations: { retry: 0 } },
   });
@@ -209,6 +210,30 @@ describe('Route Guards', () => {
     }));
 
     renderRoutes(['/login']);
+
+    expect(screen.queryByLabelText('login-page')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('my-page')).toBeInTheDocument();
+  });
+
+  it('로그인된 사용자가 /login?expired=1 으로 리다이렉트된 상태라면 기본 페이지로 이동한다', () => {
+    useAppStore.setState((state) => ({
+      ...state,
+      user: {
+        id: 4,
+        name: '변사또',
+        email: 'byeon@example.com',
+        avatarUrl: 'https://example.com/avatar.png',
+      },
+      emailVerified: true,
+    }));
+
+    renderRoutes([
+      {
+        pathname: '/login',
+        search: '?expired=1',
+        state: { from: '/login?expired=1' },
+      },
+    ]);
 
     expect(screen.queryByLabelText('login-page')).not.toBeInTheDocument();
     expect(screen.getByLabelText('my-page')).toBeInTheDocument();
