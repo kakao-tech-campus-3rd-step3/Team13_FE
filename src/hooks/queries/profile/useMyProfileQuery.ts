@@ -1,14 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
+import { PROFILE_ME_KEY } from '@/features/profile/keys';
 
-import { getMyProfile, type ProfileResponse } from '@/api/profile';
+import { useProfileQuery } from './useProfileQuery';
 
-export const myProfileQueryKey = ['profile', 'me'] as const;
+export const myProfileQueryKey = PROFILE_ME_KEY;
 
 export function useMyProfileQuery(enabled = true) {
-  return useQuery<ProfileResponse>({
-    queryKey: myProfileQueryKey,
-    queryFn: getMyProfile,
-    enabled,
-    staleTime: 60 * 1000,
-  });
+  return useProfileQuery({ enabled });
 }
