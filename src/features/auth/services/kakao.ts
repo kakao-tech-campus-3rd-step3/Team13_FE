@@ -47,7 +47,14 @@ export async function handleKakaoCallback({
   }
 
   try {
-    const { token, accessToken, refreshToken } = await exchangeKakaoCode(code);
+    const redirectUri =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/auth/kakao/callback`
+        : undefined;
+    const { token, accessToken, refreshToken } = await exchangeKakaoCode(
+      code,
+      redirectUri,
+    );
     const sessionToken = accessToken ?? token ?? null;
 
     if (!sessionToken) {
