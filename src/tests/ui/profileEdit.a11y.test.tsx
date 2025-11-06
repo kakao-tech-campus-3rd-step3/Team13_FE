@@ -52,6 +52,30 @@ vi.mock('@/api/profile', async () => {
   } satisfies typeof import('@/api/profile');
 });
 
+vi.mock('@/features/upload/components/ImageUploader', () => {
+  type MockProps = {
+    label?: string;
+    description?: string;
+    onUploaded?: (url: string) => void;
+  };
+
+  return {
+    __esModule: true,
+    default: ({ onUploaded }: MockProps) => (
+      <div role="region" aria-label="mock-image-uploader">
+        <button
+          type="button"
+          onClick={() =>
+            onUploaded?.('https://cdn.example.com/direct-upload.png')
+          }
+        >
+          mock-upload
+        </button>
+      </div>
+    ),
+  };
+});
+
 const createTestQueryClient = () =>
   new QueryClient({
     defaultOptions: {
@@ -103,6 +127,8 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
     vi.spyOn(notify, 'success').mockImplementation(() => undefined);
     vi.spyOn(notify, 'error').mockImplementation(() => undefined);
     vi.spyOn(notify, 'info').mockImplementation(() => undefined);
+    vi.mocked(updateMyProfile).mockClear();
+    vi.mocked(getMyProfile).mockClear();
   });
 
   afterEach(() => {
@@ -201,6 +227,14 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
     act(() => {
       user.tab();
     });
+    const directUploadButton = screen.getByRole('button', {
+      name: 'mock-upload',
+    });
+    expect(document.activeElement).toBe(directUploadButton);
+
+    act(() => {
+      user.tab();
+    });
     const cancelButton = screen.getByRole('button', { name: '취소' });
     expect(document.activeElement).toBe(cancelButton);
 
@@ -219,5 +253,28 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
     await waitFor(() => {
       expect(notify.success).toHaveBeenCalledWith('저장 완료!');
     });
+  });
+
+  it('직접 업로드 시 이미지 URL이 자동으로 입력되고 저장이 실행된다', async () => {
+    renderProfileEdit();
+
+    const uploadButton = await screen.findByRole('button', {
+      name: 'mock-upload',
+    });
+    fireEvent.click(uploadButton);
+
+    await waitForReactQueryIdle();
+
+    await waitFor(() => {
+      expect(
+        screen.getByDisplayValue('https://cdn.example.com/direct-upload.png'),
+      ).toBeInTheDocument();
+    });
+
+    const lastCall = vi.mocked(updateMyProfile).mock.calls.at(-1);
+    expect(lastCall?.[0]).toEqual({
+      imageUrl: 'https://cdn.example.com/direct-upload.png',
+    });
+    expect(notify.success).toHaveBeenCalledWith('저장 완료!');
   });
 });

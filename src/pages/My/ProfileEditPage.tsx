@@ -30,7 +30,8 @@ export default function ProfileEditPage() {
   } = useProfileQuery({
     enabled: hasHydrated,
   });
-  const { mutateAsync: updateProfile, isPending } = useUpdateProfile();
+  const updateProfileMutation = useUpdateProfile();
+  const { mutateAsync: updateProfile, isPending } = updateProfileMutation;
   const [previewUrl, setPreviewUrl] = useState<string | undefined>();
   const [previewName, setPreviewName] = useState('');
 
@@ -93,6 +94,26 @@ export default function ProfileEditPage() {
     setPreviewUrl(values.imageUrl || undefined);
     setPreviewName(values.nickname);
   }, []);
+
+  const handleImageUploadedDirect = useCallback(
+    async (nextUrl: string) => {
+      const trimmed = nextUrl.trim();
+      if (!trimmed) return;
+
+      setPreviewUrl(trimmed);
+
+      if (profile?.imageUrl === trimmed) {
+        return;
+      }
+
+      try {
+        await updateProfileMutation.mutateAsync({ imageUrl: trimmed });
+      } catch {
+        // 훅 내부에서 토스트 및 롤백을 처리합니다.
+      }
+    },
+    [profile?.imageUrl, updateProfileMutation],
+  );
 
   if (!hasHydrated) {
     return <RouteSkeleton />;
@@ -164,6 +185,7 @@ export default function ProfileEditPage() {
           submitLabel={isPending ? '저장 중...' : '저장'}
           cancelLabel="취소"
           onChange={handleFormChange}
+          onImageUploaded={handleImageUploadedDirect}
         />
       </S.Card>
     </S.Page>
