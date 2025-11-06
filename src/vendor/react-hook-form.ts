@@ -29,7 +29,7 @@ type ResolverResult<TFieldValues extends FieldValues> = {
   errors: FieldErrors<TFieldValues>;
 };
 
-type Resolver<TFieldValues extends FieldValues> = (
+export type Resolver<TFieldValues extends FieldValues> = (
   values: TFieldValues,
 ) => Promise<ResolverResult<TFieldValues>> | ResolverResult<TFieldValues>;
 
@@ -72,12 +72,12 @@ export function useForm<TFieldValues extends FieldValues = FieldValues>(
 ): UseFormReturn<TFieldValues> {
   const { resolver, mode = 'onSubmit', defaultValues } = options;
 
-  const valuesRef = useRef<Partial<TFieldValues>>({
-    ...defaultValues,
-  });
-  const defaultValuesRef = useRef<Partial<TFieldValues>>({
-    ...defaultValues,
-  });
+  const initialValues: Partial<TFieldValues> = defaultValues
+    ? { ...defaultValues }
+    : {};
+
+  const valuesRef = useRef<Partial<TFieldValues>>({ ...initialValues });
+  const defaultValuesRef = useRef<Partial<TFieldValues>>({ ...initialValues });
   const fieldRefs = useRef<Record<string, FormElement | null>>({});
   const subscribers = useRef(new Set<(values: TFieldValues) => void>());
 
@@ -113,7 +113,7 @@ export function useForm<TFieldValues extends FieldValues = FieldValues>(
 
   const assignValue = useCallback(
     (name: keyof TFieldValues & string, value: string) => {
-      valuesRef.current[name] = value as TFieldValues[keyof TFieldValues];
+      (valuesRef.current as Record<string, string | undefined>)[name] = value;
       setIsDirty(computeIsDirty());
       notifySubscribers();
     },
@@ -197,7 +197,9 @@ export function useForm<TFieldValues extends FieldValues = FieldValues>(
         },
         ref: (element) => {
           fieldRefs.current[name] = element ?? null;
-          const storedValue = valuesRef.current[name];
+          const storedValue = (
+            valuesRef.current as Record<string, string | undefined>
+          )[name];
           if (element && storedValue !== undefined && isFormElement(element)) {
             element.value = storedValue ?? '';
           }
@@ -260,23 +262,26 @@ export function useForm<TFieldValues extends FieldValues = FieldValues>(
     [notifySubscribers],
   );
 
-  const watch = useCallback((callback?: (values: TFieldValues) => void) => {
-    if (!callback) {
-      return valuesRef.current as TFieldValues;
-    }
+  const watch = useCallback<UseFormReturn<TFieldValues>['watch']>(
+    ((callback?: (values: TFieldValues) => void) => {
+      if (!callback) {
+        return valuesRef.current as TFieldValues;
+      }
 
-    const subscriber = (values: TFieldValues) => {
-      callback({ ...values });
-    };
+      const subscriber = (values: TFieldValues) => {
+        callback({ ...values });
+      };
 
-    subscribers.current.add(subscriber);
+      subscribers.current.add(subscriber);
 
-    return {
-      unsubscribe: () => {
-        subscribers.current.delete(subscriber);
-      },
-    };
-  }, []);
+      return {
+        unsubscribe: () => {
+          subscribers.current.delete(subscriber);
+        },
+      };
+    }) as UseFormReturn<TFieldValues>['watch'],
+    [],
+  );
 
   return {
     register,
@@ -291,9 +296,6 @@ export function useForm<TFieldValues extends FieldValues = FieldValues>(
 }
 
 export type FieldErrorsImpl<T extends FieldValues> = FieldErrors<T>;
-export type Resolver<TFieldValues extends FieldValues> = (
-  values: TFieldValues,
-) => Promise<ResolverResult<TFieldValues>> | ResolverResult<TFieldValues>;
 export type SubmitHandler<TFieldValues extends FieldValues> = (
   values: TFieldValues,
 ) => void | Promise<void>;
