@@ -75,7 +75,7 @@ export const router = createBrowserRouter([
             children: [
               { path: '/my', element: <MyPage /> },
               { path: '/my/profile/edit', element: <ProfileEditPage /> },
-              { path: '/matchDetail', element: <MatchDetailPage /> },
+              { path: '/matchDetail/:gameId', element: <MatchDetailPage /> },
             ],
           },
           // TODO: 매치 생성, 매치 상세, 검색 등 추가

@@ -63,7 +63,7 @@ export default function HomePage() {
   const handleCardClick = (gameId?: number) => {
     if (isAuthenticated) {
       // 로그인 후 - 매치 상세 페이지로 이동
-      void navigate('/matchDetail', { state: { gameId } });
+      void navigate(`/matchDetail/${gameId}`);
     } else {
       // 로그인 전 - 로그인 페이지로 이동
       void navigate('/login');

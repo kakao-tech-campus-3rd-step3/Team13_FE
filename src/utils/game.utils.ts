@@ -1,4 +1,5 @@
-import type { GameResponse } from '@/types/game.types';
+import type { SportType } from '@/components/matchExplain/matchExplain.types';
+import type { GameResponse, SportId } from '@/types/game.types';
 
 /**
  * ISO 날짜 문자열을 "M/D HH:mm" 형식으로 변환
@@ -134,4 +135,24 @@ export function filterGamesByTimeSlots(
       return hours >= startHour && hours < endHour;
     });
   });
+}
+
+/**
+ * SportId를 SportType으로 변환
+ * @param sportId - 스포츠 ID (1: 농구, 2: 풋살)
+ * @returns SportType ('basketball' | 'futsal')
+ */
+export function convertSportIdToType(sportId: SportId): SportType {
+  return sportId === 1 ? 'basketball' : 'futsal';
+}
+
+/**
+ * 마감 시간을 ISO 8601 형식으로 계산 (시작 시간 - 3시간)
+ * @param startTime - 시작 시간 (ISO 8601)
+ * @returns 마감 시간 (ISO 8601)
+ */
+export function calculateDeadlineISO(startTime: string): string {
+  const start = new Date(startTime);
+  const deadline = new Date(start.getTime() - 3 * 60 * 60 * 1000); // 3시간 전
+  return deadline.toISOString();
 }
