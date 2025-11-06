@@ -240,17 +240,13 @@ export const MatchListContainer = styled.div`
 /**
  * 매치 카드 아이템
  */
-export const MatchCardItem = styled.div`
+export const MatchCardItem = styled.div<{ index?: number }>`
   margin-bottom: ${spacing.spacing4};
   animation: ${fadeIn} 0.5s ease-out backwards;
-  animation-delay: calc(var(--index, 0) * 0.05s);
+  animation-delay: ${({ index }) => (index ? `${index * 0.05}s` : '0s')};
 
   &:last-child {
     margin-bottom: 0;
-  }
-
-  &:hover {
-    animation: ${float} 2s ease-in-out infinite;
   }
 `;
 
