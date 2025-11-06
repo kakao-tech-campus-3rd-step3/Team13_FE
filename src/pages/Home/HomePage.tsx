@@ -6,6 +6,7 @@ import {
   TimeSlotDropDown,
   SortDropDown,
 } from '@/components/dropDown';
+import FloatingActionButton from '@/components/FloatingActionButton';
 import { RecruitingMatchCard } from '@/components/matchCard';
 import HomeTitleBar from '@/components/titleBar/homeTitleBar';
 import { useGamesList } from '@/hooks/queries/games';
@@ -147,6 +148,9 @@ export default function HomePage() {
             </S.MatchCardItem>
           ))}
       </S.MatchListContainer>
+
+      {/* Floating Action Button (로그인 후에만 표시) */}
+      {isAuthenticated && <FloatingActionButton />}
     </S.PageContainer>
   );
 }

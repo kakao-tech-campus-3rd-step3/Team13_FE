@@ -83,7 +83,7 @@ export default function MyPage() {
 
   const handleBack = useCallback(() => {
     if (window.history.length > 1) {
-      void navigate(-1);
+      void navigate('/');
       return;
     }
     void navigate('/onboarding/times', { replace: true });

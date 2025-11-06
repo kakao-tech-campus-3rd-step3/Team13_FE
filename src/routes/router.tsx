@@ -6,11 +6,13 @@ import GoogleCallbackPage from '@/pages/Auth/GoogleCallbackPage';
 import KakaoCallbackPage from '@/pages/Auth/KakaoCallbackPage';
 import LoginPage from '@/pages/Auth/LoginPage';
 import ComponentTestPage from '@/pages/ComponentTest/ComponentTestPage';
+import CreateMatchPage from '@/pages/CreateMatch';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import ErrorPage from '@/pages/Error/ErrorPage';
 import FCMTestPage from '@/pages/FCMTest/FCMTestPage';
 import HomePage from '@/pages/Home';
 import MatchDetailPage from '@/pages/MatchDetail';
+import MatchHistoryPage from '@/pages/MatchHistory';
 import MyPage from '@/pages/My/MyPage';
 import ProfileEditPage from '@/pages/My/ProfileEditPage';
 import SportSelectPage from '@/pages/Onboarding/SportSelectPage';
@@ -81,6 +83,8 @@ export const router = createBrowserRouter([
               { path: '/my', element: <MyPage /> },
               { path: '/my/profile/edit', element: <ProfileEditPage /> },
               { path: '/matchDetail/:gameId', element: <MatchDetailPage /> },
+              { path: '/match-history', element: <MatchHistoryPage /> },
+              { path: '/create-match', element: <CreateMatchPage /> },
             ],
           },
           // TODO: 매치 생성, 매치 상세, 검색 등 추가
