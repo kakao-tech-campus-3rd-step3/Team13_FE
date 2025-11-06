@@ -1,0 +1,78 @@
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import RouteSkeleton from '@/components/RouteSkeleton';
+import {
+  useCurrentUser,
+  useEmailVerified,
+  useHasHydrated,
+  useSessionExpired,
+  useActions,
+} from '@/stores/appStore';
+import { useSessionActions, useSessionHydrated } from '@/stores/sessionStore';
+
+import * as S from './MyPage.styled';
+
+export default function MyPage() {
+  const appHydrated = useHasHydrated();
+  const sessionHydrated = useSessionHydrated();
+  const user = useCurrentUser();
+  const emailVerified = useEmailVerified();
+  const sessionExpired = useSessionExpired();
+  const { logout } = useActions();
+  const { clearSession } = useSessionActions();
+  const navigate = useNavigate();
+
+  const handleLogout = useCallback(() => {
+    logout();
+    clearSession();
+    void navigate('/login', { replace: true });
+  }, [clearSession, logout, navigate]);
+  if (!appHydrated || !sessionHydrated) {
+    return <RouteSkeleton />;
+  }
+
+  return (
+    <S.Page aria-label="my-page">
+      <S.ProfileSection>
+        <S.Heading>내 계정</S.Heading>
+        {user ? (
+          <>
+            <S.Avatar src={user.avatarUrl} alt={`${user.name} 아바타`} />
+            <S.UserMeta>
+              <S.UserName>{user.name}</S.UserName>
+              <S.UserEmail>{user.email}</S.UserEmail>
+            </S.UserMeta>
+            <S.StatusList>
+              <S.StatusItem>
+                <S.StatusLabel>이메일 인증</S.StatusLabel>
+                <S.StatusValue>
+                  {emailVerified ? '완료' : '미완료'}
+                </S.StatusValue>
+              </S.StatusItem>
+              <S.StatusItem>
+                <S.StatusLabel>세션 상태</S.StatusLabel>
+                <S.StatusValue>
+                  {sessionExpired ? '만료됨' : '활성'}
+                </S.StatusValue>
+              </S.StatusItem>
+            </S.StatusList>
+            <S.Actions>
+              <S.LogoutButton
+                type="button"
+                onClick={handleLogout}
+                aria-label="logout"
+              >
+                로그아웃
+              </S.LogoutButton>
+            </S.Actions>
+          </>
+        ) : (
+          <S.EmptyState>
+            사용자 정보를 찾을 수 없어요. 다시 로그인해 주세요.
+          </S.EmptyState>
+        )}
+      </S.ProfileSection>
+    </S.Page>
+  );
+}

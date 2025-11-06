@@ -1,77 +1,80 @@
 import styled from '@emotion/styled';
 
-import { colors } from '@/theme/color';
-import { spacing } from '@/theme/spacing';
-import { typography } from '@/theme/typography';
-
-export const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${spacing.spacing3};
-  padding: ${spacing.spacing4};
+export const Container = styled.main`
+  padding: ${({ theme }) => theme.spacing6};
+  background-color: ${({ theme }) => theme.background.default};
+  min-height: 100vh;
 `;
 
-export const EmailText = styled.p`
+export const Title = styled.h1`
   margin: 0;
-  ${typography.body1Regular};
-  color: ${colors.text.default};
+  color: ${({ theme }) => theme.text.default};
+  font-size: ${({ theme }) => theme.title1Bold.fontSize};
+  font-weight: ${({ theme }) => theme.title1Bold.fontWeight};
+  line-height: ${({ theme }) => theme.title1Bold.lineHeight};
 `;
 
-export const CountText = styled.p`
+export const Description = styled.p`
+  margin: ${({ theme }) => `${theme.spacing2} 0 ${theme.spacing4}`};
+  color: ${({ theme }) => theme.text.sub};
+  font-size: ${({ theme }) => theme.body1Regular.fontSize};
+  font-weight: ${({ theme }) => theme.body1Regular.fontWeight};
+  line-height: ${({ theme }) => theme.body1Regular.lineHeight};
+`;
+
+export const Nav = styled.nav`
+  display: flex;
+  align-items: center;
+`;
+
+export const NavList = styled.ul`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing3};
+  padding: 0;
   margin: 0;
-  ${typography.body1Regular};
-  color: ${colors.text.default};
+  list-style: none;
 `;
 
-/* MatchCard 테스트 섹션 스타일링 */
-export const MatchCardTestSection = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: ${spacing.spacing4};
-  margin-top: ${spacing.spacing6};
+export const NavItem = styled.li``;
 
-  h2 {
-    ${typography.title1Bold};
-    color: ${colors.text.default};
-    text-align: center;
-    margin-bottom: ${spacing.spacing4};
-    padding-bottom: ${spacing.spacing2};
-    border-bottom: 2px solid ${colors.brand.kakaoYellow};
-  }
+export const NavLink = styled.a`
+  color: ${({ theme }) => theme.blue[700]};
+  font-size: ${({ theme }) => theme.body1Regular.fontSize};
+  font-weight: ${({ theme }) => theme.body1Regular.fontWeight};
+  line-height: ${({ theme }) => theme.body1Regular.lineHeight};
+  text-decoration: none;
 
-  h3 {
-    ${typography.title2Bold};
-    color: ${colors.text.default};
-    margin: ${spacing.spacing5} 0 ${spacing.spacing3} 0;
-    padding-left: ${spacing.spacing2};
-    border-left: 4px solid ${colors.brand.kakaoYellow};
+  &:hover {
+    text-decoration: underline;
   }
 `;
 
-export const MatchCardGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${spacing.spacing3};
+export const PreviewSection = styled.section`
+  margin-top: ${({ theme }) => theme.spacing5};
+  display: grid;
+  gap: ${({ theme }) => theme.spacing3};
+  padding: ${({ theme }) => `${theme.spacing4}`};
+  border-radius: ${({ theme }) => theme.spacing3};
+  background: linear-gradient(
+    145deg,
+    ${({ theme }) => theme.gray[0]},
+    ${({ theme }) => theme.gray[100]}
+  );
+  box-shadow: 0 4px 24px rgba(26, 28, 32, 0.08);
 `;
 
-export const MatchCardItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${spacing.spacing2};
-  padding: ${spacing.spacing3};
-  background-color: ${colors.gray[100]};
-  border-radius: 12px;
-  border: 1px solid ${colors.gray[200]};
+export const PreviewTitle = styled.h2`
+  margin: 0;
+  color: ${({ theme }) => theme.text.default};
+  font-size: ${({ theme }) => theme.subtitle1Bold.fontSize};
+  font-weight: ${({ theme }) => theme.subtitle1Bold.fontWeight};
+  line-height: ${({ theme }) => theme.subtitle1Bold.lineHeight};
+`;
 
-  h4 {
-    ${typography.body1Bold};
-    color: ${colors.text.sub};
-    margin: 0 0 ${spacing.spacing2} 0;
-    font-size: 14px;
-  }
-
-  /* MatchCard가 중앙에 오도록 */
-  > * {
-    align-self: center;
-  }
+export const PreviewDescription = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.text.sub};
+  font-size: ${({ theme }) => theme.body2Regular.fontSize};
+  font-weight: ${({ theme }) => theme.body2Regular.fontWeight};
+  line-height: ${({ theme }) => theme.body2Regular.lineHeight};
 `;

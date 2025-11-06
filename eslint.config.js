@@ -51,12 +51,6 @@ export default tseslint.config(
         {
           html: 'enforce',
           custom: 'enforce',
-          exceptions: [
-            'Button',
-            'ToggleButton',
-            'StyledButton',
-            'S.StyledButton',
-          ],
         },
       ],
       'import/order': [
@@ -98,6 +92,15 @@ export default tseslint.config(
       globals: {
         ...globals.node,
       },
+    },
+  },
+  {
+    files: [
+      'src/components/button/**/*.{ts,tsx}',
+      'src/tests/component/button/**/*.{ts,tsx}',
+    ],
+    rules: {
+      'react/jsx-props-no-spreading': 'off',
     },
   },
   eslintConfigPrettier,
