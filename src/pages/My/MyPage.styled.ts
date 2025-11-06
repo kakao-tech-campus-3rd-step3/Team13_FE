@@ -366,3 +366,112 @@ export const LogoutButton = styled.button`
     outline-offset: 2px;
   }
 `;
+
+// FCM 알림 토글 섹션
+export const NotificationSection = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing3};
+  padding: ${({ theme }) => theme.spacing5};
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+  margin-top: ${({ theme }) => theme.spacing4};
+`;
+
+export const NotificationToggleCard = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing4};
+`;
+
+export const NotificationInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing1};
+  flex: 1;
+`;
+
+export const NotificationTitle = styled.h3`
+  ${({ theme }) => theme.body1Bold};
+  color: #0f172a;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing2};
+
+  &::before {
+    content: '🔔';
+    font-size: 20px;
+  }
+`;
+
+export const NotificationDescription = styled.p`
+  ${({ theme }) => theme.body2Regular};
+  color: #64748b;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+`;
+
+export const ToggleSwitch = styled.input`
+  appearance: none;
+  width: 52px;
+  height: 28px;
+  background: #cbd5e1;
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &:checked {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  }
+
+  &:checked::before {
+    transform: translateX(24px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.3);
+    outline-offset: 2px;
+  }
+`;
+
+export const FCMErrorMessage = styled.p`
+  ${({ theme }) => theme.body2Regular};
+  color: #ef4444;
+  margin: ${({ theme }) => theme.spacing2} 0 0;
+  font-size: 13px;
+  padding: ${({ theme }) => theme.spacing2} ${({ theme }) => theme.spacing3};
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 8px;
+  border-left: 3px solid #ef4444;
+
+  &::before {
+    content: '⚠️ ';
+    margin-right: ${({ theme }) => theme.spacing1};
+  }
+`;

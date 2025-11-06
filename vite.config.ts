@@ -17,12 +17,6 @@ export default defineConfig({
       '@form-kit/zod-lite': fileURLToPath(
         new URL('./src/vendor/zod.ts', import.meta.url),
       ),
-      'firebase/app': fileURLToPath(
-        new URL('./src/vendor/firebase-app.ts', import.meta.url),
-      ),
-      'firebase/messaging': fileURLToPath(
-        new URL('./src/vendor/firebase-messaging.ts', import.meta.url),
-      ),
     },
   },
   test: {
