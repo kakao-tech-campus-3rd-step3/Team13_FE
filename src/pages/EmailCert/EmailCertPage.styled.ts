@@ -70,6 +70,12 @@ export const Input = styled.input`
     outline: 3px solid rgba(33, 124, 249, 0.35);
     outline-offset: 2px;
   }
+
+  &:disabled {
+    background: ${({ theme }) => theme.gray[100]};
+    color: ${({ theme }) => theme.text.placeholder};
+    cursor: not-allowed;
+  }
 `;
 
 export const Hint = styled.p`
@@ -106,6 +112,32 @@ export const Primary = styled.button`
 export const Secondary = styled(Primary)`
   background: ${({ theme }) => theme.gray[200]};
   color: ${({ theme }) => theme.text.default};
+`;
+
+export const SchoolButton = styled.button<{ selected: boolean }>`
+  flex: 1;
+  padding: ${({ theme }) => `${theme.spacing2} ${theme.spacing3}`};
+  border-radius: 12px;
+  border: 1px solid
+    ${({ theme, selected }) =>
+      selected ? theme.blue[700] : theme.border.default};
+  background: ${({ theme, selected }) =>
+    selected ? theme.blue[700] : theme.gray[100]};
+  color: ${({ theme, selected }) =>
+    selected ? theme.gray[0] : theme.text.sub};
+  font-size: ${({ theme }) => theme.body1Bold.fontSize};
+  font-weight: ${({ theme }) => theme.body1Bold.fontWeight};
+  line-height: ${({ theme }) => theme.body1Bold.lineHeight};
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border 0.2s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `;
 
 export const Notice = styled.p`

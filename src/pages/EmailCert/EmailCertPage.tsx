@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { getCertificationStatus } from '@/api/certification';
+import { selectSchool } from '@/api/schools';
 import RouteSkeleton from '@/components/RouteSkeleton';
 import OriginTitleBar from '@/components/titleBar/originTitleBar';
 import {
@@ -31,6 +32,7 @@ import * as S from './EmailCertPage.styled';
 
 const COOLDOWN_SECONDS = 45;
 const DEFAULT_SCHOOL_DOMAIN = 'pusan.ac.kr';
+const BUSAN_NATIONAL_UNIVERSITY_ID = 101;
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
@@ -72,6 +74,8 @@ export default function EmailCertPage() {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [cooldown, setCooldown] = useState(0);
+  const [selectedSchoolId, setSelectedSchoolId] = useState<number | null>(null);
+  const [isSelectingSchool, setIsSelectingSchool] = useState(false);
   const [initialStatusPending, setInitialStatusPending] = useState(true);
 
   const parsedEmail = useMemo(() => parseSchoolEmail(email), [email]);
@@ -131,10 +135,34 @@ export default function EmailCertPage() {
   }, [cooldown]);
 
   const hasEmailIdentifier = Boolean(parsedEmail.localPart);
+  const isSchoolSelected = Boolean(selectedSchoolId);
   const canSend =
-    hasEmailIdentifier && cooldown === 0 && !sendMutation.isPending;
+    isSchoolSelected &&
+    hasEmailIdentifier &&
+    cooldown === 0 &&
+    !sendMutation.isPending;
   const canVerify =
-    hasEmailIdentifier && isValidCode(code) && !verifyMutation.isPending;
+    isSchoolSelected &&
+    hasEmailIdentifier &&
+    isValidCode(code) &&
+    !verifyMutation.isPending;
+
+  const handleSelectSchool = useCallback(
+    async (schoolId: number) => {
+      if (isSelectingSchool) return;
+      setIsSelectingSchool(true);
+      try {
+        const response = await selectSchool(schoolId);
+        setSelectedSchoolId(response.id);
+        notify.success(`${response.name} 선택이 완료되었어요.`);
+      } catch {
+        notify.error('학교 선택 중 오류가 발생했어요. 다시 시도해 주세요.');
+      } finally {
+        setIsSelectingSchool(false);
+      }
+    },
+    [isSelectingSchool],
+  );
 
   const extractServerError = (error: unknown) => {
     if (!isAxiosError(error)) return { message: null, code: null };
@@ -169,6 +197,11 @@ export default function EmailCertPage() {
   };
 
   const handleSend = useCallback(async () => {
+    if (!isSchoolSelected) {
+      notify.warning('학교를 먼저 선택해 주세요.');
+      return;
+    }
+
     const { localPart, domain } = parsedEmail;
 
     if (!localPart) {
@@ -239,6 +272,7 @@ export default function EmailCertPage() {
       );
     }
   }, [
+    isSchoolSelected,
     navigateToRedirect,
     parsedEmail,
     sendMutation,
@@ -248,6 +282,11 @@ export default function EmailCertPage() {
   ]);
 
   const handleVerify = useCallback(async () => {
+    if (!isSchoolSelected) {
+      notify.warning('학교를 먼저 선택해 주세요.');
+      return;
+    }
+
     const { localPart, domain } = parsedEmail;
 
     if (!localPart) {
@@ -286,6 +325,7 @@ export default function EmailCertPage() {
     }
   }, [
     code,
+    isSchoolSelected,
     navigateToRedirect,
     parsedEmail,
     setEmailCertBypassed,
@@ -309,6 +349,23 @@ export default function EmailCertPage() {
         </S.Description>
 
         <S.Field>
+          <S.Label as="p">학교 선택</S.Label>
+          <S.Row>
+            <S.SchoolButton
+              type="button"
+              onClick={() => {
+                void handleSelectSchool(BUSAN_NATIONAL_UNIVERSITY_ID);
+              }}
+              selected={selectedSchoolId === BUSAN_NATIONAL_UNIVERSITY_ID}
+              disabled={isSelectingSchool}
+            >
+              부산대학교
+            </S.SchoolButton>
+          </S.Row>
+          <S.Hint>학교 선택 후 이메일 인증을 진행할 수 있습니다.</S.Hint>
+        </S.Field>
+
+        <S.Field>
           <S.Label htmlFor="cert-email">학교 이메일 주소</S.Label>
           <S.Input
             id="cert-email"
@@ -325,6 +382,7 @@ export default function EmailCertPage() {
             autoCapitalize="none"
             autoCorrect="off"
             inputMode="email"
+            disabled={!isSchoolSelected}
           />
           <S.Hint id="email-hint">
             학교 이메일 주소 또는 아이디를 입력해 주세요.

@@ -139,6 +139,12 @@ describe('Route Guards', () => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
 
+    fireEvent.click(screen.getByRole('button', { name: '부산대학교' }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('학교 이메일 주소')).not.toBeDisabled();
+    });
+
     fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
       target: { value: 'user@pusan.ac.kr' },
     });

@@ -84,12 +84,22 @@ afterEach(() => {
 });
 
 describe('EmailCertPage', () => {
+  const selectBusanUniversity = async () => {
+    fireEvent.click(screen.getByRole('button', { name: '부산대학교' }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('학교 이메일 주소')).not.toBeDisabled();
+    });
+  };
+
   it('이메일 전송 후 쿨다운 시간을 표시한다', async () => {
     renderEmailCertPage();
 
     await waitFor(() => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
+
+    await selectBusanUniversity();
 
     fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
       target: { value: 'user@pusan.ac.kr' },
@@ -107,6 +117,8 @@ describe('EmailCertPage', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
+
+    await selectBusanUniversity();
 
     fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
       target: { value: 'user' },
@@ -129,6 +141,8 @@ describe('EmailCertPage', () => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
 
+    await selectBusanUniversity();
+
     fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
       target: { value: 'limit@pusan.ac.kr' },
     });
@@ -145,6 +159,8 @@ describe('EmailCertPage', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
+
+    await selectBusanUniversity();
 
     fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
       target: { value: 'user@pusan.ac.kr' },
@@ -173,6 +189,8 @@ describe('EmailCertPage', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
+
+    await selectBusanUniversity();
 
     fireEvent.click(screen.getByRole('button', { name: 'email-cert-go-back' }));
 
@@ -213,6 +231,8 @@ describe('EmailCertPage', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
+
+    await selectBusanUniversity();
 
     fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
       target: { value: 'user@pusan.ac.kr' },
