@@ -25,6 +25,10 @@ const createFile = (name: string, size: number, type: string) =>
   new File([new Uint8Array(size)], name, { type });
 
 const originalCreateImageBitmap = globalThis.createImageBitmap;
+const urlWithOptional = URL as typeof URL & {
+  createObjectURL?: typeof URL.createObjectURL;
+  revokeObjectURL?: typeof URL.revokeObjectURL;
+};
 const hasOriginalCreateObjectURL = typeof URL.createObjectURL === 'function';
 const originalCreateObjectURL = hasOriginalCreateObjectURL
   ? URL.createObjectURL.bind(URL)
