@@ -14,6 +14,7 @@ export {
   SportsDropDown,
   TimeSlotDropDown,
   LocationDropDown,
+  SortDropDown,
 } from './dropDownPresets';
 
 // 복합 컴포넌트들
@@ -25,6 +26,7 @@ export {
   SPORTS_OPTIONS,
   TIME_SLOT_OPTIONS,
   LOCATION_OPTIONS,
+  SORT_OPTIONS,
   DROPDOWN_ICONS,
 } from './constants';
 
@@ -38,6 +40,7 @@ export type {
   TimeSlotDropDownProps,
   LocationDropDownProps,
   LocationDropDownWithInputProps,
+  SortDropDownProps,
   InputPlaceProps,
   UseDropDownConfig,
   UseDropDownReturn,

@@ -136,7 +136,11 @@ export default function ProfileForm({
       const trimmed = url.trim();
       if (!trimmed) return;
 
-      setValue('imageUrl', trimmed);
+      setValue('imageUrl', trimmed, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
       void onImageUploaded?.(trimmed);
     },
     [onImageUploaded, setValue],
