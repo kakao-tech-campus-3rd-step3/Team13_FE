@@ -125,13 +125,8 @@ export default function ProfileForm({
 
   const busy = submitting || isSubmitting;
   const directUploadId = useId();
-  const imageUrlValue = form.watch('imageUrl') as
-    | ProfileFormValues['imageUrl']
-    | string[]
-    | undefined;
-  const normalizedImageUrl = Array.isArray(imageUrlValue)
-    ? (imageUrlValue[0] ?? '')
-    : (imageUrlValue ?? '');
+  const imageUrlValue = form.watch('imageUrl');
+  const normalizedImageUrl = imageUrlValue ?? '';
   const trimmedImageUrl = normalizedImageUrl.trim();
   const emailHint = emailFieldHint ?? '학교 인증된 이메일';
   const emailClickable = emailFieldInteractive && !busy;
@@ -152,11 +147,7 @@ export default function ProfileForm({
   );
 
   const handleClearImageUrl = useCallback(() => {
-    setValue('imageUrl', '', {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
+    setValue('imageUrl', '');
   }, [setValue]);
 
   const handleEmailKeyDown = useCallback(

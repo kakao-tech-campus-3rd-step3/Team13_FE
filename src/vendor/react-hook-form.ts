@@ -60,6 +60,11 @@ export interface UseFormReturn<TFieldValues extends FieldValues = FieldValues> {
   getValues: () => TFieldValues;
   clearErrors: () => void;
   reset: (values?: Partial<TFieldValues>) => void;
+  watch(
+    name: keyof TFieldValues & string,
+    defaultValue?: string,
+  ): string | undefined;
+  watch(names: Array<keyof TFieldValues & string>): Array<string | undefined>;
   watch(): TFieldValues;
   watch(callback: (values: TFieldValues) => void): { unsubscribe: () => void };
 }
