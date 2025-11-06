@@ -56,6 +56,7 @@ export interface UseFormReturn<TFieldValues extends FieldValues = FieldValues> {
   setValue: (
     name: keyof TFieldValues & string,
     value: string | undefined,
+    options?: { shouldDirty?: boolean },
   ) => void;
   getValues: () => TFieldValues;
   clearErrors: () => void;
@@ -229,15 +230,25 @@ export function useForm<TFieldValues extends FieldValues = FieldValues>(
   );
 
   const setValue = useCallback(
-    (name: keyof TFieldValues & string, value: string | undefined) => {
+    (
+      name: keyof TFieldValues & string,
+      value: string | undefined,
+      options?: { shouldDirty?: boolean },
+    ) => {
       const next = value ?? '';
-      assignValue(name, next);
+      if (options?.shouldDirty === false) {
+        const storage = valuesRef.current as Record<string, string | undefined>;
+        storage[name] = next;
+        notifySubscribers();
+      } else {
+        assignValue(name, next);
+      }
       const element = fieldRefs.current[name];
       if (element && isFormElement(element)) {
         element.value = next;
       }
     },
-    [assignValue],
+    [assignValue, notifySubscribers],
   );
 
   const getValues = useCallback(() => {
