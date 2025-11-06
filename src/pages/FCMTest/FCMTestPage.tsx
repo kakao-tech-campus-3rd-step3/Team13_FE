@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { registerFCMToken, unregisterFCMToken } from '@/api/fcm';
 import { useFCM } from '@/hooks/useFCM';
@@ -20,6 +20,12 @@ export default function FCMTestPage() {
 
   const { clearFCM } = useFCMStore();
   const [apiStatus, setApiStatus] = useState<string>('');
+
+  // 페이지 진입 시 FCM 상태 초기화
+  useEffect(() => {
+    clearFCM();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 마운트 시 한 번만 실행
 
   // FCM 토큰 복사
   const handleCopyToken = useCallback(() => {
@@ -166,6 +172,13 @@ export default function FCMTestPage() {
 
         {/* 액션 버튼 */}
         <S.ButtonGroup>
+          {/* 에러 상태일 때 상태 초기화 버튼 표시 */}
+          {error && !fcmToken && (
+            <S.Button variant="secondary" onClick={clearFCM}>
+              🔄 상태 초기화 후 다시 시도
+            </S.Button>
+          )}
+
           <S.Button
             variant="primary"
             onClick={handleRequestPermission}

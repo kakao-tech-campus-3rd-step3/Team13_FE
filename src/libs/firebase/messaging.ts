@@ -74,6 +74,7 @@ export const getFCMToken = async (): Promise<FCMToken | null> => {
 
     // 알림 권한 확인
     const permission = await requestNotificationPermission();
+    console.log('[FCM] Notification permission:', permission);
     if (permission !== 'granted') {
       console.warn('Notification permission not granted');
       return null;
@@ -81,23 +82,42 @@ export const getFCMToken = async (): Promise<FCMToken | null> => {
 
     // Service Worker 등록 확인
     const registration = await navigator.serviceWorker.ready;
+    console.log('[FCM] Service Worker registration:', registration);
     if (!registration) {
       console.warn('Service Worker not registered');
       return null;
     }
 
-    // FCM 토큰 발급
-    const token = await getToken(messaging, {
-      vapidKey: VAPID_KEY,
-      serviceWorkerRegistration: registration,
-    });
+    // VAPID 키 확인
+    console.log('[FCM] VAPID key exists:', !!VAPID_KEY);
+    console.log(
+      '[FCM] VAPID key (first 20 chars):',
+      VAPID_KEY?.substring(0, 20),
+    );
 
-    if (token) {
-      console.log('FCM Token obtained:', token);
-      return token;
-    } else {
-      console.warn('No FCM token available');
-      return null;
+    // FCM 토큰 발급
+    console.log('[FCM] Requesting FCM token...');
+
+    try {
+      const token = await getToken(messaging, {
+        vapidKey: VAPID_KEY,
+        serviceWorkerRegistration: registration,
+      });
+
+      if (token) {
+        console.log('FCM Token obtained:', token);
+        return token;
+      } else {
+        console.error('[FCM] getToken returned empty/null/undefined');
+        console.error('[FCM] This usually means:');
+        console.error('  1. Firebase project not configured for FCM');
+        console.error('  2. Cloud Messaging API not enabled');
+        console.error('  3. VAPID key mismatch');
+        return null;
+      }
+    } catch (tokenError) {
+      console.error('[FCM] Error during getToken call:', tokenError);
+      throw tokenError;
     }
   } catch (error) {
     console.error('Error getting FCM token:', error);
