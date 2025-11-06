@@ -27,6 +27,11 @@ const notifyMocks = {
   warning: vi.fn(),
 };
 
+const BUSAN_NATIONAL_UNIVERSITY = {
+  id: 1,
+  name: '부산대학교',
+  domain: 'pusan.ac.kr',
+};
 const renderEmailCertPage = (initialEntry = '/email-cert') => {
   queryClient = new QueryClient({
     defaultOptions: {
@@ -59,6 +64,23 @@ beforeEach(() => {
     success: notifyMocks.success,
     warning: notifyMocks.warning,
   });
+  server.use(
+    http.post('*/api/v1/members/me/school/:schoolId', ({ params }) => {
+      const id = Number(params.schoolId);
+      if (id !== BUSAN_NATIONAL_UNIVERSITY.id) {
+        return HttpResponse.json(
+          {
+            error: {
+              code: 'SCHOOL_NOT_FOUND',
+              message: '학교를 찾을 수 없어요.',
+            },
+          },
+          { status: 404 },
+        );
+      }
+      return HttpResponse.json(BUSAN_NATIONAL_UNIVERSITY);
+    }),
+  );
   useSessionStore.setState((state) => ({
     ...state,
     hasHydrated: true,

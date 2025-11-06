@@ -32,7 +32,7 @@ import * as S from './EmailCertPage.styled';
 
 const COOLDOWN_SECONDS = 45;
 const DEFAULT_SCHOOL_DOMAIN = 'pusan.ac.kr';
-const BUSAN_NATIONAL_UNIVERSITY_ID = 101;
+const BUSAN_NATIONAL_UNIVERSITY_ID = 1;
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 

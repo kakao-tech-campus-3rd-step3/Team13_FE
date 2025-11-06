@@ -9,7 +9,7 @@ import {
 import { RecruitingMatchCard } from '@/components/matchCard';
 import HomeTitleBar from '@/components/titleBar/homeTitleBar';
 import { useGamesList } from '@/hooks/queries/games';
-import { useAuthStore } from '@/stores/authStore';
+import { useIsLoggedIn } from '@/stores/appStore';
 import { SPORT_ID } from '@/types/game.types';
 import {
   formatTimeRange,
@@ -30,7 +30,7 @@ import * as S from './HomePage.styled';
  */
 export default function HomePage() {
   const navigate = useNavigate();
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthenticated = useIsLoggedIn();
 
   const profileNavigateTo = isAuthenticated ? '/my' : '/login';
 
