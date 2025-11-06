@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import RouteSkeleton from '@/components/RouteSkeleton';
@@ -13,11 +13,18 @@ export default function KakaoCallbackPage() {
   const appHydrated = useHasHydrated();
   const sessionHydrated = useSessionHydrated();
   const navigate = useNavigate();
+  const onceRef = useRef(false);
 
   useEffect(() => {
     if (!appHydrated || !sessionHydrated) {
       return;
     }
+
+    if (onceRef.current) {
+      return;
+    }
+
+    onceRef.current = true;
 
     void (async () => {
       const { to, options } = await handleKakaoCallback({ code, state });

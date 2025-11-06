@@ -2,17 +2,30 @@
 import { ThemeProvider } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { resetCertificationState } from '@/mocks/handlers/certification';
+import {
+  resetCertificationState,
+  seedCertificationState,
+} from '@/mocks/handlers/certification';
+import { server } from '@/mocks/server';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
+import HomePage from '@/pages/Home/HomePage';
 import { registerNotifier } from '@/pages/notifications/notify';
 import { useAppStore } from '@/stores/appStore';
 import { useSessionStore } from '@/stores/sessionStore';
 import { theme } from '@/theme';
 
 let queryClient: QueryClient;
+
+const notifyMocks = {
+  error: vi.fn(),
+  info: vi.fn(),
+  success: vi.fn(),
+  warning: vi.fn(),
+};
 
 const renderEmailCertPage = (initialEntry = '/email-cert') => {
   queryClient = new QueryClient({
@@ -28,10 +41,7 @@ const renderEmailCertPage = (initialEntry = '/email-cert') => {
         <MemoryRouter initialEntries={[initialEntry]}>
           <Routes>
             <Route path="/email-cert" element={<EmailCertPage />} />
-            <Route
-              path="/my"
-              element={<div aria-label="my-page">My Page</div>}
-            />
+            <Route path="/home" element={<HomePage />} />
           </Routes>
         </MemoryRouter>
       </QueryClientProvider>
@@ -41,11 +51,13 @@ const renderEmailCertPage = (initialEntry = '/email-cert') => {
 
 beforeEach(() => {
   resetCertificationState();
+  seedCertificationState({});
+  Object.values(notifyMocks).forEach((mock) => mock.mockReset());
   registerNotifier({
-    error: vi.fn(),
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
+    error: notifyMocks.error,
+    info: notifyMocks.info,
+    success: notifyMocks.success,
+    warning: notifyMocks.warning,
   });
   useSessionStore.setState((state) => ({
     ...state,
@@ -57,6 +69,7 @@ beforeEach(() => {
     ...state,
     hasHydrated: true,
     emailVerified: false,
+    emailCertBypassed: false,
     user: {
       id: 1,
       name: '홍길동',
@@ -105,7 +118,7 @@ describe('EmailCertPage', () => {
     });
   });
 
-  it('인증 성공 시 /my 로 이동한다', async () => {
+  it('인증 성공 시 /home 으로 이동한다', async () => {
     renderEmailCertPage();
 
     await waitFor(() => {
@@ -129,7 +142,68 @@ describe('EmailCertPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText('my-page')).toBeInTheDocument();
+      expect(screen.getByLabelText('home-page')).toBeInTheDocument();
     });
+  });
+
+  it('나중에 하기 버튼을 누르면 홈으로 이동한다', async () => {
+    renderEmailCertPage();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'email-cert-go-back' }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('home-page')).toBeInTheDocument();
+    });
+  });
+
+  it('이미 인증된 상태면 페이지 진입 시 즉시 홈으로 이동한다', async () => {
+    seedCertificationState({
+      localPart: 'user',
+      requested: true,
+      isVerified: true,
+    });
+
+    renderEmailCertPage();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('home-page')).toBeInTheDocument();
+    });
+  });
+
+  it('이메일 재전송 409 응답을 성공으로 처리하고 리다이렉트한다', async () => {
+    seedCertificationState({
+      localPart: 'user',
+      requested: true,
+      isVerified: true,
+    });
+
+    server.use(
+      http.get('*/api/v1/members/me/certification/status', () =>
+        HttpResponse.json({ isVerified: false }),
+      ),
+    );
+
+    renderEmailCertPage();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
+      target: { value: 'user@pusan.ac.kr' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'send-cert-code' }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('home-page')).toBeInTheDocument();
+    });
+
+    expect(notifyMocks.success).toHaveBeenCalledWith(
+      '이미 이메일 인증이 완료되어 있습니다. 다음 단계로 이동합니다.',
+    );
   });
 });

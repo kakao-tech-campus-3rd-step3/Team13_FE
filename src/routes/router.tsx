@@ -9,8 +9,12 @@ import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import ErrorPage from '@/pages/Error/ErrorPage';
 import HomePage from '@/pages/Home';
 import MyPage from '@/pages/My/MyPage';
+import ProfileEditPage from '@/pages/My/ProfileEditPage';
+import SportSelectPage from '@/pages/Onboarding/SportSelectPage';
+import TimeSelectPage from '@/pages/Onboarding/TimeSelectPage';
 import StoreDemoPage from '@/pages/StoreDemo/StoreDemoPage';
 import { ProtectedRoute, PublicRoute, VerifiedRoute } from '@/routes/Guards';
+import OnboardingGuard from '@/routes/OnboardingGuard';
 
 /**
  * 임시 페이지 컴포넌트들
@@ -61,9 +65,15 @@ export const router = createBrowserRouter([
       {
         element: <VerifiedRoute />,
         children: [
+          { path: '/onboarding/sports', element: <SportSelectPage /> },
+          { path: '/onboarding/times', element: <TimeSelectPage /> },
+          { path: '/home', element: <HomePage /> },
           {
-            path: '/my',
-            element: <MyPage />,
+            element: <OnboardingGuard />,
+            children: [
+              { path: '/my', element: <MyPage /> },
+              { path: '/my/profile/edit', element: <ProfileEditPage /> },
+            ],
           },
           // TODO: 매치 생성, 매치 상세, 검색 등 추가
         ],
@@ -86,6 +96,10 @@ export const router = createBrowserRouter([
   {
     path: '/test/store',
     element: <StoreDemoPage />,
+  },
+  {
+    path: '/test/profile-form',
+    element: <ProfileFormDemo />,
   },
 
   // 404 페이지

@@ -2,12 +2,14 @@
 import { ThemeProvider } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { InitialEntry } from 'history';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { resetCertificationState } from '@/mocks/handlers/certification';
 import LoginPage from '@/pages/Auth/LoginPage';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
+import HomePage from '@/pages/Home/HomePage';
 import MyPage from '@/pages/My/MyPage';
 import { registerNotifier } from '@/pages/notifications/notify';
 import { ProtectedRoute, PublicRoute, VerifiedRoute } from '@/routes/Guards';
@@ -17,7 +19,7 @@ import { theme } from '@/theme';
 
 let queryClient: QueryClient;
 
-const renderRoutes = (initialEntries: string[]) => {
+const renderRoutes = (initialEntries: InitialEntry[]) => {
   queryClient = new QueryClient({
     defaultOptions: { queries: { retry: 0 }, mutations: { retry: 0 } },
   });
@@ -34,6 +36,7 @@ const renderRoutes = (initialEntries: string[]) => {
             <Route element={<ProtectedRoute />}>
               <Route path="/email-cert" element={<EmailCertPage />} />
               <Route element={<VerifiedRoute />}>
+                <Route path="/home" element={<HomePage />} />
                 <Route path="/my" element={<MyPage />} />
               </Route>
             </Route>
@@ -55,6 +58,7 @@ const resetStore = () => {
     user: null,
     notificationsEnabled: true,
     emailVerified: true,
+    emailCertBypassed: false,
     sessionExpired: false,
   }));
   useSessionStore.setState((state) => ({
@@ -105,6 +109,7 @@ describe('Route Guards', () => {
         avatarUrl: 'https://example.com/avatar.png',
       },
       emailVerified: false,
+      emailCertBypassed: false,
     }));
 
     renderRoutes(['/my']);
@@ -114,7 +119,7 @@ describe('Route Guards', () => {
     });
   });
 
-  it('/email-cert 에서 인증 완료 시 /my 로 이동한다', async () => {
+  it('/email-cert 에서 인증 완료 시 /home 으로 이동한다', async () => {
     useAppStore.setState((state) => ({
       ...state,
       user: {
@@ -124,6 +129,7 @@ describe('Route Guards', () => {
         avatarUrl: 'https://example.com/avatar.png',
       },
       emailVerified: false,
+      emailCertBypassed: false,
     }));
 
     renderRoutes(['/email-cert']);
@@ -149,7 +155,33 @@ describe('Route Guards', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText('my-page')).toBeInTheDocument();
+      expect(screen.getByLabelText('home-page')).toBeInTheDocument();
+    });
+  });
+
+  it('/email-cert 에서 나중에 하기 선택 시에도 /home 으로 이동한다', async () => {
+    useAppStore.setState((state) => ({
+      ...state,
+      user: {
+        id: 4,
+        name: '나중',
+        email: 'later@example.com',
+        avatarUrl: 'https://example.com/avatar.png',
+      },
+      emailVerified: false,
+      emailCertBypassed: false,
+    }));
+
+    renderRoutes(['/email-cert']);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'email-cert-go-back' }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('home-page')).toBeInTheDocument();
     });
   });
 
@@ -178,6 +210,30 @@ describe('Route Guards', () => {
     }));
 
     renderRoutes(['/login']);
+
+    expect(screen.queryByLabelText('login-page')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('my-page')).toBeInTheDocument();
+  });
+
+  it('로그인된 사용자가 /login?expired=1 으로 리다이렉트된 상태라면 기본 페이지로 이동한다', () => {
+    useAppStore.setState((state) => ({
+      ...state,
+      user: {
+        id: 4,
+        name: '변사또',
+        email: 'byeon@example.com',
+        avatarUrl: 'https://example.com/avatar.png',
+      },
+      emailVerified: true,
+    }));
+
+    renderRoutes([
+      {
+        pathname: '/login',
+        search: '?expired=1',
+        state: { from: '/login?expired=1' },
+      },
+    ]);
 
     expect(screen.queryByLabelText('login-page')).not.toBeInTheDocument();
     expect(screen.getByLabelText('my-page')).toBeInTheDocument();

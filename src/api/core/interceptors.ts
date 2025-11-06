@@ -71,7 +71,40 @@ const handleNon401Error = (error: AxiosError<ApiError>) => {
   }
 
   const { status, data } = error.response;
-  const fallbackMessage = data?.message ?? '요청을 처리하지 못했어요.';
+  const payload = data as unknown;
+  const nestedError =
+    typeof payload === 'object' && payload !== null && 'error' in payload
+      ? (payload as { error?: { message?: unknown; code?: unknown } }).error
+      : undefined;
+  const resolvedMessage =
+    typeof nestedError?.message === 'string'
+      ? nestedError.message
+      : typeof (payload as { message?: unknown }).message === 'string'
+        ? ((payload as { message?: string }).message ??
+          '요청을 처리하지 못했어요.')
+        : '요청을 처리하지 못했어요.';
+  const resolvedCode =
+    typeof nestedError?.code === 'string'
+      ? nestedError.code
+      : typeof (payload as { code?: unknown }).code === 'string'
+        ? ((payload as { code?: string }).code ?? undefined)
+        : undefined;
+
+  if (status === 409) {
+    if (
+      resolvedCode === 'EMAIL_ALREADY_VERIFIED' ||
+      resolvedCode === 'CERT_ALREADY_VERIFIED'
+    ) {
+      notify.success('이미 이메일 인증이 완료되었습니다.');
+      return Promise.reject(error);
+    }
+    notify.error(
+      resolvedMessage ?? '요청이 충돌했습니다. 잠시 후 다시 시도해 주세요.',
+    );
+    return Promise.reject(error);
+  }
+
+  const fallbackMessage = resolvedMessage;
 
   switch (status) {
     case 400:

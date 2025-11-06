@@ -46,6 +46,7 @@ describe('KakaoCallbackPage', () => {
       ...state,
       hasHydrated: true,
       user: null,
+      emailCertBypassed: false,
       sessionExpired: false,
     }));
   });

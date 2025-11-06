@@ -60,6 +60,7 @@ const resetStores = () => {
     hasHydrated: true,
     user: null,
     emailVerified: true,
+    emailCertBypassed: false,
     sessionExpired: false,
   }));
 };
@@ -100,6 +101,7 @@ describe('Route Guards × resolveFrom', () => {
     useAppStore.setState((state) => ({
       ...state,
       emailVerified: false,
+      emailCertBypassed: false,
       hasHydrated: true,
     }));
     renderRoutes('/my');

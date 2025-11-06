@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import RouteSkeleton from '@/components/RouteSkeleton';
+import OriginTitleBar from '@/components/titleBar/originTitleBar';
 import {
   useCurrentUser,
   useEmailVerified,
@@ -9,6 +10,12 @@ import {
   useSessionExpired,
   useActions,
 } from '@/stores/appStore';
+import {
+  mapSlotToPeriod,
+  usePrefActions,
+  useSelectedSports,
+  useSelectedTimeSlots,
+} from '@/stores/preferencesStore';
 import { useSessionActions, useSessionHydrated } from '@/stores/sessionStore';
 
 import * as S from './MyPage.styled';
@@ -22,23 +29,49 @@ export default function MyPage() {
   const { logout } = useActions();
   const { clearSession } = useSessionActions();
   const navigate = useNavigate();
+  const sports = useSelectedSports();
+  const timeSlots = useSelectedTimeSlots();
+  const { resetAll } = usePrefActions();
+  const preferredPeriods = Array.from(
+    new Set(timeSlots.map((slot) => mapSlotToPeriod(slot))),
+  );
+
+  const handleBack = useCallback(() => {
+    if (window.history.length > 1) {
+      void navigate(-1);
+      return;
+    }
+    void navigate('/onboarding/times', { replace: true });
+  }, [navigate]);
 
   const handleLogout = useCallback(() => {
     logout();
     clearSession();
+    resetAll();
     void navigate('/login', { replace: true });
-  }, [clearSession, logout, navigate]);
+  }, [clearSession, logout, navigate, resetAll]);
+
+  const handleEditProfile = useCallback(() => {
+    void navigate('/my/profile/edit');
+  }, [navigate]);
+
   if (!appHydrated || !sessionHydrated) {
     return <RouteSkeleton />;
   }
 
   return (
     <S.Page aria-label="my-page">
+      <S.TitleBarWrapper>
+        <OriginTitleBar title="내 계정" onBack={handleBack} />
+      </S.TitleBarWrapper>
       <S.ProfileSection>
         <S.Heading>내 계정</S.Heading>
         {user ? (
           <>
-            <S.Avatar src={user.avatarUrl} alt={`${user.name} 아바타`} />
+            <S.AvatarWrapper>
+              <S.Avatar src={user.avatarUrl} alt={`${user.name} 아바타`} />
+              <S.AvatarBadge aria-hidden="true" />
+            </S.AvatarWrapper>
             <S.UserMeta>
               <S.UserName>{user.name}</S.UserName>
               <S.UserEmail>{user.email}</S.UserEmail>
@@ -56,8 +89,29 @@ export default function MyPage() {
                   {sessionExpired ? '만료됨' : '활성'}
                 </S.StatusValue>
               </S.StatusItem>
+              <S.StatusItem>
+                <S.StatusLabel>선호 종목</S.StatusLabel>
+                <S.StatusValue>
+                  {sports.length > 0 ? `${sports.length}개` : '미선택'}
+                </S.StatusValue>
+              </S.StatusItem>
+              <S.StatusItem>
+                <S.StatusLabel>선호 시간대</S.StatusLabel>
+                <S.StatusValue>
+                  {preferredPeriods.length > 0
+                    ? preferredPeriods.join(', ')
+                    : '미선택'}
+                </S.StatusValue>
+              </S.StatusItem>
             </S.StatusList>
             <S.Actions>
+              <S.EditButton
+                type="button"
+                onClick={handleEditProfile}
+                aria-label="edit-profile"
+              >
+                프로필 수정
+              </S.EditButton>
               <S.LogoutButton
                 type="button"
                 onClick={handleLogout}
