@@ -91,7 +91,7 @@ export default function HomePage() {
               initialSelected="basketball"
             />
           </S.FilterItem>
-          <S.FilterItem>
+          <S.FilterItem style={{ minWidth: '180px' }}>
             <TimeSlotDropDown
               onChange={(selected) => setSelectedTimeSlots(selected)}
               initialSelected={['18:00-21:00']}

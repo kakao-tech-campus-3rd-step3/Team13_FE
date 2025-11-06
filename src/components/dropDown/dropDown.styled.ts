@@ -31,6 +31,8 @@ export const DropDownContainer = styled.div`
   width: 100%;
   max-width: 360px;
   animation: ${scaleIn} 0.3s ease-out;
+  overflow: visible;
+  z-index: 1000;
 `;
 
 /**
@@ -162,7 +164,7 @@ export const DropDownList = styled.div<{ isOpen: boolean }>`
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 10000;
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(226, 232, 240, 0.8);

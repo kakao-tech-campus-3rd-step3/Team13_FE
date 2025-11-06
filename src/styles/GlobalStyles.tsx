@@ -50,7 +50,7 @@ const GlobalStyle = (): React.ReactElement => (
         max-width: 720px;
         min-height: 100vh; /* 최소 높이만 뷰포트 높이로 설정 */
         margin: 0 auto;
-        padding: 0 ${spacing.spacing4};
+        padding: 0 0;
         background-color: ${colors.background.default};
         box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 15px;
       }

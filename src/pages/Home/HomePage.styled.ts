@@ -53,6 +53,7 @@ export const PageContainer = styled.div`
   min-height: 100vh;
   background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   position: relative;
+  overflow: visible;
 
   /* 배경 패턴 효과 */
   &::before {
@@ -99,9 +100,6 @@ export const PageContainer = styled.div`
  */
 export const BannerContainer = styled.div`
   width: 100%;
-  max-width: 1200px;
-  margin: ${spacing.spacing4} auto;
-  padding: 0 ${spacing.spacing4};
   overflow: hidden;
   animation: ${slideDown} 0.6s ease-out;
 `;
@@ -110,17 +108,10 @@ export const BannerImage = styled.img`
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 24px;
-  box-shadow:
-    0 4px 20px rgba(15, 23, 42, 0.08),
-    0 8px 40px rgba(59, 130, 246, 0.12);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow:
-      0 8px 30px rgba(15, 23, 42, 0.12),
-      0 16px 60px rgba(59, 130, 246, 0.18);
+    transform: scale(1.02);
   }
 `;
 
@@ -133,21 +124,15 @@ export const FilterBanner = styled.div`
   justify-content: space-between;
   gap: ${spacing.spacing3};
   padding: ${spacing.spacing4} ${spacing.spacing4};
-  margin: 0 auto;
   max-width: 1200px;
   width: 100%;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
-  border-radius: 20px;
-  box-shadow:
-    0 2px 12px rgba(15, 23, 42, 0.06),
-    0 1px 3px rgba(15, 23, 42, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
   animation: ${fadeIn} 0.6s ease-out 0.2s backwards;
-  position: sticky;
-  top: ${spacing.spacing4};
+
+  position: relative;
   z-index: 100;
-  margin-bottom: ${spacing.spacing4};
+  overflow: visible;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -161,6 +146,8 @@ export const FilterLeftGroup = styled.div`
   align-items: center;
   gap: ${spacing.spacing2};
   flex: 1;
+  position: relative;
+  z-index: 101;
 
   @media (max-width: 768px) {
     flex-wrap: wrap;
@@ -170,41 +157,13 @@ export const FilterLeftGroup = styled.div`
 export const FilterRightGroup = styled.div`
   display: flex;
   align-items: center;
+  position: relative;
+  z-index: 101;
 `;
 
 export const FilterItem = styled.div`
-  /* 드롭다운 스타일 커스터마이징 */
-  & > div {
-    height: 40px;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    color: #1e40af;
-    border: 2px solid rgba(59, 130, 246, 0.2);
-    border-radius: 14px;
-    padding: 0 ${spacing.spacing3};
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
-
-    &:hover {
-      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-      border-color: rgba(59, 130, 246, 0.4);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
-
-    /* 아이콘 색상 */
-    svg,
-    path {
-      color: #1e40af;
-      fill: #1e40af;
-      transition: all 0.3s ease;
-    }
-  }
+  position: relative;
+  z-index: 102;
 `;
 
 /**
@@ -217,6 +176,8 @@ export const MatchListContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  position: relative;
+  z-index: 1;
 
   /* 스크롤바 스타일링 */
   &::-webkit-scrollbar {
@@ -241,13 +202,9 @@ export const MatchListContainer = styled.div`
  * 매치 카드 아이템
  */
 export const MatchCardItem = styled.div<{ index?: number }>`
-  margin-bottom: ${spacing.spacing4};
+  margin-top: ${spacing.spacing2};
   animation: ${fadeIn} 0.5s ease-out backwards;
   animation-delay: ${({ index }) => (index ? `${index * 0.05}s` : '0s')};
-
-  &:last-child {
-    margin-bottom: 0;
-  }
 `;
 
 /**
