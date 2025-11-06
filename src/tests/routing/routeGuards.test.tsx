@@ -29,6 +29,7 @@ const renderRoutes = (initialEntries: InitialEntry[]) => {
       <QueryClientProvider client={queryClient}>
         <MemoryRouter initialEntries={initialEntries}>
           <Routes>
+            <Route path="/" element={<HomePage />} />
             <Route element={<PublicRoute />}>
               <Route path="/login" element={<LoginPage />} />
             </Route>
@@ -212,7 +213,7 @@ describe('Route Guards', () => {
     renderRoutes(['/login']);
 
     expect(screen.queryByLabelText('login-page')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('my-page')).toBeInTheDocument();
+    expect(screen.getByLabelText('home-page')).toBeInTheDocument();
   });
 
   it('로그인된 사용자가 /login?expired=1 으로 리다이렉트된 상태라면 기본 페이지로 이동한다', () => {
@@ -236,6 +237,6 @@ describe('Route Guards', () => {
     ]);
 
     expect(screen.queryByLabelText('login-page')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('my-page')).toBeInTheDocument();
+    expect(screen.getByLabelText('home-page')).toBeInTheDocument();
   });
 });
