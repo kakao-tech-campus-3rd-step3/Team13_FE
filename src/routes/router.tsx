@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 
 import GameListPage from '@/features/games/pages/GameListPage';
 import SportsPage from '@/features/sports/pages/SportsPage';
@@ -7,6 +7,7 @@ import LoginPage from '@/pages/Auth/LoginPage';
 import ComponentTestPage from '@/pages/ComponentTest/ComponentTestPage';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import ErrorPage from '@/pages/Error/ErrorPage';
+import HomePage from '@/pages/Home';
 import MyPage from '@/pages/My/MyPage';
 import StoreDemoPage from '@/pages/StoreDemo/StoreDemoPage';
 import { ProtectedRoute, PublicRoute, VerifiedRoute } from '@/routes/Guards';
@@ -25,13 +26,17 @@ const NotFoundPage = () => <div>404 - 페이지를 찾을 수 없습니다</div>
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/login" replace />, // 루트 접근 시 로그인 페이지로 리다이렉트
+    element: <HomePage />, // 루트 접근 시 홈페이지 표시
   },
 
   // 공개 라우트 (미인증 사용자용)
   {
     element: <PublicRoute />,
     children: [
+      {
+        path: '/home',
+        element: <HomePage />, // 루트 접근 시 홈페이지 표시
+      },
       {
         path: '/login',
         element: <LoginPage />,

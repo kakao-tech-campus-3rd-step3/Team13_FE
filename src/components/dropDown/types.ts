@@ -85,6 +85,8 @@ export interface SportsDropDownProps {
   className?: string;
   /** 비활성화 여부 */
   disabled?: boolean;
+  /** 초기 선택 값 */
+  initialSelected?: string;
 }
 
 export interface TimeSlotDropDownProps {
@@ -94,6 +96,8 @@ export interface TimeSlotDropDownProps {
   className?: string;
   /** 비활성화 여부 */
   disabled?: boolean;
+  /** 초기 선택 값 */
+  initialSelected?: string[];
 }
 
 export interface LocationDropDownProps {
@@ -103,6 +107,8 @@ export interface LocationDropDownProps {
   className?: string;
   /** 비활성화 여부 */
   disabled?: boolean;
+  /** 초기 선택 값 */
+  initialSelected?: string;
 }
 
 export interface LocationDropDownWithInputProps {
@@ -112,6 +118,17 @@ export interface LocationDropDownWithInputProps {
   className?: string;
   /** 비활성화 여부 */
   disabled?: boolean;
+}
+
+export interface SortDropDownProps {
+  /** 선택 변경 콜백 */
+  onChange?: (selected: string) => void;
+  /** 추가 CSS 클래스 */
+  className?: string;
+  /** 비활성화 여부 */
+  disabled?: boolean;
+  /** 초기 선택 값 */
+  initialSelected?: string;
 }
 
 /**
