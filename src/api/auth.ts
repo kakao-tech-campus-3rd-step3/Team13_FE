@@ -122,15 +122,22 @@ export async function getKakaoOAuthUrl(params?: {
   return extractAuthUrl(data);
 }
 
-export async function exchangeKakaoCode(code: string): Promise<{
+export async function exchangeKakaoCode(
+  code: string,
+  redirectUri?: string,
+): Promise<{
   token: string | null;
   accessToken: string | null;
   refreshToken: string | null;
 }> {
+  const params: Record<string, string> = { code };
+  if (redirectUri) {
+    params.redirectUri = redirectUri;
+  }
   const { data } = await apiClient.get<NestedAuthResponse>(
     '/api/v1/auth/kakao/callback',
     {
-      params: { code },
+      params,
     },
   );
 
