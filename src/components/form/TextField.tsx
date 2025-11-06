@@ -2,7 +2,12 @@ import type {
   FieldErrors,
   UseFormRegisterReturn,
 } from '@form-kit/react-hook-form-lite';
-import type { InputHTMLAttributes } from 'react';
+import type {
+  InputHTMLAttributes,
+  KeyboardEventHandler,
+  MouseEventHandler,
+  ReactNode,
+} from 'react';
 
 import { getAriaFor, makeIds } from '@/libs/a11y/formA11y';
 
@@ -20,6 +25,11 @@ type TextFieldProps = {
   autoComplete?: string;
   disabled?: boolean;
   readOnly?: boolean;
+  suffix?: ReactNode;
+  onContainerClick?: () => void;
+  clickable?: boolean;
+  onInputKeyDown?: KeyboardEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  onInputClick?: MouseEventHandler<HTMLInputElement | HTMLTextAreaElement>;
 };
 
 export default function TextField({
@@ -34,6 +44,11 @@ export default function TextField({
   autoComplete,
   disabled = false,
   readOnly = false,
+  suffix,
+  onContainerClick,
+  clickable = false,
+  onInputKeyDown,
+  onInputClick,
 }: TextFieldProps) {
   const { inputId, errorId, hintId } = makeIds(name);
   const ariaProps = getAriaFor(name, errors, hint ? hintId : undefined);
@@ -47,9 +62,20 @@ export default function TextField({
   const resolvedAutoComplete =
     autoComplete ?? (type === 'email' ? 'email' : 'off');
   const resolvedInputMode = type === 'email' ? 'email' : undefined;
+  const containerClickable = Boolean(
+    clickable && !disabled && onContainerClick,
+  );
 
   return (
-    <S.Field invalid={invalid} disabled={disabled}>
+    <S.Field
+      invalid={invalid}
+      disabled={disabled}
+      data-clickable={containerClickable ? 'true' : undefined}
+      onClick={() => {
+        if (!containerClickable || !onContainerClick) return;
+        onContainerClick();
+      }}
+    >
       <S.Label htmlFor={inputId}>{label}</S.Label>
       {as === 'textarea' ? (
         <S.TextArea
@@ -67,27 +93,66 @@ export default function TextField({
           aria-readonly={readOnly || undefined}
           autoCorrect="off"
           autoCapitalize="none"
+          onKeyDown={
+            onInputKeyDown as KeyboardEventHandler<HTMLTextAreaElement>
+          }
+          onClick={onInputClick as MouseEventHandler<HTMLTextAreaElement>}
         />
       ) : (
-        <S.Input
-          id={inputId}
-          name={fieldName}
-          type={type}
-          onBlur={onBlur}
-          onChange={onChange}
-          ref={ref}
-          aria-invalid={ariaInvalid}
-          aria-describedby={ariaDescribedBy}
-          aria-errormessage={invalid ? ariaErrorMessage : undefined}
-          placeholder={placeholder}
-          autoComplete={resolvedAutoComplete}
-          inputMode={resolvedInputMode}
-          disabled={disabled}
-          readOnly={readOnly}
-          aria-readonly={readOnly || undefined}
-          autoCorrect="off"
-          autoCapitalize="none"
-        />
+        <>
+          {suffix ? (
+            <S.InputWrapper>
+              <S.Input
+                id={inputId}
+                name={fieldName}
+                type={type}
+                onBlur={onBlur}
+                onChange={onChange}
+                ref={ref}
+                aria-invalid={ariaInvalid}
+                aria-describedby={ariaDescribedBy}
+                aria-errormessage={invalid ? ariaErrorMessage : undefined}
+                placeholder={placeholder}
+                autoComplete={resolvedAutoComplete}
+                inputMode={resolvedInputMode}
+                disabled={disabled}
+                readOnly={readOnly}
+                aria-readonly={readOnly || undefined}
+                autoCorrect="off"
+                autoCapitalize="none"
+                onKeyDown={
+                  onInputKeyDown as KeyboardEventHandler<HTMLInputElement>
+                }
+                onClick={onInputClick as MouseEventHandler<HTMLInputElement>}
+              />
+              <S.Suffix>{suffix}</S.Suffix>
+            </S.InputWrapper>
+          ) : (
+            <S.Input
+              id={inputId}
+              name={fieldName}
+              type={type}
+              onBlur={onBlur}
+              onChange={onChange}
+              ref={ref}
+              aria-invalid={ariaInvalid}
+              aria-describedby={ariaDescribedBy}
+              aria-errormessage={invalid ? ariaErrorMessage : undefined}
+              placeholder={placeholder}
+              autoComplete={resolvedAutoComplete}
+              inputMode={resolvedInputMode}
+              disabled={disabled}
+              readOnly={readOnly}
+              aria-readonly={readOnly || undefined}
+              autoCorrect="off"
+              autoCapitalize="none"
+              onKeyDown={
+                onInputKeyDown as KeyboardEventHandler<HTMLInputElement>
+              }
+              onClick={onInputClick as MouseEventHandler<HTMLInputElement>}
+            />
+          )}
+        </>
       )}
       {hint && <S.Hint id={hintId}>{hint}</S.Hint>}
       {invalid && (

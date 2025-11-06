@@ -170,3 +170,46 @@ export const SecondaryButton = styled.button`
     outline-offset: 3px;
   }
 `;
+
+export const ImageUrlClearButton = styled.button`
+  border: 0;
+  border-radius: 9999px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.06);
+  color: ${({ theme }) => theme.text.sub};
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(37, 99, 235, 0.16);
+    color: ${({ theme }) => theme.text.default};
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.32);
+    outline-offset: 2px;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:focus-visible {
+      transform: none;
+    }
+  }
+`;

@@ -1,6 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { verifyCertification } from '@/api/certification';
+import {
+  verifyCertification,
+  type CertificationVerifyRequest,
+} from '@/api/certification';
 import { CERTIFICATION_STATUS_KEY } from '@/hooks/queries/certification/useCertificationStatus';
 import { useActions } from '@/stores/appStore';
 
@@ -9,8 +12,8 @@ export function useVerifyCertification() {
   const { setEmailVerified } = useActions();
 
   return useMutation({
-    mutationFn: (variables: { localPart: string; code: string }) =>
-      verifyCertification(variables.localPart, variables.code),
+    mutationFn: (variables: CertificationVerifyRequest) =>
+      verifyCertification(variables),
     onSuccess: (data) => {
       setEmailVerified(Boolean(data?.isVerified));
       void queryClient.invalidateQueries({
