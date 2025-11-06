@@ -32,16 +32,12 @@ export default function EmailCertPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const redirectPath = useMemo(
-    () => resolveFrom(location.state, '/my'),
+    () => resolveFrom(location.state, '/home'),
     [location.state],
   );
   const handleBack = useCallback(() => {
-    if (window.history.length > 1) {
-      void navigate(-1);
-      return;
-    }
-    void navigate('/login', { replace: true });
-  }, [navigate]);
+    void navigate(redirectPath, { replace: true });
+  }, [navigate, redirectPath]);
 
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -108,7 +104,7 @@ export default function EmailCertPage() {
     try {
       await verifyMutation.mutateAsync({ localPart, code });
       notify.success('이메일 인증이 완료됐어요.');
-      void navigate(redirectPath, { replace: true });
+      void navigate(redirectPath);
     } catch (error) {
       const serverMessage = extractServerMessage(error);
       if (serverMessage) {

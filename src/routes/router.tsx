@@ -7,6 +7,7 @@ import LoginPage from '@/pages/Auth/LoginPage';
 import ComponentTestPage from '@/pages/ComponentTest/ComponentTestPage';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import ErrorPage from '@/pages/Error/ErrorPage';
+import HomePage from '@/pages/Home/HomePage';
 import MyPage from '@/pages/My/MyPage';
 import SportSelectPage from '@/pages/Onboarding/SportSelectPage';
 import TimeSelectPage from '@/pages/Onboarding/TimeSelectPage';
@@ -61,6 +62,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '/onboarding/sports', element: <SportSelectPage /> },
           { path: '/onboarding/times', element: <TimeSelectPage /> },
+          { path: '/home', element: <HomePage /> },
           {
             element: <OnboardingGuard />,
             children: [
