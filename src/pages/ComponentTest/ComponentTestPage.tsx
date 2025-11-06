@@ -37,7 +37,6 @@ import * as S from './ComponentTestPage.styled';
 function ComponentTestPage() {
   const [email, setEmail] = useState('');
   const [backCount, setBackCount] = useState(0);
-  const [menuCount, setMenuCount] = useState(0);
   const [count, setCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [iconLoading, setIconLoading] = useState(false);
@@ -91,17 +90,13 @@ function ComponentTestPage() {
           <a href="/test/games">게임 리스트 테스트 보기</a>
         </S.TestLinks>
       </S.Section>
-      <HomeTitleBar
-        title="홈 타이틀바"
-        onMenu={() => setMenuCount((c) => c + 1)}
-      />
+      <HomeTitleBar title="홈 타이틀바" navigateTo="/login" />
       <OriginTitleBar
         title="오리진 타이틀바"
         onBack={() => setBackCount((c) => c + 1)}
       />
       <LoginTitleBar />
       <S.Container>
-        <p>프로필 클릭 횟수: {menuCount}</p>
         <p>뒤로 가기 클릭 횟수: {backCount}</p>
         <NavigationTab tabs={tabs} />
         <InputTextWithEmail

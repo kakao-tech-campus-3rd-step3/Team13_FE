@@ -7,8 +7,9 @@ import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 export const Wrapper = styled(TitleBar)`
-  background-color: ${colors.background.default};
-  padding: 0 ${spacing.spacing4};
+  background-color: #e1eefc;
+  height: 60px;
+  padding: 0 ${spacing.spacing2};
 
   & > div:nth-of-type(2) {
     ${typography.title1Bold};
@@ -17,7 +18,7 @@ export const Wrapper = styled(TitleBar)`
 `;
 
 export const ProfileIcon = styled(CgProfile)`
-  width: ${spacing.spacing6};
-  height: ${spacing.spacing6};
-  color: ${colors.text.default};
+  width: 40px;
+  height: 40px;
+  color: #4573a1;
 `;
