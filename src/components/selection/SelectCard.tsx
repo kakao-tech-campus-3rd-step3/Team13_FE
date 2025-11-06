@@ -17,18 +17,21 @@ export default function SelectCard({
   selected,
   onToggle,
 }: Props) {
+  const isSelected = Boolean(selected);
+
   return (
     <S.Card
       type="button"
-      aria-pressed={Boolean(selected)}
-      selected={selected}
+      selected={isSelected}
+      aria-pressed={isSelected}
+      aria-label={`${title} ${isSelected ? '선택됨' : '선택 안됨'}`}
       onClick={onToggle}
     >
-      {icon && <S.Icon aria-hidden>{icon}</S.Icon>}
-      <S.Texts>
-        <S.Title>{title}</S.Title>
-        {caption && <S.Caption>{caption}</S.Caption>}
-      </S.Texts>
+      <S.CheckIcon visible={isSelected} aria-hidden="true" />
+      {icon && <S.IconWrapper selected={isSelected}>{icon}</S.IconWrapper>}
+      <S.Title selected={isSelected}>{title}</S.Title>
+      {caption && <S.Caption selected={isSelected}>{caption}</S.Caption>}
+      <S.SelectionBadge visible={isSelected}>선택됨</S.SelectionBadge>
     </S.Card>
   );
 }

@@ -48,12 +48,12 @@ export default function TimeSelectPage() {
     <S.Page aria-label="time-select-page">
       <OriginTitleBar title="운동 가능한 시간대 선택" onBack={handleBack} />
       <S.Content>
-        <div>
+        <S.Header>
           <S.SectionTitle>어떤 시간대를 원하나요?</S.SectionTitle>
           <S.SectionHint>
             여러 개 선택 가능 · 최소 1개 이상 선택해 주세요.
           </S.SectionHint>
-        </div>
+        </S.Header>
 
         <S.Grid>
           {SLOTS.map((slot) => (
@@ -67,6 +67,11 @@ export default function TimeSelectPage() {
             />
           ))}
         </S.Grid>
+
+        <S.ProgressIndicator aria-label="온보딩 진행 상황">
+          <S.ProgressDot active />
+          <S.ProgressDot active />
+        </S.ProgressIndicator>
       </S.Content>
 
       <PageActions

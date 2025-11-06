@@ -61,12 +61,12 @@ export default function SportSelectPage() {
     <S.Page aria-label="sport-select-page">
       <OriginTitleBar title="원하는 종목 선택" onBack={handleBack} />
       <S.Content>
-        <div>
+        <S.Header>
           <S.SectionTitle>어떤 종목을 즐기시나요?</S.SectionTitle>
           <S.SectionHint>
             여러 개 선택 가능 · 최소 1개 이상 선택해 주세요.
           </S.SectionHint>
-        </div>
+        </S.Header>
 
         <S.List>
           {sports.map((sport) => (
