@@ -56,7 +56,11 @@ export interface UseFormReturn<TFieldValues extends FieldValues = FieldValues> {
   setValue: (
     name: keyof TFieldValues & string,
     value: string | undefined,
-    options?: { shouldDirty?: boolean },
+    options?: {
+      shouldDirty?: boolean;
+      shouldValidate?: boolean;
+      shouldTouch?: boolean;
+    },
   ) => void;
   getValues: () => TFieldValues;
   clearErrors: () => void;
