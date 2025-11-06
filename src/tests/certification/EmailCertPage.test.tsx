@@ -101,6 +101,27 @@ describe('EmailCertPage', () => {
     });
   });
 
+  it('학교 이메일 아이디만 입력해도 기본 도메인으로 전송한다', async () => {
+    renderEmailCertPage();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
+      target: { value: 'user' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'send-cert-code' }));
+
+    await waitFor(() => {
+      expect(notifyMocks.success).toHaveBeenCalledWith(
+        '인증 코드가 전송됐어요. 받은 메일함을 확인해 주세요.',
+      );
+    });
+
+    expect(notifyMocks.warning).not.toHaveBeenCalled();
+  });
+
   it('429 응답 시에도 쿨다운을 적용한다', async () => {
     renderEmailCertPage();
 

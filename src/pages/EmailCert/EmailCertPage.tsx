@@ -30,6 +30,7 @@ import { useSessionHydrated } from '@/stores/sessionStore';
 import * as S from './EmailCertPage.styled';
 
 const COOLDOWN_SECONDS = 45;
+const DEFAULT_SCHOOL_DOMAIN = 'pusan.ac.kr';
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
@@ -72,6 +73,8 @@ export default function EmailCertPage() {
   const [code, setCode] = useState('');
   const [cooldown, setCooldown] = useState(0);
   const [initialStatusPending, setInitialStatusPending] = useState(true);
+
+  const parsedEmail = useMemo(() => parseSchoolEmail(email), [email]);
 
   useEffect(() => {
     if (!appHydrated || !sessionHydrated) return;
@@ -127,10 +130,11 @@ export default function EmailCertPage() {
     return () => window.clearInterval(id);
   }, [cooldown]);
 
+  const hasEmailIdentifier = Boolean(parsedEmail.localPart);
   const canSend =
-    isValidEmailFormat(email) && cooldown === 0 && !sendMutation.isPending;
+    hasEmailIdentifier && cooldown === 0 && !sendMutation.isPending;
   const canVerify =
-    isValidEmailFormat(email) && isValidCode(code) && !verifyMutation.isPending;
+    hasEmailIdentifier && isValidCode(code) && !verifyMutation.isPending;
 
   const extractServerError = (error: unknown) => {
     if (!isAxiosError(error)) return { message: null, code: null };
@@ -165,28 +169,29 @@ export default function EmailCertPage() {
   };
 
   const handleSend = useCallback(async () => {
-    const { localPart, domain, email: normalized } = parseSchoolEmail(email);
-    if (!localPart || !domain) {
+    const { localPart, domain } = parsedEmail;
+
+    if (!localPart) {
       notify.warning('학교 이메일을 정확히 입력해 주세요.');
       return;
     }
 
-    const normalizedDomain = domain.toLowerCase();
-    if (!normalizedDomain.endsWith('pusan.ac.kr')) {
+    const normalizedDomain = domain ? domain.toLowerCase() : null;
+
+    if (normalizedDomain && !normalizedDomain.endsWith(DEFAULT_SCHOOL_DOMAIN)) {
       notify.warning('학교 이메일(@pusan.ac.kr)만 인증할 수 있어요.');
       return;
     }
 
-    const normalizedEmail =
-      normalized && normalized.includes('@')
-        ? normalized
-        : `${localPart}@${normalizedDomain}`;
+    const normalizedEmail = normalizedDomain
+      ? `${localPart}@${normalizedDomain}`
+      : localPart;
 
     try {
       const response = await sendMutation.mutateAsync({
         email: normalizedEmail,
         localPart,
-        domain: normalizedDomain,
+        ...(normalizedDomain ? { domain: normalizedDomain } : {}),
       });
       if (response?.isVerified) {
         setEmailVerified(true);
@@ -234,8 +239,8 @@ export default function EmailCertPage() {
       );
     }
   }, [
-    email,
     navigateToRedirect,
+    parsedEmail,
     sendMutation,
     setEmailCertBypassed,
     setEmailVerified,
@@ -243,28 +248,29 @@ export default function EmailCertPage() {
   ]);
 
   const handleVerify = useCallback(async () => {
-    const { localPart, domain, email: normalized } = parseSchoolEmail(email);
-    if (!localPart || !domain) {
+    const { localPart, domain } = parsedEmail;
+
+    if (!localPart) {
       notify.warning('학교 이메일을 정확히 입력해 주세요.');
       return;
     }
 
-    const normalizedDomain = domain.toLowerCase();
-    if (!normalizedDomain.endsWith('pusan.ac.kr')) {
+    const normalizedDomain = domain ? domain.toLowerCase() : null;
+
+    if (normalizedDomain && !normalizedDomain.endsWith(DEFAULT_SCHOOL_DOMAIN)) {
       notify.warning('학교 이메일(@pusan.ac.kr)만 인증할 수 있어요.');
       return;
     }
 
-    const normalizedEmail =
-      normalized && normalized.includes('@')
-        ? normalized
-        : `${localPart}@${normalizedDomain}`;
+    const normalizedEmail = normalizedDomain
+      ? `${localPart}@${normalizedDomain}`
+      : localPart;
 
     try {
       await verifyMutation.mutateAsync({
         email: normalizedEmail,
         localPart,
-        domain: normalizedDomain,
+        ...(normalizedDomain ? { domain: normalizedDomain } : {}),
         code,
       });
       setEmailCertBypassed(false);
@@ -278,7 +284,13 @@ export default function EmailCertPage() {
       }
       notify.error('인증에 실패했어요. 코드와 이메일을 다시 확인해 주세요.');
     }
-  }, [code, email, navigateToRedirect, setEmailCertBypassed, verifyMutation]);
+  }, [
+    code,
+    navigateToRedirect,
+    parsedEmail,
+    setEmailCertBypassed,
+    verifyMutation,
+  ]);
 
   if (!appHydrated || !sessionHydrated || initialStatusPending) {
     return <RouteSkeleton />;
@@ -304,13 +316,19 @@ export default function EmailCertPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="예: student@pusan.ac.kr"
-            aria-invalid={Boolean(email) && !isValidEmailFormat(email)}
+            aria-invalid={
+              Boolean(email) &&
+              email.includes('@') &&
+              !isValidEmailFormat(email)
+            }
             aria-describedby="email-hint"
             autoCapitalize="none"
             autoCorrect="off"
             inputMode="email"
           />
-          <S.Hint id="email-hint">학교 이메일 형식을 입력해 주세요.</S.Hint>
+          <S.Hint id="email-hint">
+            학교 이메일 주소 또는 아이디를 입력해 주세요.
+          </S.Hint>
         </S.Field>
 
         <S.Field>
