@@ -25,7 +25,7 @@ export const Page = styled.main`
   display: grid;
   grid-template-rows: auto 1fr auto;
   min-height: 100vh;
-  background: linear-gradient(180deg, #fefce8 0%, #fef3c7 50%, #fde68a 100%);
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   animation: ${fadeIn} 0.4s ease-out;
   position: relative;
 
@@ -38,7 +38,7 @@ export const Page = styled.main`
     height: 300px;
     background: radial-gradient(
       circle at 50% 0%,
-      rgba(251, 191, 36, 0.15) 0%,
+      rgba(59, 130, 246, 0.08) 0%,
       transparent 70%
     );
     pointer-events: none;
@@ -66,21 +66,24 @@ export const Header = styled.div`
 
 export const SectionTitle = styled.h2`
   margin: 0;
-  color: #78350f;
+  color: ${({ theme }) => theme.text.default};
   font-size: 28px;
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.02em;
-  text-shadow: 0 1px 2px rgba(120, 53, 15, 0.05);
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `;
 
 export const SectionHint = styled.p`
   margin: 0;
-  color: #92400e;
+  color: ${({ theme }) => theme.text.sub};
   font-size: 15px;
   line-height: 1.6;
   font-weight: 500;
-  opacity: 0.9;
+  opacity: 0.8;
 `;
 
 export const List = styled.div`
@@ -91,7 +94,7 @@ export const List = styled.div`
 export const LoadingShimmer = styled.div`
   height: 80px;
   border-radius: 16px;
-  background: linear-gradient(90deg, #fef3c7 0%, #fde68a 50%, #fef3c7 100%);
+  background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
   background-size: 200% 100%;
   animation: ${shimmer} 1.5s ease-in-out infinite;
 `;
@@ -104,7 +107,7 @@ export const EmptyState = styled.div`
   gap: ${({ theme }) => theme.spacing3};
   padding: ${({ theme }) => theme.spacing8};
   text-align: center;
-  color: #92400e;
+  color: ${({ theme }) => theme.text.sub};
   font-size: 15px;
   line-height: 1.6;
 
