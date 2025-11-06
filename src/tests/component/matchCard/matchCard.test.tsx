@@ -28,10 +28,8 @@ describe('MatchCard Preset 컴포넌트들', () => {
 
       renderWithTheme(<BasicMatchCard title={testTitle} time={testTime} />);
 
-      // "장소: " 접두사와 함께 title이 표시되는지 확인
-      expect(screen.getByText(`장소: ${testTitle}`)).toBeInTheDocument();
-      // "시간: " 접두사와 함께 time이 표시되는지 확인
-      expect(screen.getByText(`시간: ${testTime}`)).toBeInTheDocument();
+      expect(screen.getByText(testTitle)).toBeInTheDocument();
+      expect(screen.getByText(testTime)).toBeInTheDocument();
     });
 
     it('이미지가 제공되면 올바르게 표시된다', () => {
@@ -56,15 +54,9 @@ describe('MatchCard Preset 컴포넌트들', () => {
         <BasicMatchCard title={defaultProps.title} time={defaultProps.time} />,
       );
 
-      // 이미지 요소가 없는지 확인
       expect(screen.queryByRole('img')).not.toBeInTheDocument();
-      // 기본 정보는 표시되는지 확인
-      expect(
-        screen.getByText(`장소: ${defaultProps.title}`),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(`시간: ${defaultProps.time}`),
-      ).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.time)).toBeInTheDocument();
     });
   });
 
@@ -82,12 +74,8 @@ describe('MatchCard Preset 컴포넌트들', () => {
         />,
       );
 
-      expect(
-        screen.getByText(`제한 인원 : ${testPeopleCount}`),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(`지원 마감 : ${testDeadline}`),
-      ).toBeInTheDocument();
+      expect(screen.getByText(`모집 ${testPeopleCount}`)).toBeInTheDocument();
+      expect(screen.getByText(`마감 ${testDeadline}`)).toBeInTheDocument();
     });
 
     it('deadline이 없어도 peopleCount는 표시된다', () => {
@@ -101,10 +89,8 @@ describe('MatchCard Preset 컴포넌트들', () => {
         />,
       );
 
-      expect(
-        screen.getByText(`제한 인원 : ${testPeopleCount}`),
-      ).toBeInTheDocument();
-      expect(screen.queryByText(/지원 마감/)).not.toBeInTheDocument();
+      expect(screen.getByText(`모집 ${testPeopleCount}`)).toBeInTheDocument();
+      expect(screen.queryByText(/마감/)).not.toBeInTheDocument();
     });
 
     it('기본 정보도 함께 표시된다', () => {
@@ -116,12 +102,8 @@ describe('MatchCard Preset 컴포넌트들', () => {
         />,
       );
 
-      expect(
-        screen.getByText(`장소: ${defaultProps.title}`),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(`시간: ${defaultProps.time}`),
-      ).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.time)).toBeInTheDocument();
     });
   });
 
@@ -152,12 +134,8 @@ describe('MatchCard Preset 컴포넌트들', () => {
         />,
       );
 
-      expect(
-        screen.getByText(`장소: ${defaultProps.title}`),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(`시간: ${defaultProps.time}`),
-      ).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.time)).toBeInTheDocument();
       expect(screen.getByText('취소하기')).toBeInTheDocument();
       expect(screen.getByAltText(defaultProps.title)).toHaveAttribute(
         'src',
@@ -193,12 +171,8 @@ describe('MatchCard Preset 컴포넌트들', () => {
         />,
       );
 
-      expect(
-        screen.getByText(`장소: ${defaultProps.title}`),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(`시간: ${defaultProps.time}`),
-      ).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.time)).toBeInTheDocument();
       expect(screen.getByText('결과 보기')).toBeInTheDocument();
       expect(screen.getByAltText(defaultProps.title)).toHaveAttribute(
         'src',
@@ -211,14 +185,12 @@ describe('MatchCard Preset 컴포넌트들', () => {
     it('모든 컴포넌트가 기본 구조를 가진다', () => {
       const mockFn = () => {};
 
-      // BasicMatchCard
       const { rerender } = renderWithTheme(
         <BasicMatchCard title={defaultProps.title} time={defaultProps.time} />,
       );
-      expect(screen.getByText(/장소:/)).toBeInTheDocument();
-      expect(screen.getByText(/시간:/)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.time)).toBeInTheDocument();
 
-      // RecruitingMatchCard
       rerender(
         <ThemeProvider theme={theme}>
           <RecruitingMatchCard
@@ -228,10 +200,9 @@ describe('MatchCard Preset 컴포넌트들', () => {
           />
         </ThemeProvider>,
       );
-      expect(screen.getByText(/장소:/)).toBeInTheDocument();
-      expect(screen.getByText(/시간:/)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.time)).toBeInTheDocument();
 
-      // SetMatchCard
       rerender(
         <ThemeProvider theme={theme}>
           <SetMatchCard
@@ -241,10 +212,9 @@ describe('MatchCard Preset 컴포넌트들', () => {
           />
         </ThemeProvider>,
       );
-      expect(screen.getByText(/장소:/)).toBeInTheDocument();
-      expect(screen.getByText(/시간:/)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.time)).toBeInTheDocument();
 
-      // FinishedMatchCard
       rerender(
         <ThemeProvider theme={theme}>
           <FinishedMatchCard
@@ -254,8 +224,8 @@ describe('MatchCard Preset 컴포넌트들', () => {
           />
         </ThemeProvider>,
       );
-      expect(screen.getByText(/장소:/)).toBeInTheDocument();
-      expect(screen.getByText(/시간:/)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.time)).toBeInTheDocument();
     });
   });
 });
