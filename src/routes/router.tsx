@@ -7,6 +7,7 @@ import LoginPage from '@/pages/Auth/LoginPage';
 import ComponentTestPage from '@/pages/ComponentTest/ComponentTestPage';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import ErrorPage from '@/pages/Error/ErrorPage';
+import ProfileFormDemo from '@/pages/Forms/ProfileFormDemo';
 import HomePage from '@/pages/Home/HomePage';
 import MyPage from '@/pages/My/MyPage';
 import SportSelectPage from '@/pages/Onboarding/SportSelectPage';
@@ -93,6 +94,10 @@ export const router = createBrowserRouter([
   {
     path: '/test/store',
     element: <StoreDemoPage />,
+  },
+  {
+    path: '/test/profile-form',
+    element: <ProfileFormDemo />,
   },
 
   // 404 페이지

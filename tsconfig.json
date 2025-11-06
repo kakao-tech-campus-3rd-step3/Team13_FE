@@ -2,7 +2,10 @@
   "compilerOptions": {
     "baseUrl": "src",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["*"],
+      "react-hook-form": ["vendor/react-hook-form"],
+      "@hookform/resolvers/zod": ["vendor/hookform-resolvers/zod"],
+      "zod": ["vendor/zod"]
     }
   },
   "files": [],
