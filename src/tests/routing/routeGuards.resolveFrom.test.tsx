@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { resetCertificationState } from '@/mocks/handlers/certification';
 import LoginPage from '@/pages/Auth/LoginPage';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
+import HomePage from '@/pages/Home/HomePage';
 import MyPage from '@/pages/My/MyPage';
 import { registerNotifier } from '@/pages/notifications/notify';
 import { PublicRoute, ProtectedRoute, VerifiedRoute } from '@/routes/Guards';
@@ -29,12 +30,14 @@ const renderRoutes = (initialPath: string, state?: unknown) => {
       <QueryClientProvider client={queryClient}>
         <MemoryRouter initialEntries={entries}>
           <Routes>
+            <Route path="/" element={<HomePage />} />
             <Route element={<PublicRoute />}>
               <Route path="/login" element={<LoginPage />} />
             </Route>
             <Route element={<ProtectedRoute />}>
               <Route path="/email-cert" element={<EmailCertPage />} />
               <Route element={<VerifiedRoute />}>
+                <Route path="/home" element={<HomePage />} />
                 <Route path="/my" element={<MyPage />} />
               </Route>
             </Route>
@@ -118,6 +121,7 @@ describe('Route Guards × resolveFrom', () => {
     }));
     renderRoutes('/login', { from: { pathname: '/my' } });
     expect(screen.queryByLabelText('login-page')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('my-page')).toBeInTheDocument();
   });
 
   it('resolveFrom: 상대경로/외부 URL은 무시하고 fallback 사용', () => {
@@ -128,5 +132,6 @@ describe('Route Guards × resolveFrom', () => {
     }));
     renderRoutes('/login', { from: { pathname: 'http://evil.com' } });
     expect(screen.queryByLabelText('login-page')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('home-page')).toBeInTheDocument();
   });
 });

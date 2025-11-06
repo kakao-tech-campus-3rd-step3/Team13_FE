@@ -104,5 +104,14 @@ export default tseslint.config(
       'react/jsx-props-no-spreading': 'off',
     },
   },
+  {
+    files: ['src/libs/firebase/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
+  },
   eslintConfigPrettier,
 );

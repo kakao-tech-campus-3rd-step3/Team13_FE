@@ -1,6 +1,6 @@
 import type { NavigateOptions, To } from 'react-router-dom';
 
-import { getKakaoOAuthUrl, exchangeKakaoCode } from '@/api/auth';
+import { getGoogleOAuthUrl, exchangeGoogleCode } from '@/api/auth';
 import { getCertificationStatus } from '@/api/certification';
 import { getMyProfile } from '@/api/profile';
 import {
@@ -21,24 +21,26 @@ const AFTER_LOGIN_DEFAULT =
     ? import.meta.env.VITE_AFTER_LOGIN_DEFAULT
     : '/home';
 
-export async function startKakaoLogin(fromPath: string) {
+export async function startGoogleLogin(fromPath: string) {
   const state = buildOAuthState(fromPath);
   const redirectUri =
     typeof window !== 'undefined'
-      ? `${window.location.origin}/auth/kakao/callback`
+      ? `${window.location.origin}/auth/google/callback`
       : undefined;
-  const authUrl = await getKakaoOAuthUrl({ state, redirectUri });
+
+  const authUrl = await getGoogleOAuthUrl({ state, redirectUri });
 
   if (!authUrl) {
-    notify.error('카카오 로그인 주소를 불러오지 못했어요. 다시 시도해 주세요.');
-    throw new Error('missing-kakao-auth-url');
+    notify.error('구글 로그인 주소를 불러오지 못했어요. 다시 시도해 주세요.');
+    throw new Error('missing-google-auth-url');
   }
+
   window.location.assign(authUrl);
 }
 
 type NavigateResult = { to: To; options?: NavigateOptions };
 
-export async function handleKakaoCallback({
+export async function handleGoogleCallback({
   code,
   state,
 }: {
@@ -53,9 +55,10 @@ export async function handleKakaoCallback({
   try {
     const redirectUri =
       typeof window !== 'undefined'
-        ? `${window.location.origin}/auth/kakao/callback`
+        ? `${window.location.origin}/auth/google/callback`
         : undefined;
-    const { token, accessToken, refreshToken } = await exchangeKakaoCode(
+
+    const { token, accessToken, refreshToken } = await exchangeGoogleCode(
       code,
       redirectUri,
     );
@@ -82,10 +85,12 @@ export async function handleKakaoCallback({
     });
 
     const resolvedPath = resolveOAuthState(state, AFTER_LOGIN_DEFAULT);
+
     try {
       const status = await getCertificationStatus();
       const isVerified = Boolean(status?.isVerified);
       setEmailVerified(isVerified);
+
       if (!isVerified) {
         return {
           to: '/email-cert',
@@ -99,8 +104,11 @@ export async function handleKakaoCallback({
       notify.info(
         '이메일 인증 상태를 확인하지 못했어요. 마이페이지에서 다시 시도해 주세요.',
       );
+      return {
+        to: '/email-cert',
+        options: { state: { from: resolvedPath } },
+      };
     }
-    return { to: '/email-cert', options: { state: { from: resolvedPath } } };
   } catch {
     notify.error('인증 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.');
     return { to: '/login' };
