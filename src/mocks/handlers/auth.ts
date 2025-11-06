@@ -43,14 +43,20 @@ const createOAuthUrl = (
 const getGoogleAuthUrl = http.get<never, never, OAuthUrlResponse>(
   '*/api/v1/auth/google',
   ({ request }) => {
-    const redirectUri = new URL(request.url).searchParams.get('redirectUri');
+    const url = new URL(request.url);
+    const redirectUri =
+      url.searchParams.get('redirectUri') ??
+      'http://localhost:5173/auth/google/callback';
+    const state = url.searchParams.get('state') ?? undefined;
+
     const authUrl = createOAuthUrl(
       'https://accounts.google.com/o/oauth2/v2/auth',
       {
         client_id: 'mock-google-client-id',
-        redirect_uri: redirectUri ?? 'https://localhost:5173/auth/google',
+        redirect_uri: redirectUri,
         response_type: 'code',
         scope: 'openid email profile',
+        state,
       },
     );
     return HttpResponse.json<OAuthUrlResponse>({ authUrl });
@@ -84,9 +90,21 @@ const kakaoCallback = http.get<never, never, AuthResponse | ApiErrorResponse>(
   },
 );
 
+const googleCallback = http.get<never, never, AuthResponse | ApiErrorResponse>(
+  '*/api/v1/auth/google/callback',
+  ({ request }) => {
+    const url = new URL(request.url);
+    const code = url.searchParams.get('code');
+    if (!code) return createErrorResponse('AUTH_MISSING_CODE');
+    if (code === 'invalid') return createErrorResponse('AUTH_INVALID_CODE');
+    return HttpResponse.json<AuthResponse>({ token: 'mock-token' });
+  },
+);
+
 export const authHandlers = [
   refreshHandler,
   getGoogleAuthUrl,
   getKakaoAuthUrl,
+  googleCallback,
   kakaoCallback,
 ];

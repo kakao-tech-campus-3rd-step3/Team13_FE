@@ -7,7 +7,9 @@
       "@form-kit/hookform-resolvers/zod-lite": [
         "vendor/hookform-resolvers/zod"
       ],
-      "@form-kit/zod-lite": ["vendor/zod"]
+      "@form-kit/zod-lite": ["vendor/zod"],
+      "firebase/app": ["vendor/firebase-app"],
+      "firebase/messaging": ["vendor/firebase-messaging"]
     }
   },
   "files": [],

@@ -19,7 +19,7 @@ export function buildOAuthState(fromPath: string) {
 
 export function resolveOAuthState(
   rawState: string | null,
-  fallback: string = '/my',
+  fallback: string = '/home',
 ) {
   try {
     if (!rawState) return fallback;
