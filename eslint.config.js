@@ -13,6 +13,7 @@ export default tseslint.config(
     ignores: [
       'dist/',
       'node_modules/',
+      'public/',
       '*.cjs',
       'prettier.config.cjs',
       'eslint.config.js',

@@ -2,6 +2,9 @@ import React from 'react';
 
 import UserHeader from '@/components/Header/UserHeader';
 import PreferenceToggles from '@/components/Toggles/PreferenceToggles';
+import { useFCM } from '@/hooks/useFCM';
+import type { FCMPayload } from '@/libs/firebase/types';
+import { notify } from '@/pages/notifications/notify';
 
 import {
   Description,
@@ -15,7 +18,18 @@ import {
   Title,
   Container,
 } from './App.styled';
+
 const App: React.FC = () => {
+  // FCM 포그라운드 메시지 핸들러
+  const handleForegroundMessage = (payload: FCMPayload) => {
+    const title = payload.notification?.title || '새 알림';
+    const body = payload.notification?.body || '알림이 도착했습니다.';
+    notify.info(`${title}: ${body}`);
+  };
+
+  // FCM Hook 사용 (포그라운드 메시지 수신)
+  useFCM(handleForegroundMessage);
+
   return (
     <Container>
       <Title>Team13 Demo Home</Title>
