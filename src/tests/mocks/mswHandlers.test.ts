@@ -271,12 +271,16 @@ describe('Schools/Reports 핸들러', () => {
     expect(list.status).toBe(200);
     expect(list.data.schools.length).toBeGreaterThan(0);
 
+    const busanUniversity = list.data.schools.find(
+      (school) => school.name === '부산대학교',
+    );
+    expect(busanUniversity).toBeDefined();
     const sel = await requestJson<SchoolResponse>(
-      '/api/v1/members/me/school/101',
+      `/api/v1/members/me/school/${busanUniversity!.id}`,
       { method: 'POST' },
     );
     expect(sel.status).toBe(200);
-    expect(sel.data).toMatchObject({ id: 101 });
+    expect(sel.data).toMatchObject({ id: busanUniversity!.id });
   });
 
   it('신고 생성 → 상태 변경 INVALID → message 단언', async () => {

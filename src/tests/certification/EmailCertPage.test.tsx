@@ -27,6 +27,11 @@ const notifyMocks = {
   warning: vi.fn(),
 };
 
+const BUSAN_NATIONAL_UNIVERSITY = {
+  id: 1,
+  name: '부산대학교',
+  domain: 'pusan.ac.kr',
+};
 const renderEmailCertPage = (initialEntry = '/email-cert') => {
   queryClient = new QueryClient({
     defaultOptions: {
@@ -59,6 +64,23 @@ beforeEach(() => {
     success: notifyMocks.success,
     warning: notifyMocks.warning,
   });
+  server.use(
+    http.post('*/api/v1/members/me/school/:schoolId', ({ params }) => {
+      const id = Number(params.schoolId);
+      if (id !== BUSAN_NATIONAL_UNIVERSITY.id) {
+        return HttpResponse.json(
+          {
+            error: {
+              code: 'SCHOOL_NOT_FOUND',
+              message: '학교를 찾을 수 없어요.',
+            },
+          },
+          { status: 404 },
+        );
+      }
+      return HttpResponse.json(BUSAN_NATIONAL_UNIVERSITY);
+    }),
+  );
   useSessionStore.setState((state) => ({
     ...state,
     hasHydrated: true,
@@ -84,12 +106,22 @@ afterEach(() => {
 });
 
 describe('EmailCertPage', () => {
+  const selectBusanUniversity = async () => {
+    fireEvent.click(screen.getByRole('button', { name: '부산대학교' }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('학교 이메일 주소')).not.toBeDisabled();
+    });
+  };
+
   it('이메일 전송 후 쿨다운 시간을 표시한다', async () => {
     renderEmailCertPage();
 
     await waitFor(() => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
+
+    await selectBusanUniversity();
 
     fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
       target: { value: 'user@pusan.ac.kr' },
@@ -101,12 +133,37 @@ describe('EmailCertPage', () => {
     });
   });
 
+  it('학교 이메일 아이디만 입력해도 기본 도메인으로 전송한다', async () => {
+    renderEmailCertPage();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
+    });
+
+    await selectBusanUniversity();
+
+    fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
+      target: { value: 'user' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'send-cert-code' }));
+
+    await waitFor(() => {
+      expect(notifyMocks.success).toHaveBeenCalledWith(
+        '인증 코드가 전송됐어요. 받은 메일함을 확인해 주세요.',
+      );
+    });
+
+    expect(notifyMocks.warning).not.toHaveBeenCalled();
+  });
+
   it('429 응답 시에도 쿨다운을 적용한다', async () => {
     renderEmailCertPage();
 
     await waitFor(() => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
+
+    await selectBusanUniversity();
 
     fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
       target: { value: 'limit@pusan.ac.kr' },
@@ -124,6 +181,8 @@ describe('EmailCertPage', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
+
+    await selectBusanUniversity();
 
     fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
       target: { value: 'user@pusan.ac.kr' },
@@ -152,6 +211,8 @@ describe('EmailCertPage', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
+
+    await selectBusanUniversity();
 
     fireEvent.click(screen.getByRole('button', { name: 'email-cert-go-back' }));
 
@@ -192,6 +253,8 @@ describe('EmailCertPage', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
     });
+
+    await selectBusanUniversity();
 
     fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
       target: { value: 'user@pusan.ac.kr' },

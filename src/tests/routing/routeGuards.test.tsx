@@ -3,10 +3,12 @@ import { ThemeProvider } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { InitialEntry } from 'history';
+import { HttpResponse, http } from 'msw';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { resetCertificationState } from '@/mocks/handlers/certification';
+import { server } from '@/mocks/server';
 import LoginPage from '@/pages/Auth/LoginPage';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import HomePage from '@/pages/Home/HomePage';
@@ -18,6 +20,12 @@ import { useSessionStore } from '@/stores/sessionStore';
 import { theme } from '@/theme';
 
 let queryClient: QueryClient;
+
+const BUSAN_NATIONAL_UNIVERSITY = {
+  id: 1,
+  name: '부산대학교',
+  domain: 'pusan.ac.kr',
+};
 
 const renderRoutes = (initialEntries: InitialEntry[]) => {
   queryClient = new QueryClient({
@@ -79,6 +87,23 @@ describe('Route Guards', () => {
       warning: vi.fn(),
     });
     resetCertificationState();
+    server.use(
+      http.post('*/api/v1/members/me/school/:schoolId', ({ params }) => {
+        const id = Number(params.schoolId);
+        if (id !== BUSAN_NATIONAL_UNIVERSITY.id) {
+          return HttpResponse.json(
+            {
+              error: {
+                code: 'SCHOOL_NOT_FOUND',
+                message: '학교를 찾을 수 없어요.',
+              },
+            },
+            { status: 404 },
+          );
+        }
+        return HttpResponse.json(BUSAN_NATIONAL_UNIVERSITY);
+      }),
+    );
     resetStore();
   });
 
@@ -137,6 +162,12 @@ describe('Route Guards', () => {
 
     await waitFor(() => {
       expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: '부산대학교' }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('학교 이메일 주소')).not.toBeDisabled();
     });
 
     fireEvent.change(screen.getByLabelText('학교 이메일 주소'), {
