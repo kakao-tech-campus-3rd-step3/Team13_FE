@@ -165,14 +165,29 @@ export default function EmailCertPage() {
   };
 
   const handleSend = useCallback(async () => {
-    const { localPart } = parseSchoolEmail(email);
-    if (!localPart) {
+    const { localPart, domain, email: normalized } = parseSchoolEmail(email);
+    if (!localPart || !domain) {
       notify.warning('학교 이메일을 정확히 입력해 주세요.');
       return;
     }
 
+    const normalizedDomain = domain.toLowerCase();
+    if (!normalizedDomain.endsWith('pusan.ac.kr')) {
+      notify.warning('학교 이메일(@pusan.ac.kr)만 인증할 수 있어요.');
+      return;
+    }
+
+    const normalizedEmail =
+      normalized && normalized.includes('@')
+        ? normalized
+        : `${localPart}@${normalizedDomain}`;
+
     try {
-      const response = await sendMutation.mutateAsync(localPart);
+      const response = await sendMutation.mutateAsync({
+        email: normalizedEmail,
+        localPart,
+        domain: normalizedDomain,
+      });
       if (response?.isVerified) {
         setEmailVerified(true);
         setEmailCertBypassed(false);
@@ -192,17 +207,25 @@ export default function EmailCertPage() {
         return;
       }
 
-      if (
-        isAxiosError(error) &&
-        error.response?.status === 409 &&
-        (code === 'EMAIL_ALREADY_VERIFIED' || code === 'CERT_ALREADY_VERIFIED')
-      ) {
-        setEmailVerified(true);
-        setEmailCertBypassed(false);
-        notify.success(
-          '이미 이메일 인증이 완료되어 있습니다. 다음 단계로 이동합니다.',
+      if (isAxiosError(error) && error.response?.status === 409) {
+        if (
+          code === 'EMAIL_ALREADY_VERIFIED' ||
+          code === 'CERT_ALREADY_VERIFIED'
+        ) {
+          setEmailVerified(true);
+          setEmailCertBypassed(false);
+          notify.success(
+            '이미 이메일 인증이 완료되어 있습니다. 다음 단계로 이동합니다.',
+          );
+          navigateToRedirect();
+          return;
+        }
+
+        setCooldown(COOLDOWN_SECONDS);
+        notify.warning(
+          message ??
+            '이미 인증 코드가 전송되었어요. 잠시 후 다시 시도해 주세요.',
         );
-        navigateToRedirect();
         return;
       }
 
@@ -216,17 +239,34 @@ export default function EmailCertPage() {
     sendMutation,
     setEmailCertBypassed,
     setEmailVerified,
+    setCooldown,
   ]);
 
   const handleVerify = useCallback(async () => {
-    const { localPart } = parseSchoolEmail(email);
-    if (!localPart) {
+    const { localPart, domain, email: normalized } = parseSchoolEmail(email);
+    if (!localPart || !domain) {
       notify.warning('학교 이메일을 정확히 입력해 주세요.');
       return;
     }
 
+    const normalizedDomain = domain.toLowerCase();
+    if (!normalizedDomain.endsWith('pusan.ac.kr')) {
+      notify.warning('학교 이메일(@pusan.ac.kr)만 인증할 수 있어요.');
+      return;
+    }
+
+    const normalizedEmail =
+      normalized && normalized.includes('@')
+        ? normalized
+        : `${localPart}@${normalizedDomain}`;
+
     try {
-      await verifyMutation.mutateAsync({ localPart, code });
+      await verifyMutation.mutateAsync({
+        email: normalizedEmail,
+        localPart,
+        domain: normalizedDomain,
+        code,
+      });
       setEmailCertBypassed(false);
       notify.success('이메일 인증이 완료됐어요.');
       navigateToRedirect();
