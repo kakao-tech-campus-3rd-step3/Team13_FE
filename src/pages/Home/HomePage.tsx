@@ -9,6 +9,7 @@ import {
 import { RecruitingMatchCard } from '@/components/matchCard';
 import HomeTitleBar from '@/components/titleBar/homeTitleBar';
 import { useGamesList } from '@/hooks/queries/games';
+import { useAuthStore } from '@/stores/authStore';
 import { SPORT_ID } from '@/types/game.types';
 import {
   formatTimeRange,
@@ -29,6 +30,9 @@ import * as S from './HomePage.styled';
  */
 export default function HomePage() {
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  const profileNavigateTo = isAuthenticated ? '/my' : '/login';
 
   // 상태 관리
   const [selectedSport, setSelectedSport] = useState<string>('basketball'); // 농구가 기본
@@ -67,7 +71,7 @@ export default function HomePage() {
   return (
     <S.PageContainer aria-label="home-page">
       {/* 타이틀바 */}
-      <HomeTitleBar title="P-Ting" navigateTo="/login" />
+      <HomeTitleBar title="P-Ting" navigateTo={profileNavigateTo} />
 
       {/* 광고 배너 */}
       <S.BannerContainer>
