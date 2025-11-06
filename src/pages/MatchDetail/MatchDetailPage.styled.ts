@@ -117,6 +117,10 @@ export const ImageContainer = styled.div`
     z-index: 2;
     pointer-events: none;
   }
+
+  &:hover img {
+    transform: scale(1.05);
+  }
 `;
 
 export const MatchImage = styled.img`
@@ -135,10 +139,6 @@ export const MatchImage = styled.img`
 
   @supports (aspect-ratio: 16 / 9) {
     max-height: min(480px, calc(100vw * 9 / 16));
-  }
-
-  ${ImageContainer}:hover & {
-    transform: scale(1.05);
   }
 `;
 
