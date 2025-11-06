@@ -25,8 +25,13 @@ const createFile = (name: string, size: number, type: string) =>
   new File([new Uint8Array(size)], name, { type });
 
 const originalCreateImageBitmap = globalThis.createImageBitmap;
-const originalCreateObjectURL = URL.createObjectURL?.bind(URL) ?? null;
-const originalRevokeObjectURL = URL.revokeObjectURL?.bind(URL) ?? null;
+const urlWithOptional = URL as unknown as {
+  createObjectURL?: (obj: Blob | MediaSource) => string;
+  revokeObjectURL?: (url: string) => void;
+};
+
+const originalCreateObjectURL = urlWithOptional.createObjectURL;
+const originalRevokeObjectURL = urlWithOptional.revokeObjectURL;
 
 describe('ImageUploader', () => {
   beforeEach(() => {
@@ -54,9 +59,7 @@ describe('ImageUploader', () => {
     if (originalCreateObjectURL) {
       vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob://preview');
     } else {
-      (
-        URL as { createObjectURL?: typeof URL.createObjectURL }
-      ).createObjectURL = vi
+      urlWithOptional.createObjectURL = vi
         .fn(() => 'blob://preview')
         .mockName('createObjectURL');
     }
@@ -64,9 +67,9 @@ describe('ImageUploader', () => {
     if (originalRevokeObjectURL) {
       vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
     } else {
-      (
-        URL as { revokeObjectURL?: typeof URL.revokeObjectURL }
-      ).revokeObjectURL = vi.fn(() => undefined).mockName('revokeObjectURL');
+      urlWithOptional.revokeObjectURL = vi
+        .fn(() => undefined)
+        .mockName('revokeObjectURL');
     }
 
     vi.spyOn(notify, 'success').mockImplementation(() => undefined);
@@ -90,13 +93,11 @@ describe('ImageUploader', () => {
     }
 
     if (!originalCreateObjectURL) {
-      delete (URL as { createObjectURL?: typeof URL.createObjectURL })
-        .createObjectURL;
+      urlWithOptional.createObjectURL = undefined;
     }
 
     if (!originalRevokeObjectURL) {
-      delete (URL as { revokeObjectURL?: typeof URL.revokeObjectURL })
-        .revokeObjectURL;
+      urlWithOptional.revokeObjectURL = undefined;
     }
   });
 
