@@ -5,8 +5,8 @@ import { queryClient } from '@/api/core/queryClient';
 import { updateMyProfileImageUrl } from '@/api/profile';
 import RouteSkeleton from '@/components/RouteSkeleton';
 import OriginTitleBar from '@/components/titleBar/originTitleBar';
+import { PROFILE_ME_KEY } from '@/features/profile/keys';
 import ImageUploader from '@/features/upload/components/ImageUploader';
-import { myProfileQueryKey } from '@/hooks/queries/profile/useMyProfileQuery';
 import {
   useCurrentUser,
   useEmailVerified,
@@ -66,7 +66,7 @@ export default function MyPage() {
         if (user) {
           setUser({ ...user, avatarUrl: url });
         }
-        await queryClient.invalidateQueries({ queryKey: myProfileQueryKey });
+        await queryClient.invalidateQueries({ queryKey: PROFILE_ME_KEY });
       } catch (error) {
         console.error('프로필 이미지 업데이트 실패', error);
       }
