@@ -63,7 +63,10 @@ export default function MyPage() {
         <S.Heading>내 계정</S.Heading>
         {user ? (
           <>
-            <S.Avatar src={user.avatarUrl} alt={`${user.name} 아바타`} />
+            <S.AvatarWrapper>
+              <S.Avatar src={user.avatarUrl} alt={`${user.name} 아바타`} />
+              <S.AvatarBadge aria-hidden="true" />
+            </S.AvatarWrapper>
             <S.UserMeta>
               <S.UserName>{user.name}</S.UserName>
               <S.UserEmail>{user.email}</S.UserEmail>
