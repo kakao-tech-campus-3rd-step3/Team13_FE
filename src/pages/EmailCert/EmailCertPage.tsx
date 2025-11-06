@@ -36,12 +36,8 @@ export default function EmailCertPage() {
     [location.state],
   );
   const handleBack = useCallback(() => {
-    if (window.history.length > 1) {
-      void navigate(-1);
-      return;
-    }
-    void navigate('/login', { replace: true });
-  }, [navigate]);
+    void navigate(redirectPath, { replace: true });
+  }, [navigate, redirectPath]);
 
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');

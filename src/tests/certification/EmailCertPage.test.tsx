@@ -130,4 +130,18 @@ describe('EmailCertPage', () => {
       expect(screen.getByLabelText('home-page')).toBeInTheDocument();
     });
   });
+
+  it('나중에 하기 버튼을 누르면 홈으로 이동한다', async () => {
+    renderEmailCertPage();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'email-cert-go-back' }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('home-page')).toBeInTheDocument();
+    });
+  });
 });
