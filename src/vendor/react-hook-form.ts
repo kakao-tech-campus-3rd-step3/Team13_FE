@@ -280,24 +280,49 @@ export function useForm<TFieldValues extends FieldValues = FieldValues>(
   );
 
   const watch = useCallback(
-    ((callback?: (values: TFieldValues) => void) => {
-      if (!callback) {
+    ((arg?: unknown, defaultValue?: unknown) => {
+      if (typeof arg === 'function') {
+        const callback = arg as (values: TFieldValues) => void;
+        const subscriber = (values: TFieldValues) => {
+          callback({ ...values });
+        };
+
+        subscribers.current.add(subscriber);
+
         return {
-          ...(valuesRef.current as Record<string, string | undefined>),
-        } as TFieldValues;
+          unsubscribe: () => {
+            subscribers.current.delete(subscriber);
+          },
+        };
       }
 
-      const subscriber = (values: TFieldValues) => {
-        callback({ ...values });
-      };
+      const currentValues = valuesRef.current as Record<
+        string,
+        string | undefined
+      >;
 
-      subscribers.current.add(subscriber);
+      if (Array.isArray(arg)) {
+        return arg.map((name) => currentValues[name as string]);
+      }
+
+      if (typeof arg === 'string') {
+        const key = arg;
+        const value = currentValues[key];
+        if (value !== undefined) {
+          return value;
+        }
+
+        const defaults = defaultValuesRef.current as Record<
+          string,
+          string | undefined
+        >;
+        const fallback = defaults[key];
+        return (fallback ?? defaultValue) as string | undefined;
+      }
 
       return {
-        unsubscribe: () => {
-          subscribers.current.delete(subscriber);
-        },
-      };
+        ...currentValues,
+      } as TFieldValues;
     }) as UseFormReturn<TFieldValues>['watch'],
     [],
   );

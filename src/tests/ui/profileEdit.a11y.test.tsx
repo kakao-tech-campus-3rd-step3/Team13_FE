@@ -119,6 +119,8 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
       useAppStore.setState((state) => ({
         ...state,
         hasHydrated: true,
+        emailVerified: true,
+        emailCertBypassed: false,
         user: {
           id: 101,
           name: baseProfile.name,
@@ -146,6 +148,8 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
       useAppStore.setState((state) => ({
         ...state,
         hasHydrated: false,
+        emailVerified: true,
+        emailCertBypassed: false,
         user: null,
       }));
     });
@@ -257,6 +261,14 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
     act(() => {
       user.tab();
     });
+    const clearButton = screen.getByRole('button', {
+      name: '프로필 이미지 URL 지우기',
+    });
+    expect(document.activeElement).toBe(clearButton);
+
+    act(() => {
+      user.tab();
+    });
     const directUploadButton = screen.getByRole('button', {
       name: 'mock-upload',
     });
@@ -306,5 +318,70 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
       imageUrl: 'https://cdn.example.com/direct-upload.png',
     });
     expect(notify.success).toHaveBeenCalledWith('저장 완료!');
+  });
+
+  it('이미지 URL 지우기 버튼을 통해 값을 초기화할 수 있다', async () => {
+    renderProfileEdit();
+
+    const imageUrlInput = await screen.findByLabelText('프로필 이미지 URL');
+    expect(imageUrlInput).toHaveValue(
+      'https://example.com/avatar/kimdaeyoung.png',
+    );
+
+    const clearButton = screen.getByRole('button', {
+      name: '프로필 이미지 URL 지우기',
+    });
+    fireEvent.click(clearButton);
+
+    await waitFor(() => {
+      expect(imageUrlInput).toHaveValue('');
+    });
+
+    await waitFor(() => {
+      const preview = screen.getByRole('img', {
+        name: '김대영 아바타 미리보기',
+      });
+      expect(preview).toHaveAttribute('src', DEFAULT_PROFILE_IMAGE_URL);
+    });
+  });
+
+  it('미인증 상태에서 이메일 필드를 클릭하면 인증 페이지로 이동한다', async () => {
+    act(() => {
+      useAppStore.setState((state) => ({
+        ...state,
+        hasHydrated: true,
+        emailVerified: false,
+        emailCertBypassed: false,
+      }));
+    });
+
+    queryClient = createTestQueryClient();
+
+    render(
+      <ThemeProvider theme={theme}>
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter initialEntries={['/my/profile/edit']}>
+            <Routes>
+              <Route path="/my/profile/edit" element={<ProfileEditPage />} />
+              <Route
+                path="/email-cert"
+                element={<div data-testid="email-cert-page" />}
+              />
+            </Routes>
+          </MemoryRouter>
+        </QueryClientProvider>
+      </ThemeProvider>,
+    );
+
+    const emailField = await screen.findByLabelText('이메일');
+    fireEvent.click(emailField);
+
+    await waitFor(() => {
+      expect(notify.info).toHaveBeenCalledWith(
+        '학교 이메일 인증 화면으로 이동합니다.',
+      );
+    });
+
+    await screen.findByTestId('email-cert-page');
   });
 });

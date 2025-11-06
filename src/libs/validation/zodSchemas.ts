@@ -4,6 +4,9 @@ import { validationMessages as msg } from './messages';
 
 const trimmed = () => z.string().transform((value) => value.trim());
 
+const FLEXIBLE_URL_REGEX =
+  /^(?:(?:https?:\/\/)?(?:localhost(?::\d+)?|(?:[\w-]+\.)+[\w-]{2,}))(?:\S*)?$|^(?:blob:|data:)\S+$/i;
+
 export const nicknameSchema = trimmed()
   .min(1, { message: msg.required })
   .max(31, { message: msg.nickname.tooLong });
@@ -26,8 +29,8 @@ export const verifyCodeSchema = trimmed().regex(/^\d{6}$/, {
 });
 
 export const imageUrlSchema = trimmed()
-  .url({ message: msg.imageUrl.invalid })
-  .max(255, { message: msg.imageUrl.tooLong });
+  .max(255, { message: msg.imageUrl.tooLong })
+  .regex(FLEXIBLE_URL_REGEX, { message: msg.imageUrl.invalid });
 
 export const profileFormSchema = z.object({
   nickname: nicknameSchema,
