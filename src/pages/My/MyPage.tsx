@@ -50,6 +50,10 @@ export default function MyPage() {
     resetAll();
     void navigate('/login', { replace: true });
   }, [clearSession, logout, navigate, resetAll]);
+
+  const handleEditProfile = useCallback(() => {
+    void navigate('/my/profile/edit');
+  }, [navigate]);
   if (!appHydrated || !sessionHydrated) {
     return <RouteSkeleton />;
   }
@@ -100,6 +104,13 @@ export default function MyPage() {
               </S.StatusItem>
             </S.StatusList>
             <S.Actions>
+              <S.EditButton
+                type="button"
+                onClick={handleEditProfile}
+                aria-label="edit-profile"
+              >
+                프로필 수정
+              </S.EditButton>
               <S.LogoutButton
                 type="button"
                 onClick={handleLogout}
