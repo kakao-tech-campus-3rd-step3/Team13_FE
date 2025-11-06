@@ -50,6 +50,9 @@ const App: React.FC = () => {
           <NavItem>
             <NavLink href="/test/store">스토어 상태 테스트</NavLink>
           </NavItem>
+          <NavItem>
+            <NavLink href="/test/fcm">🔔 FCM 푸시 알림 테스트</NavLink>
+          </NavItem>
         </NavList>
       </Nav>
       <PreviewSection aria-label="store-preview">
