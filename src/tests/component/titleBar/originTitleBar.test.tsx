@@ -2,7 +2,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
 import OriginTitleBar from '@/components/titleBar/originTitleBar';
-import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
@@ -24,10 +23,11 @@ describe('OriginTitleBar 컴포넌트', () => {
 
     const backButton = screen.getByLabelText('뒤로 가기');
     expect(backButton).toHaveStyle(`width: ${spacing.spacing10}`);
-    expect(backButton).toHaveStyle(`color: ${colors.text.default}`);
-
     const icon = backButton.firstChild as HTMLElement;
-    expect(icon).toHaveStyle(`color: ${colors.text.default}`);
+    expect(icon).toHaveStyle('color: rgb(59, 130, 246)');
+    expect(icon).toHaveStyle(
+      'background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+    );
 
     const title = screen.getByText('기본');
     expect(title).toHaveStyle(
