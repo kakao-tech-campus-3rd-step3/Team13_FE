@@ -59,11 +59,16 @@ abstract class ZodType<T> {
 }
 
 class ZodString extends ZodType<string> {
+  private readonly preprocessors: ((value: string) => string)[];
+  private readonly checks: Check<string>[];
+
   constructor(
-    private readonly preprocessors: ((value: string) => string)[] = [],
-    private readonly checks: Check<string>[] = [],
+    preprocessors: ((value: string) => string)[] = [],
+    checks: Check<string>[] = [],
   ) {
     super();
+    this.preprocessors = preprocessors;
+    this.checks = checks;
   }
 
   _parse(data: unknown, path: (string | number)[]): ParseResult<string> {
@@ -172,8 +177,11 @@ class ZodString extends ZodType<string> {
 }
 
 class ZodLiteral<T extends string | number | boolean> extends ZodType<T> {
-  constructor(private readonly expected: T) {
+  private readonly expected: T;
+
+  constructor(expected: T) {
     super();
+    this.expected = expected;
   }
 
   _parse(data: unknown, path: (string | number)[]): ParseResult<T> {
@@ -190,8 +198,11 @@ class ZodLiteral<T extends string | number | boolean> extends ZodType<T> {
 }
 
 class ZodOptional<T> extends ZodType<T | undefined> {
-  constructor(private readonly inner: ZodType<T>) {
+  private readonly inner: ZodType<T>;
+
+  constructor(inner: ZodType<T>) {
     super();
+    this.inner = inner;
   }
 
   _parse(data: unknown, path: (string | number)[]): ParseResult<T | undefined> {
@@ -207,8 +218,11 @@ type UnionOptions = readonly ZodType<unknown>[];
 class ZodUnion<TOptions extends UnionOptions> extends ZodType<
   TOptions[number]['_output']
 > {
-  constructor(private readonly options: TOptions) {
+  private readonly options: TOptions;
+
+  constructor(options: TOptions) {
     super();
+    this.options = options;
   }
 
   _parse(
@@ -239,8 +253,11 @@ type ObjectOutput<T extends Shape> = {
 };
 
 class ZodObject<T extends Shape> extends ZodType<ObjectOutput<T>> {
-  constructor(private readonly shape: T) {
+  private readonly shape: T;
+
+  constructor(shape: T) {
     super();
+    this.shape = shape;
   }
 
   _parse(
