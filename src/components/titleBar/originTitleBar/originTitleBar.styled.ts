@@ -3,7 +3,6 @@ import styled from '@emotion/styled';
 import { MdArrowBack } from 'react-icons/md';
 
 import TitleBar from '@/components/titleBar';
-import { spacing } from '@/theme/spacing';
 
 const fadeIn = keyframes`
   from {
@@ -20,7 +19,6 @@ export const Wrapper = styled(TitleBar)`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   height: 64px;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
   box-shadow:
     0 2px 12px rgba(15, 23, 42, 0.04),
     inset 0 -1px 0 rgba(255, 255, 255, 0.8);
@@ -46,10 +44,10 @@ export const Wrapper = styled(TitleBar)`
 `;
 
 export const BackIcon = styled(MdArrowBack)`
-  width: ${spacing.spacing5};
-  height: ${spacing.spacing5};
+  width: 50px;
+  height: 50px;
   color: #3b82f6;
-  padding: 8px;
+  padding: 5px;
   border-radius: 12px;
   background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);

@@ -14,7 +14,6 @@ export const LayoutContainer = styled.div`
   height: 100%;
   background: ${colors.background.default};
   border: 1px solid ${colors.gray[300]};
-  border-radius: ${spacing.spacing2};
   padding: ${spacing.spacing5};
   gap: ${spacing.spacing4};
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

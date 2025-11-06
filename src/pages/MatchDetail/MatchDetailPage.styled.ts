@@ -14,15 +14,6 @@ const fadeIn = keyframes`
   }
 `;
 
-const shimmer = keyframes`
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-`;
-
 const scaleIn = keyframes`
   from {
     opacity: 0;
@@ -81,26 +72,6 @@ export const ImageContainer = styled.div`
   position: relative;
   animation: ${fadeIn} 0.6s ease-out;
 
-  /* 이미지 로딩 shimmer 효과 */
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.3) 50%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
-    animation: ${shimmer} 2s ease-in-out infinite;
-    z-index: 1;
-    pointer-events: none;
-  }
-
   /* 하단 그라디언트 오버레이 */
   &::after {
     content: '';
@@ -144,7 +115,6 @@ export const MatchImage = styled.img`
 
 export const ContentContainer = styled.div`
   flex: 1;
-  padding: ${spacing.spacing5};
   overflow-y: auto;
   max-width: 1200px;
   margin: 0 auto;
@@ -204,50 +174,6 @@ export const ButtonContainer = styled.div`
     position: relative;
     overflow: hidden;
     letter-spacing: -0.01em;
-
-    /* Shimmer 효과 */
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent
-      );
-      background-size: 200% 100%;
-      animation: ${shimmer} 2s ease-in-out infinite;
-    }
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow:
-        0 8px 30px rgba(59, 130, 246, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    }
-
-    &:active {
-      transform: translateY(0);
-      box-shadow:
-        0 2px 12px rgba(37, 99, 235, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
-
-    &:disabled {
-      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-      color: #94a3b8;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-
-      &::before {
-        display: none;
-      }
-    }
   }
 `;
 
