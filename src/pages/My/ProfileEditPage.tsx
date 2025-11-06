@@ -5,11 +5,11 @@ import { type ProfileResponse, type UpdateProfileRequest } from '@/api/profile';
 import RouteSkeleton from '@/components/RouteSkeleton';
 import OriginTitleBar from '@/components/titleBar/originTitleBar';
 import { ProfileForm } from '@/features/profile/components/ProfileForm';
-import { useUpdateMyProfileMutation } from '@/hooks/mutations/profile';
-import { useMyProfileQuery } from '@/hooks/queries/profile';
+import { useUpdateProfile } from '@/hooks/mutations/profile';
+import { useProfileQuery } from '@/hooks/queries/profile';
 import type { ProfileFormValues } from '@/libs/validation/zodSchemas';
 import { notify } from '@/pages/notifications/notify';
-import { useHasHydrated, useActions, useCurrentUser } from '@/stores/appStore';
+import { useHasHydrated } from '@/stores/appStore';
 
 import * as S from './ProfileEditPage.styled';
 
@@ -23,11 +23,15 @@ const toFormValues = (profile: ProfileResponse): ProfileFormValues => ({
 export default function ProfileEditPage() {
   const hasHydrated = useHasHydrated();
   const navigate = useNavigate();
-  const { data: profile, isLoading, isError } = useMyProfileQuery(hasHydrated);
-  const { mutateAsync: updateProfile, isPending } =
-    useUpdateMyProfileMutation();
-  const { setUser } = useActions();
-  const currentUser = useCurrentUser();
+  const {
+    data: profile,
+    isLoading,
+    isError,
+  } = useProfileQuery({
+    enabled: hasHydrated,
+  });
+  const updateProfileMutation = useUpdateProfile();
+  const { mutateAsync: updateProfile, isPending } = updateProfileMutation;
   const [previewUrl, setPreviewUrl] = useState<string | undefined>();
   const [previewName, setPreviewName] = useState('');
 
@@ -78,27 +82,38 @@ export default function ProfileEditPage() {
       }
 
       try {
-        const updated = await updateProfile(request);
-        if (currentUser) {
-          setUser({
-            ...currentUser,
-            name: updated.name,
-            email: updated.email,
-            avatarUrl: updated.imageUrl,
-          });
-        }
-        notify.success('프로필이 업데이트되었어요!');
+        await updateProfile(request);
       } catch {
-        notify.error('프로필을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+        // 훅 내부에서 토스트 및 롤백을 처리합니다.
       }
     },
-    [currentUser, profile, setUser, updateProfile],
+    [profile, updateProfile],
   );
 
   const handleFormChange = useCallback((values: ProfileFormValues) => {
     setPreviewUrl(values.imageUrl || undefined);
     setPreviewName(values.nickname);
   }, []);
+
+  const handleImageUploadedDirect = useCallback(
+    async (nextUrl: string) => {
+      const trimmed = nextUrl.trim();
+      if (!trimmed) return;
+
+      setPreviewUrl(trimmed);
+
+      if (profile?.imageUrl === trimmed) {
+        return;
+      }
+
+      try {
+        await updateProfileMutation.mutateAsync({ imageUrl: trimmed });
+      } catch {
+        // 훅 내부에서 토스트 및 롤백을 처리합니다.
+      }
+    },
+    [profile?.imageUrl, updateProfileMutation],
+  );
 
   if (!hasHydrated) {
     return <RouteSkeleton />;
@@ -170,6 +185,7 @@ export default function ProfileEditPage() {
           submitLabel={isPending ? '저장 중...' : '저장'}
           cancelLabel="취소"
           onChange={handleFormChange}
+          onImageUploaded={handleImageUploadedDirect}
         />
       </S.Card>
     </S.Page>
