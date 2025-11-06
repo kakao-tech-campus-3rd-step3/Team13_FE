@@ -9,7 +9,13 @@ import { useActions } from '@/stores/appStore';
 
 export const CERTIFICATION_STATUS_KEY = ['certification', 'status'] as const;
 
-export function useCertificationStatus() {
+type UseCertificationStatusOptions = {
+  enabled?: boolean;
+};
+
+export function useCertificationStatus(
+  options?: UseCertificationStatusOptions,
+) {
   const { setEmailVerified } = useActions();
 
   const queryResult = useQuery<CertificationStatusResponse>({
@@ -17,6 +23,7 @@ export function useCertificationStatus() {
     queryFn: getCertificationStatus,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? true,
   });
 
   useEffect(() => {

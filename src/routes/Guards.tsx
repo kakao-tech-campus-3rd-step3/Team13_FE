@@ -4,6 +4,7 @@ import RouteSkeleton from '@/components/RouteSkeleton';
 import { resolveFrom } from '@/routes/resolveFrom';
 import {
   useActions,
+  useEmailCertBypassed,
   useEmailVerified,
   useHasHydrated,
   useIsLoggedIn,
@@ -15,6 +16,7 @@ import {
   useSessionHydrated,
 } from '@/stores/sessionStore';
 /** 로그인 상태면 접근 불가(예: /login) */
+
 export function PublicRoute() {
   const appHydrated = useHasHydrated();
   const sessionHydrated = useSessionHydrated();
@@ -73,6 +75,7 @@ export function VerifiedRoute() {
   const isLoggedIn = useIsLoggedIn();
   const hasSession = useHasSession();
   const verified = useEmailVerified();
+  const emailCertBypassed = useEmailCertBypassed();
   const location = useLocation();
 
   if (!appHydrated || !sessionHydrated) return <RouteSkeleton />;
@@ -81,7 +84,7 @@ export function VerifiedRoute() {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (!verified) {
+  if (!verified && !emailCertBypassed) {
     return <Navigate to="/email-cert" replace state={{ from: location }} />;
   }
   return <Outlet />;

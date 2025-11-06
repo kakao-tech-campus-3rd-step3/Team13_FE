@@ -23,6 +23,18 @@ export const resetCertificationState = () => {
   certState.isVerified = false;
 };
 
+export const seedCertificationState = (state: Partial<CertState>) => {
+  if (state.localPart !== undefined) {
+    certState.localPart = state.localPart;
+  }
+  if (state.requested !== undefined) {
+    certState.requested = state.requested;
+  }
+  if (state.isVerified !== undefined) {
+    certState.isVerified = state.isVerified;
+  }
+};
+
 const requestEmail = http.post<
   never,
   { localPart?: string },

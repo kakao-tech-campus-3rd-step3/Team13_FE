@@ -57,6 +57,7 @@ const resetStore = () => {
     user: null,
     notificationsEnabled: true,
     emailVerified: true,
+    emailCertBypassed: false,
     sessionExpired: false,
   }));
   useSessionStore.setState((state) => ({
@@ -107,6 +108,7 @@ describe('Route Guards', () => {
         avatarUrl: 'https://example.com/avatar.png',
       },
       emailVerified: false,
+      emailCertBypassed: false,
     }));
 
     renderRoutes(['/my']);
@@ -126,6 +128,7 @@ describe('Route Guards', () => {
         avatarUrl: 'https://example.com/avatar.png',
       },
       emailVerified: false,
+      emailCertBypassed: false,
     }));
 
     renderRoutes(['/email-cert']);
@@ -149,6 +152,32 @@ describe('Route Guards', () => {
     fireEvent.click(
       screen.getByRole('button', { name: 'submit-certification' }),
     );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('home-page')).toBeInTheDocument();
+    });
+  });
+
+  it('/email-cert 에서 나중에 하기 선택 시에도 /home 으로 이동한다', async () => {
+    useAppStore.setState((state) => ({
+      ...state,
+      user: {
+        id: 4,
+        name: '나중',
+        email: 'later@example.com',
+        avatarUrl: 'https://example.com/avatar.png',
+      },
+      emailVerified: false,
+      emailCertBypassed: false,
+    }));
+
+    renderRoutes(['/email-cert']);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('email-cert-page')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'email-cert-go-back' }));
 
     await waitFor(() => {
       expect(screen.getByLabelText('home-page')).toBeInTheDocument();

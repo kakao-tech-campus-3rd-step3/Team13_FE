@@ -25,8 +25,14 @@ const createFile = (name: string, size: number, type: string) =>
   new File([new Uint8Array(size)], name, { type });
 
 const originalCreateImageBitmap = globalThis.createImageBitmap;
-const originalCreateObjectURL = URL.createObjectURL?.bind(URL) ?? null;
-const originalRevokeObjectURL = URL.revokeObjectURL?.bind(URL) ?? null;
+const hasOriginalCreateObjectURL = typeof URL.createObjectURL === 'function';
+const originalCreateObjectURL = hasOriginalCreateObjectURL
+  ? URL.createObjectURL.bind(URL)
+  : undefined;
+const hasOriginalRevokeObjectURL = typeof URL.revokeObjectURL === 'function';
+const originalRevokeObjectURL = hasOriginalRevokeObjectURL
+  ? URL.revokeObjectURL.bind(URL)
+  : undefined;
 
 describe('ImageUploader', () => {
   beforeEach(() => {
@@ -51,7 +57,7 @@ describe('ImageUploader', () => {
       return Promise.resolve(presign.publicUrl);
     });
 
-    if (originalCreateObjectURL) {
+    if (hasOriginalCreateObjectURL && originalCreateObjectURL) {
       vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob://preview');
     } else {
       (
@@ -61,7 +67,7 @@ describe('ImageUploader', () => {
         .mockName('createObjectURL');
     }
 
-    if (originalRevokeObjectURL) {
+    if (hasOriginalRevokeObjectURL && originalRevokeObjectURL) {
       vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
     } else {
       (
@@ -89,12 +95,12 @@ describe('ImageUploader', () => {
         .createImageBitmap;
     }
 
-    if (!originalCreateObjectURL) {
+    if (!hasOriginalCreateObjectURL) {
       delete (URL as { createObjectURL?: typeof URL.createObjectURL })
         .createObjectURL;
     }
 
-    if (!originalRevokeObjectURL) {
+    if (!hasOriginalRevokeObjectURL) {
       delete (URL as { revokeObjectURL?: typeof URL.revokeObjectURL })
         .revokeObjectURL;
     }
