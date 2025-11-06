@@ -4,7 +4,6 @@ import { RoundedRectangleButton } from '@/components/button/variants';
 import { MatchExplain } from '@/components/matchExplain';
 import OriginTitleBar from '@/components/titleBar/originTitleBar';
 import { useGameDetail } from '@/hooks/queries/games';
-import { colors } from '@/theme/color';
 import { convertSportIdToType, calculateDeadlineISO } from '@/utils/game.utils';
 
 import * as S from './MatchDetailPage.styled.ts';
@@ -92,10 +91,10 @@ export default function MatchDetailPage() {
           size="lg"
           onClick={handleJoin}
           colorSet={{
-            background: colors.blue[700],
-            color: colors.gray[0],
-            hover: colors.blue[800],
-            active: colors.blue[900],
+            background: '#369EFF',
+            color: '#FFFFFF',
+            hover: '#2A8AE6',
+            active: '#1F76CC',
           }}
         >
           참여하기
