@@ -14,7 +14,15 @@ export async function readImageDimensions(
   try {
     if (typeof createImageBitmap === 'function') {
       const bitmap = await createImageBitmap(file);
-      return { width: bitmap.width, height: bitmap.height };
+      const dimensions = { width: bitmap.width, height: bitmap.height };
+
+      try {
+        bitmap.close();
+      } catch {
+        // 비트맵 해제 실패는 무시합니다.
+      }
+
+      return dimensions;
     }
 
     const image = await loadImage(objectUrl);

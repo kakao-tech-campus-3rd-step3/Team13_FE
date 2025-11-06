@@ -60,6 +60,7 @@ describe('Onboarding flow', () => {
       ...state,
       hasHydrated: true,
       emailVerified: true,
+      emailCertBypassed: false,
       user: {
         id: 1,
         name: '테스터',

@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   type ChangeEvent,
@@ -37,6 +38,9 @@ export function ImageUploader({
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const fileRef = useRef<File | null>(null);
+  const inputId = useId();
+  const inputLabelId = `${inputId}-label`;
+  const accessibleLabel = `${label} 파일 선택`;
   const { phase, preview, progress, error, pick, upload, cancel, clear } =
     useImageUpload({
       onUploaded,
@@ -164,11 +168,16 @@ export function ImageUploader({
         ) : null}
       </S.Body>
 
-      <input
+      <S.VisuallyHiddenLabel htmlFor={inputId} id={inputLabelId}>
+        {accessibleLabel}
+      </S.VisuallyHiddenLabel>
+
+      <S.HiddenFileInput
+        id={inputId}
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
-        hidden
+        aria-labelledby={inputLabelId}
         onChange={handleFileChange}
       />
 

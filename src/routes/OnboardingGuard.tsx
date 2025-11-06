@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import RouteSkeleton from '@/components/RouteSkeleton';
 import {
+  useEmailCertBypassed,
   useEmailVerified,
   useHasHydrated,
   useIsLoggedIn,
@@ -18,6 +19,7 @@ export default function OnboardingGuard() {
   const prefHydrated = usePrefHydrated();
   const isLoggedIn = useIsLoggedIn();
   const verified = useEmailVerified();
+  const emailCertBypassed = useEmailCertBypassed();
   const complete = useOnboardingComplete();
   const location = useLocation();
 
@@ -25,7 +27,7 @@ export default function OnboardingGuard() {
     return <RouteSkeleton />;
   }
 
-  if (!isLoggedIn || !verified) {
+  if (!isLoggedIn || (!verified && !emailCertBypassed)) {
     return <Navigate to="/login" replace />;
   }
 
