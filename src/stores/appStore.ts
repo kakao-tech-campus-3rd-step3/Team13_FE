@@ -15,6 +15,7 @@ type AppState = {
   user: User | null;
   notificationsEnabled: boolean;
   emailVerified: boolean;
+  emailCertBypassed: boolean;
   sessionExpired: boolean;
   actions: {
     setUser: (user: User) => void;
@@ -23,6 +24,7 @@ type AppState = {
     setHydrated: (value: boolean) => void;
     resetAll: () => void;
     setEmailVerified: (value: boolean) => void;
+    setEmailCertBypassed: (value: boolean) => void;
     expireSession: () => void;
     clearSessionExpired: () => void;
   };
@@ -35,6 +37,7 @@ export const useAppStore = create<AppState>()(
       user: null,
       notificationsEnabled: true,
       emailVerified: true,
+      emailCertBypassed: false,
       sessionExpired: false,
       actions: {
         setUser: (user) => set({ user, sessionExpired: false }),
@@ -51,9 +54,15 @@ export const useAppStore = create<AppState>()(
             user: null,
             notificationsEnabled: true,
             emailVerified: true,
+            emailCertBypassed: false,
             sessionExpired: false,
           }),
-        setEmailVerified: (value) => set({ emailVerified: value }),
+        setEmailVerified: (value) =>
+          set((state) => ({
+            emailVerified: value,
+            emailCertBypassed: value ? false : state.emailCertBypassed,
+          })),
+        setEmailCertBypassed: (value) => set({ emailCertBypassed: value }),
         expireSession: () => set({ sessionExpired: true }),
         clearSessionExpired: () => set({ sessionExpired: false }),
       },
@@ -65,6 +74,7 @@ export const useAppStore = create<AppState>()(
         user: state.user,
         notificationsEnabled: state.notificationsEnabled,
         emailVerified: state.emailVerified,
+        emailCertBypassed: state.emailCertBypassed,
       }),
       onRehydrateStorage: () => (state) => {
         state?.actions.setHydrated(true);
@@ -82,6 +92,8 @@ export const useNotificationsEnabled = () =>
   useAppStore((state) => state.notificationsEnabled);
 export const useActions = () => useAppStore((state) => state.actions);
 export const useEmailVerified = () =>
-  useAppStore((state) => state.emailVerified);
+  useAppStore((state) => state.emailVerified || state.emailCertBypassed);
+export const useEmailCertBypassed = () =>
+  useAppStore((state) => state.emailCertBypassed);
 export const useSessionExpired = () =>
   useAppStore((state) => state.sessionExpired);
