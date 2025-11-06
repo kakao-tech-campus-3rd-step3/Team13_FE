@@ -9,6 +9,7 @@ import {
 import { RecruitingMatchCard } from '@/components/matchCard';
 import HomeTitleBar from '@/components/titleBar/homeTitleBar';
 import { useGamesList } from '@/hooks/queries/games';
+import { useAuthStore } from '@/stores/authStore';
 import { SPORT_ID } from '@/types/game.types';
 import {
   formatTimeRange,
@@ -29,6 +30,7 @@ import * as S from './HomePage.styled';
  */
 export default function HomePage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
 
   // 상태 관리
   const [selectedSport, setSelectedSport] = useState<string>('basketball'); // 농구가 기본
@@ -57,17 +59,24 @@ export default function HomePage() {
     return sorted;
   }, [gamesData?.games, selectedTimeSlots, selectedSort]);
 
-  // 카드 클릭 핸들러 (추후 구현)
-  const handleCardClick = () => {
-    // TODO: 로그인 전 - 로그인 페이지로 이동
-    // TODO: 로그인 후 - 매치 상세 페이지로 이동
-    void navigate('/login');
+  // 카드 클릭 핸들러
+  const handleCardClick = (gameId?: number) => {
+    if (isAuthenticated) {
+      // 로그인 후 - 매치 상세 페이지로 이동
+      void navigate(`/matchDetail/${gameId}`);
+    } else {
+      // 로그인 전 - 로그인 페이지로 이동
+      void navigate('/login');
+    }
   };
 
   return (
     <S.PageContainer aria-label="home-page">
       {/* 타이틀바 */}
-      <HomeTitleBar title="P-Ting" navigateTo="/login" />
+      <HomeTitleBar
+        title="P-Ting"
+        navigateTo={isAuthenticated ? '/my' : '/login'}
+      />
 
       {/* 광고 배너 */}
       <S.BannerContainer>
@@ -133,6 +142,7 @@ export default function HomePage() {
                   game.playerCount,
                 )}
                 deadline={calculateDeadline(game.startTime)}
+                gameId={game.gameId}
                 onCardClick={handleCardClick}
               />
             </S.MatchCardItem>

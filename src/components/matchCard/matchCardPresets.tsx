@@ -39,20 +39,24 @@ export interface BasicMatchCardProps {
   time: string;
   /** 이미지 URL (선택) */
   image?: string;
+  /** 게임 ID */
+  gameId?: number;
   /** 카드 클릭 이벤트 */
-  onCardClick?: () => void;
+  onCardClick?: (gameId?: number) => void;
 }
 
 export const BasicMatchCard: React.FC<BasicMatchCardProps> = ({
   title,
   time,
   image,
+  gameId,
   onCardClick,
 }) => {
   return (
     <MatchCardLayout
       leftSlot={<ImageSlot src={image} alt={title} />}
       centerSlot={<InfoSlot title={title} time={time} />}
+      gameId={gameId}
       onCardClick={onCardClick}
     />
   );
@@ -78,8 +82,10 @@ export interface RecruitingMatchCardProps {
   peopleCount: string;
   /** 지원 마감일 (선택, 예: "08/10 23:59") */
   deadline?: string;
+  /** 게임 ID */
+  gameId?: number;
   /** 카드 클릭 이벤트 */
-  onCardClick?: () => void;
+  onCardClick?: (gameId?: number) => void;
 }
 
 export const RecruitingMatchCard: React.FC<RecruitingMatchCardProps> = ({
@@ -88,6 +94,7 @@ export const RecruitingMatchCard: React.FC<RecruitingMatchCardProps> = ({
   image,
   peopleCount,
   deadline,
+  gameId,
   onCardClick,
 }) => {
   return (
@@ -97,6 +104,7 @@ export const RecruitingMatchCard: React.FC<RecruitingMatchCardProps> = ({
       rightSlot={
         <PeopleInfoSlot peopleCount={peopleCount} deadline={deadline} />
       }
+      gameId={gameId}
       onCardClick={onCardClick}
     />
   );
@@ -118,10 +126,12 @@ export interface SetMatchCardProps {
   time: string;
   /** 이미지 URL (선택) */
   image?: string;
+  /** 게임 ID */
+  gameId?: number;
   /** 취소 버튼 클릭 이벤트 */
   onCancelClick: () => void;
   /** 카드 클릭 이벤트 (선택) */
-  onCardClick?: () => void;
+  onCardClick?: (gameId?: number) => void;
   /** 취소 버튼 비활성화 여부 */
   cancelDisabled?: boolean;
 }
@@ -130,6 +140,7 @@ export const SetMatchCard: React.FC<SetMatchCardProps> = ({
   title,
   time,
   image,
+  gameId,
   onCancelClick,
   onCardClick,
   cancelDisabled = false,
@@ -146,6 +157,7 @@ export const SetMatchCard: React.FC<SetMatchCardProps> = ({
           disabled={cancelDisabled}
         />
       }
+      gameId={gameId}
       onCardClick={onCardClick}
     />
   );
@@ -167,10 +179,12 @@ export interface FinishedMatchCardProps {
   time: string;
   /** 이미지 URL (선택) */
   image?: string;
+  /** 게임 ID */
+  gameId?: number;
   /** 결과 보기 버튼 클릭 이벤트 */
   onResultClick: () => void;
   /** 카드 클릭 이벤트 (선택) */
-  onCardClick?: () => void;
+  onCardClick?: (gameId?: number) => void;
   /** 결과 보기 버튼 비활성화 여부 */
   resultDisabled?: boolean;
 }
@@ -179,6 +193,7 @@ export const FinishedMatchCard: React.FC<FinishedMatchCardProps> = ({
   title,
   time,
   image,
+  gameId,
   onResultClick,
   onCardClick,
   resultDisabled = false,
@@ -195,6 +210,7 @@ export const FinishedMatchCard: React.FC<FinishedMatchCardProps> = ({
           disabled={resultDisabled}
         />
       }
+      gameId={gameId}
       onCardClick={onCardClick}
     />
   );

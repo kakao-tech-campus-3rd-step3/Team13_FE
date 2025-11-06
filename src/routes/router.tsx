@@ -10,6 +10,7 @@ import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import ErrorPage from '@/pages/Error/ErrorPage';
 import FCMTestPage from '@/pages/FCMTest/FCMTestPage';
 import HomePage from '@/pages/Home';
+import MatchDetailPage from '@/pages/MatchDetail';
 import MyPage from '@/pages/My/MyPage';
 import ProfileEditPage from '@/pages/My/ProfileEditPage';
 import SportSelectPage from '@/pages/Onboarding/SportSelectPage';
@@ -79,6 +80,7 @@ export const router = createBrowserRouter([
             children: [
               { path: '/my', element: <MyPage /> },
               { path: '/my/profile/edit', element: <ProfileEditPage /> },
+              { path: '/matchDetail/:gameId', element: <MatchDetailPage /> },
             ],
           },
           // TODO: 매치 생성, 매치 상세, 검색 등 추가
