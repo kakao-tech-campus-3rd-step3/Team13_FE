@@ -1,38 +1,38 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { startKakaoLogin } from '@/features/auth/services/kakao';
+import { startGoogleLogin } from '@/features/auth/services/google';
 import { resolveFrom } from '@/routes/resolveFrom';
 
-import * as S from './KakaoButton.styled';
+import * as S from './GoogleButton.styled';
 
-export type KakaoStatusUpdate = {
-  provider: 'kakao';
+export type GoogleStatusUpdate = {
+  provider: 'google';
   status: 'idle' | 'loading' | 'success' | 'error';
   message: string;
   retry?: () => void;
 };
 
-type KakaoButtonProps = {
+type GoogleButtonProps = {
   disabled?: boolean;
-  onStatusChange?: (update: KakaoStatusUpdate) => void;
+  onStatusChange?: (update: GoogleStatusUpdate) => void;
   idleLabel?: string;
   loadingLabel?: string;
   redirectTo?: string;
 };
 
-export default function KakaoButton({
+export default function GoogleButton({
   disabled = false,
   onStatusChange,
-  idleLabel = '카카오로 시작하기',
-  loadingLabel = '카카오로 이동 중…',
+  idleLabel = 'Google로 시작하기',
+  loadingLabel = 'Google로 이동 중…',
   redirectTo,
-}: KakaoButtonProps = {}) {
+}: GoogleButtonProps = {}) {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
 
   const redirectTarget = useMemo(
-    () => redirectTo ?? resolveFrom(location.state, '/my'),
+    () => redirectTo ?? resolveFrom(location.state, '/home'),
     [location.state, redirectTo],
   );
 
@@ -44,26 +44,27 @@ export default function KakaoButton({
     };
 
     onStatusChange?.({
-      provider: 'kakao',
+      provider: 'google',
       status: 'loading',
-      message: '카카오 계정으로 이동을 준비하고 있어요…',
+      message: 'Google 계정으로 이동을 준비하고 있어요…',
       retry,
     });
+
     try {
       setLoading(true);
-      await startKakaoLogin(redirectTarget);
+      await startGoogleLogin(redirectTarget);
       onStatusChange?.({
-        provider: 'kakao',
+        provider: 'google',
         status: 'success',
         message:
-          '카카오 계정 페이지로 이동 중이에요. 새 창이 열리면 계속 진행해 주세요.',
+          'Google 계정 페이지로 이동 중이에요. 새 창이 열리면 계속 진행해 주세요.',
       });
     } catch {
       onStatusChange?.({
-        provider: 'kakao',
+        provider: 'google',
         status: 'error',
         message:
-          '카카오 로그인에 실패했어요. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.',
+          'Google 로그인에 실패했어요. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.',
         retry,
       });
     } finally {
@@ -76,38 +77,50 @@ export default function KakaoButton({
   }, [attemptLogin]);
 
   const label = loading ? loadingLabel : idleLabel;
+
   return (
-    <S.KakaoButtonRoot
+    <S.GoogleButtonRoot
       type="button"
       onClick={handleClick}
       disabled={disabled || loading}
-      aria-label="kakao-login"
+      aria-label="google-login"
       aria-busy={loading}
       data-state={loading ? 'loading' : 'idle'}
     >
       <S.ButtonContent>
         <S.Icon aria-hidden>
-          <KakaoGlyph />
+          <GoogleGlyph />
         </S.Icon>
         <span>{label}</span>
       </S.ButtonContent>
-    </S.KakaoButtonRoot>
+    </S.GoogleButtonRoot>
   );
 }
 
-function KakaoGlyph() {
+function GoogleGlyph() {
   return (
     <svg
       width="20"
       height="20"
       viewBox="0 0 48 48"
-      role="img"
-      focusable="false"
       aria-hidden="true"
+      focusable="false"
     >
       <path
-        fill="currentColor"
-        d="M24 8C13.5 8 5 14.1 5 21.8c0 4.8 3.3 9 8.4 11.3l-2 7.5c-.2.7.6 1.2 1.2.8l8-5c1.1.1 2.2.2 3.4.2 10.5 0 19-6.1 19-13.8S34.5 8 24 8z"
+        fill="#EA4335"
+        d="M24 9.5c3.9 0 7.4 1.4 10.1 3.9l6.8-6.8C36.8 2.3 30.8 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"
+      />
+      <path
+        fill="#4285F4"
+        d="M46.5 24c0-1.6-.2-3.2-.6-4.7H24v9h12.6c-.6 3-2.4 5.6-5 7.3l7.7 6c4.5-4.1 7.2-10.1 7.2-17.6z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M10.5 28.3c-.5-1.4-.8-2.9-.8-4.3s.3-2.9.8-4.3l-7.9-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.6 10.4l7.9-6.1z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 48c6.5 0 12-2.1 16-5.6l-7.7-6c-2.1 1.4-4.8 2.2-8.3 2.2-6.3 0-11.6-4.2-13.5-10l-7.9 6.1C6.6 42.6 14.6 48 24 48z"
       />
     </svg>
   );
