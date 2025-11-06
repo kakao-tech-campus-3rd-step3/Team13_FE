@@ -6,7 +6,7 @@ import { colors } from '@/theme/color';
 import { spacing } from '@/theme/spacing';
 
 export const Wrapper = styled(TitleBar)`
-  background-color: ${colors.background.default};
+  background-color: #e1eefc;
 `;
 
 export const BackIcon = styled(MdArrowBack)`

@@ -61,11 +61,15 @@ export default function HomePage() {
     return sorted;
   }, [gamesData?.games, selectedTimeSlots, selectedSort]);
 
-  // 카드 클릭 핸들러 (추후 구현)
-  const handleCardClick = () => {
-    // TODO: 로그인 전 - 로그인 페이지로 이동
-    // TODO: 로그인 후 - 매치 상세 페이지로 이동
-    void navigate('/login');
+  // 카드 클릭 핸들러
+  const handleCardClick = (gameId?: number) => {
+    if (isAuthenticated) {
+      // 로그인 후 - 매치 상세 페이지로 이동
+      void navigate(`/matchDetail/${gameId}`);
+    } else {
+      // 로그인 전 - 로그인 페이지로 이동
+      void navigate('/login');
+    }
   };
 
   return (
@@ -137,6 +141,7 @@ export default function HomePage() {
                   game.playerCount,
                 )}
                 deadline={calculateDeadline(game.startTime)}
+                gameId={game.gameId}
                 onCardClick={handleCardClick}
               />
             </S.MatchCardItem>

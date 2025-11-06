@@ -20,6 +20,7 @@ export const MatchCardLayout: React.FC<MatchCardLayoutProps> = ({
   leftSlot,
   centerSlot,
   rightSlot,
+  gameId,
   onCardClick,
   className,
 }) => {
@@ -28,7 +29,7 @@ export const MatchCardLayout: React.FC<MatchCardLayoutProps> = ({
    * - 내부 버튼 클릭시에는 이벤트 버블링으로 인해 실행되지 않음
    */
   const handleCardClick = () => {
-    onCardClick?.();
+    onCardClick?.(gameId);
   };
 
   // 접근성: onCardClick이 있을 때만 인터랙티브 속성 적용
@@ -39,7 +40,7 @@ export const MatchCardLayout: React.FC<MatchCardLayoutProps> = ({
         onKeyPress: (e: React.KeyboardEvent) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            onCardClick?.();
+            onCardClick?.(gameId);
           }
         },
       }
@@ -95,6 +96,7 @@ export const FinishedMatchCardLayout: React.FC<MatchCardLayoutProps> = ({
   leftSlot,
   centerSlot,
   rightSlot,
+  gameId,
   onCardClick,
   className,
 }) => {
@@ -102,7 +104,7 @@ export const FinishedMatchCardLayout: React.FC<MatchCardLayoutProps> = ({
    * 카드 전체 클릭 핸들러
    */
   const handleCardClick = () => {
-    onCardClick?.();
+    onCardClick?.(gameId);
   };
 
   // 접근성: onCardClick이 있을 때만 인터랙티브 속성 적용
@@ -113,7 +115,7 @@ export const FinishedMatchCardLayout: React.FC<MatchCardLayoutProps> = ({
         onKeyPress: (e: React.KeyboardEvent) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            onCardClick?.();
+            onCardClick?.(gameId);
           }
         },
       }
