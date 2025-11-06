@@ -7,6 +7,7 @@ import LoginPage from '@/pages/Auth/LoginPage';
 import ComponentTestPage from '@/pages/ComponentTest/ComponentTestPage';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import ErrorPage from '@/pages/Error/ErrorPage';
+import FCMTestPage from '@/pages/FCMTest/FCMTestPage';
 import HomePage from '@/pages/Home';
 import MyPage from '@/pages/My/MyPage';
 import ProfileEditPage from '@/pages/My/ProfileEditPage';
@@ -96,6 +97,10 @@ export const router = createBrowserRouter([
   {
     path: '/test/store',
     element: <StoreDemoPage />,
+  },
+  {
+    path: '/test/fcm',
+    element: <FCMTestPage />,
   },
 
   // 404 페이지
