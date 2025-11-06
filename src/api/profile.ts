@@ -1,3 +1,5 @@
+import { isAxiosError } from 'axios';
+
 import { apiClient } from '@/api/core/axiosInstance';
 
 export type ProfileResponse = {
@@ -21,31 +23,39 @@ export async function getMyProfile() {
   return data;
 }
 
-export async function updateMyProfileName(name: string) {
-  const { data } = await apiClient.patch<ProfileResponse>(
-    '/api/v2/members/me/profile/name',
-    { name: name.trim() },
-  );
+async function patchOrPost<T>(url: string, body: unknown) {
+  try {
+    const { data } = await apiClient.patch<T>(url, body);
+    return data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      const status = error.response?.status;
+      if (status === 404 || status === 405) {
+        const { data } = await apiClient.post<T>(url, body);
+        return data;
+      }
+    }
+    throw error;
+  }
+}
 
-  return data;
+export async function updateMyProfileName(name: string) {
+  return patchOrPost<ProfileResponse>('/api/v2/members/me/profile/name', {
+    name: name.trim(),
+  });
 }
 
 export async function updateMyProfileImageUrl(imageUrl: string) {
-  const { data } = await apiClient.patch<ProfileResponse>(
-    '/api/v2/members/me/profile/image-url',
-    { imageUrl: imageUrl.trim() },
-  );
-
-  return data;
+  return patchOrPost<ProfileResponse>('/api/v2/members/me/profile/image-url', {
+    imageUrl: imageUrl.trim(),
+  });
 }
 
 export async function updateMyProfileDescription(description: string) {
-  const { data } = await apiClient.patch<ProfileResponse>(
+  return patchOrPost<ProfileResponse>(
     '/api/v2/members/me/profile/description',
     { description },
   );
-
-  return data;
 }
 
 export async function updateMyProfile({

@@ -149,7 +149,7 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
     await waitForReactQueryIdle();
 
     await waitFor(() => {
-      expect(notify.success).toHaveBeenCalledWith('프로필이 업데이트되었어요!');
+      expect(notify.success).toHaveBeenCalledWith('저장 완료!');
     });
 
     await waitFor(() => {
@@ -217,7 +217,7 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
     await waitForReactQueryIdle();
 
     await waitFor(() => {
-      expect(notify.success).toHaveBeenCalledWith('프로필이 업데이트되었어요!');
+      expect(notify.success).toHaveBeenCalledWith('저장 완료!');
     });
   });
 });
