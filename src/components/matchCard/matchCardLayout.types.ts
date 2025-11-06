@@ -13,8 +13,10 @@ export interface MatchCardLayoutProps {
   centerSlot?: React.ReactNode;
   /** 오른쪽 슬롯 - 주로 인원정보나 액션 버튼이 들어감 */
   rightSlot?: React.ReactNode;
+  /** 게임 ID */
+  gameId?: number;
   /** 전체 카드 클릭 이벤트 핸들러 */
-  onCardClick?: () => void;
+  onCardClick?: (gameId?: number) => void;
   /** 커스텀 클래스명 추가 */
   className?: string;
 }

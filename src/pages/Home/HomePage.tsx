@@ -57,10 +57,11 @@ export default function HomePage() {
     return sorted;
   }, [gamesData?.games, selectedTimeSlots, selectedSort]);
 
-  // 카드 클릭 핸들러 (추후 구현)
-  const handleCardClick = () => {
+  // 카드 클릭 핸들러
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleCardClick = (_gameId?: number) => {
     // TODO: 로그인 전 - 로그인 페이지로 이동
-    // TODO: 로그인 후 - 매치 상세 페이지로 이동
+    // TODO: 로그인 후 - 매치 상세 페이지로 이동 (gameId 사용)
     void navigate('/login');
   };
 
@@ -133,6 +134,7 @@ export default function HomePage() {
                   game.playerCount,
                 )}
                 deadline={calculateDeadline(game.startTime)}
+                gameId={game.gameId}
                 onCardClick={handleCardClick}
               />
             </S.MatchCardItem>
