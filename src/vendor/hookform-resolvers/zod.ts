@@ -23,7 +23,7 @@ export const zodResolver = <
 >(
   schema: ZodSchema<TOutput>,
 ): Resolver<TFieldValues> => {
-  return (values) => {
+  return (values: TFieldValues) => {
     const result = schema.safeParse(values);
 
     if (result.success) {
