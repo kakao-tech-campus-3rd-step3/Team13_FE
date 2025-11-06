@@ -29,58 +29,62 @@ const messaging = firebase.messaging();
 /**
  * 백그라운드 메시지 수신 핸들러
  * 앱이 백그라운드 또는 종료 상태일 때 메시지 수신
+ *
+ * 현재 주석처리됨 - 필요시 주석 해제
  */
-messaging.onBackgroundMessage((payload) => {
-  console.log(
-    '[firebase-messaging-sw.js] Background message received:',
-    payload,
-  );
+// messaging.onBackgroundMessage((payload) => {
+//   console.log(
+//     '[firebase-messaging-sw.js] Background message received:',
+//     payload,
+//   );
 
-  // 알림 제목과 옵션 설정
-  const notificationTitle = payload.notification?.title || 'P-Ting 알림';
-  const notificationOptions = {
-    body: payload.notification?.body || '새로운 알림이 도착했습니다.',
-    icon: payload.notification?.icon || '/vite.svg',
-    badge: payload.notification?.badge || '/vite.svg',
-    tag: payload.notification?.tag || 'default',
-    data: payload.data || {},
-  };
+//   // 알림 제목과 옵션 설정
+//   const notificationTitle = payload.notification?.title || 'P-Ting 알림';
+//   const notificationOptions = {
+//     body: payload.notification?.body || '새로운 알림이 도착했습니다.',
+//     icon: payload.notification?.icon || '/vite.svg',
+//     badge: payload.notification?.badge || '/vite.svg',
+//     tag: payload.notification?.tag || 'default',
+//     data: payload.data || {},
+//   };
 
-  // 알림 표시
-  return self.registration.showNotification(
-    notificationTitle,
-    notificationOptions,
-  );
-});
+//   // 알림 표시
+//   return self.registration.showNotification(
+//     notificationTitle,
+//     notificationOptions,
+//   );
+// });
 
 /**
  * 알림 클릭 이벤트 핸들러
  * 사용자가 알림을 클릭했을 때 동작 정의
+ *
+ * ⚠️ 현재 주석처리됨 - 필요시 주석 해제
  */
-self.addEventListener('notificationclick', (event) => {
-  console.log(
-    '[firebase-messaging-sw.js] Notification clicked:',
-    event.notification,
-  );
+// self.addEventListener('notificationclick', (event) => {
+//   console.log(
+//     '[firebase-messaging-sw.js] Notification clicked:',
+//     event.notification,
+//   );
 
-  // 알림 닫기
-  event.notification.close();
+//   // 알림 닫기
+//   event.notification.close();
 
-  // 클릭 시 앱 열기
-  event.waitUntil(
-    clients
-      .matchAll({ type: 'window', includeUncontrolled: true })
-      .then((clientList) => {
-        // 이미 열려있는 창이 있으면 포커스
-        for (const client of clientList) {
-          if (client.url === '/' && 'focus' in client) {
-            return client.focus();
-          }
-        }
-        // 열려있는 창이 없으면 새 창 열기
-        if (clients.openWindow) {
-          return clients.openWindow('/');
-        }
-      }),
-  );
-});
+//   // 클릭 시 앱 열기
+//   event.waitUntil(
+//     clients
+//       .matchAll({ type: 'window', includeUncontrolled: true })
+//       .then((clientList) => {
+//         // 이미 열려있는 창이 있으면 포커스
+//         for (const client of clientList) {
+//           if (client.url === '/' && 'focus' in client) {
+//             return client.focus();
+//           }
+//         }
+//         // 열려있는 창이 없으면 새 창 열기
+//         if (clients.openWindow) {
+//           return clients.openWindow('/');
+//         }
+//       }),
+//   );
+// });

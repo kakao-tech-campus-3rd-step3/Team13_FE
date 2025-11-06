@@ -105,14 +105,20 @@ export const useFCM = (
         setNotificationPermission(permission);
 
         if (permission !== 'granted') {
-          throw new Error('알림 권한이 거부되었습니다.');
+          const errorMsg = '알림 권한이 거부되었습니다.';
+          console.warn(errorMsg);
+          setError(new Error(errorMsg));
+          return null;
         }
 
         // 2. Service Worker 등록 확인
         if (!isServiceWorkerRegistered) {
           const registration = await registerServiceWorker();
           if (!registration) {
-            throw new Error('Service Worker 등록에 실패했습니다.');
+            const errorMsg = 'Service Worker 등록에 실패했습니다.';
+            console.warn(errorMsg);
+            setError(new Error(errorMsg));
+            return null;
           }
           setServiceWorkerRegistered(true);
         }
@@ -120,7 +126,10 @@ export const useFCM = (
         // 3. FCM 토큰 발급
         const token = await getFCMToken();
         if (!token) {
-          throw new Error('FCM 토큰 발급에 실패했습니다.');
+          const errorMsg = 'FCM 토큰 발급에 실패했습니다.';
+          console.warn(errorMsg);
+          setError(new Error(errorMsg));
+          return null;
         }
 
         setFCMToken(token);
