@@ -65,7 +65,7 @@ export default function HomePage() {
   };
 
   return (
-    <S.PageContainer>
+    <S.PageContainer aria-label="home-page">
       {/* 타이틀바 */}
       <HomeTitleBar title="P-Ting" navigateTo="/login" />
 
