@@ -1,5 +1,5 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { zodResolver } from '@form-kit/hookform-resolvers/zod-lite';
+import { useForm } from '@form-kit/react-hook-form-lite';
 
 import TextField from '@/components/form/TextField';
 import RouteSkeleton from '@/components/RouteSkeleton';

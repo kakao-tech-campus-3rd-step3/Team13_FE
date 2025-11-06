@@ -92,8 +92,8 @@ describe('ProfileFormDemo 접근성', () => {
   it('초기화 버튼으로 값과 에러 상태를 재설정', async () => {
     renderForm();
 
-    const nickname = screen.getByLabelText('닉네임');
-    const email = screen.getByLabelText('이메일');
+    const nickname = screen.getByLabelText<HTMLInputElement>('닉네임');
+    const email = screen.getByLabelText<HTMLInputElement>('이메일');
 
     fireEvent.change(nickname, { target: { value: '홍길동' } });
     fireEvent.change(email, { target: { value: 'invalid-email' } });
