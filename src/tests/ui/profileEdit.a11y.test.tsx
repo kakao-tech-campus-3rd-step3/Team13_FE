@@ -13,6 +13,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ProfileResponse, UpdateProfileRequest } from '@/api/profile';
 import { getMyProfile, updateMyProfile } from '@/api/profile';
+import {
+  DEFAULT_PROFILE_IMAGE_URL,
+  DEFAULT_PROFILE_NAME,
+} from '@/features/profile/constants';
 import ProfileEditPage from '@/pages/My/ProfileEditPage';
 import { notify } from '@/pages/notifications/notify';
 import { useAppStore } from '@/stores/appStore';
@@ -50,6 +54,30 @@ vi.mock('@/api/profile', async () => {
       return Promise.resolve(currentProfile);
     }),
   } satisfies typeof import('@/api/profile');
+});
+
+vi.mock('@/features/upload/components/ImageUploader', () => {
+  type MockProps = {
+    label?: string;
+    description?: string;
+    onUploaded?: (url: string) => void;
+  };
+
+  return {
+    __esModule: true,
+    default: ({ onUploaded }: MockProps) => (
+      <div role="region" aria-label="mock-image-uploader">
+        <button
+          type="button"
+          onClick={() =>
+            onUploaded?.('https://cdn.example.com/direct-upload.png')
+          }
+        >
+          mock-upload
+        </button>
+      </div>
+    ),
+  };
 });
 
 const createTestQueryClient = () =>
@@ -103,6 +131,8 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
     vi.spyOn(notify, 'success').mockImplementation(() => undefined);
     vi.spyOn(notify, 'error').mockImplementation(() => undefined);
     vi.spyOn(notify, 'info').mockImplementation(() => undefined);
+    vi.mocked(updateMyProfile).mockClear();
+    vi.mocked(getMyProfile).mockClear();
   });
 
   afterEach(() => {
@@ -136,6 +166,32 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
       expect(screen.getByText('필수 입력 항목입니다.')).toBeInTheDocument();
       expect(document.activeElement).toBe(nicknameInput);
     });
+  });
+
+  it('프로필 이름과 이미지가 비어 있을 때 기본값을 노출한다', async () => {
+    currentProfile = {
+      ...baseProfile,
+      name: '',
+      imageUrl: '',
+    } satisfies ProfileResponse;
+
+    renderProfileEdit();
+
+    const nicknameInput = await screen.findByLabelText('닉네임');
+    expect(nicknameInput).toHaveValue(DEFAULT_PROFILE_NAME);
+
+    const imageUrlInput = screen.getByLabelText('프로필 이미지 URL');
+    expect(imageUrlInput).toHaveValue(DEFAULT_PROFILE_IMAGE_URL);
+
+    const avatarImage = await screen.findByRole('img', {
+      name: `${DEFAULT_PROFILE_NAME} 아바타 미리보기`,
+    });
+    expect(avatarImage).toHaveAttribute('src', DEFAULT_PROFILE_IMAGE_URL);
+
+    expect(useAppStore.getState().user?.name).toBe(DEFAULT_PROFILE_NAME);
+    expect(useAppStore.getState().user?.avatarUrl).toBe(
+      DEFAULT_PROFILE_IMAGE_URL,
+    );
   });
 
   it('닉네임을 변경하면 성공 알림과 함께 값이 반영된다', async () => {
@@ -201,6 +257,14 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
     act(() => {
       user.tab();
     });
+    const directUploadButton = screen.getByRole('button', {
+      name: 'mock-upload',
+    });
+    expect(document.activeElement).toBe(directUploadButton);
+
+    act(() => {
+      user.tab();
+    });
     const cancelButton = screen.getByRole('button', { name: '취소' });
     expect(document.activeElement).toBe(cancelButton);
 
@@ -219,5 +283,28 @@ describe('ProfileEditPage 접근성 및 상호작용', () => {
     await waitFor(() => {
       expect(notify.success).toHaveBeenCalledWith('저장 완료!');
     });
+  });
+
+  it('직접 업로드 시 이미지 URL이 자동으로 입력되고 저장이 실행된다', async () => {
+    renderProfileEdit();
+
+    const uploadButton = await screen.findByRole('button', {
+      name: 'mock-upload',
+    });
+    fireEvent.click(uploadButton);
+
+    await waitForReactQueryIdle();
+
+    await waitFor(() => {
+      expect(
+        screen.getByDisplayValue('https://cdn.example.com/direct-upload.png'),
+      ).toBeInTheDocument();
+    });
+
+    const lastCall = vi.mocked(updateMyProfile).mock.calls.at(-1);
+    expect(lastCall?.[0]).toEqual({
+      imageUrl: 'https://cdn.example.com/direct-upload.png',
+    });
+    expect(notify.success).toHaveBeenCalledWith('저장 완료!');
   });
 });

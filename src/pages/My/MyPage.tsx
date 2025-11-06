@@ -1,12 +1,8 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { queryClient } from '@/api/core/queryClient';
-import { updateMyProfileImageUrl } from '@/api/profile';
 import RouteSkeleton from '@/components/RouteSkeleton';
 import OriginTitleBar from '@/components/titleBar/originTitleBar';
-import { PROFILE_ME_KEY } from '@/features/profile/keys';
-import ImageUploader from '@/features/upload/components/ImageUploader';
 import {
   useCurrentUser,
   useEmailVerified,
@@ -30,7 +26,7 @@ export default function MyPage() {
   const user = useCurrentUser();
   const emailVerified = useEmailVerified();
   const sessionExpired = useSessionExpired();
-  const { logout, setUser } = useActions();
+  const { logout } = useActions();
   const { clearSession } = useSessionActions();
   const navigate = useNavigate();
   const sports = useSelectedSports();
@@ -59,20 +55,6 @@ export default function MyPage() {
     void navigate('/my/profile/edit');
   }, [navigate]);
 
-  const handleUploaded = useCallback(
-    async (url: string) => {
-      try {
-        await updateMyProfileImageUrl(url);
-        if (user) {
-          setUser({ ...user, avatarUrl: url });
-        }
-        await queryClient.invalidateQueries({ queryKey: PROFILE_ME_KEY });
-      } catch (error) {
-        console.error('프로필 이미지 업데이트 실패', error);
-      }
-    },
-    [setUser, user],
-  );
   if (!appHydrated || !sessionHydrated) {
     return <RouteSkeleton />;
   }
@@ -138,13 +120,6 @@ export default function MyPage() {
                 로그아웃
               </S.LogoutButton>
             </S.Actions>
-            <ImageUploader
-              label="프로필 이미지 업로드"
-              description="10MB 이하 · JPG/PNG/WEBP"
-              onUploaded={(url) => {
-                void handleUploaded(url);
-              }}
-            />
           </>
         ) : (
           <S.EmptyState>

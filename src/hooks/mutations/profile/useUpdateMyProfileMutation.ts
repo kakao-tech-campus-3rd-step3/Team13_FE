@@ -6,6 +6,11 @@ import {
   type UpdateProfileRequest,
   updateMyProfile,
 } from '@/api/profile';
+import {
+  DEFAULT_PROFILE_IMAGE_URL,
+  DEFAULT_PROFILE_NAME,
+  ensureProfileDefaults,
+} from '@/features/profile/constants';
 import { PROFILE_ME_KEY } from '@/features/profile/keys';
 import { notify } from '@/pages/notifications/notify';
 import { useActions, useAppStore, type User } from '@/stores/appStore';
@@ -34,21 +39,21 @@ export function useUpdateProfile() {
       const userSnapshot = useAppStore.getState().user;
 
       if (previous) {
-        const optimistic: ProfileResponse = {
+        const optimistic: ProfileResponse = ensureProfileDefaults({
           ...previous,
           name: variables.name ?? previous.name,
           imageUrl: variables.imageUrl ?? previous.imageUrl,
           description: variables.description ?? previous.description,
-        };
+        });
 
         queryClient.setQueryData(PROFILE_ME_KEY, optimistic);
 
         if (userSnapshot) {
           setUser({
             ...userSnapshot,
-            name: optimistic.name,
+            name: optimistic.name || DEFAULT_PROFILE_NAME,
             email: optimistic.email,
-            avatarUrl: optimistic.imageUrl,
+            avatarUrl: optimistic.imageUrl || DEFAULT_PROFILE_IMAGE_URL,
           });
         }
       }
@@ -67,16 +72,17 @@ export function useUpdateProfile() {
       notify.error('저장에 실패했어요. 네트워크 상태를 확인해 주세요.');
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(PROFILE_ME_KEY, data);
+      const normalized = ensureProfileDefaults(data);
 
+      queryClient.setQueryData(PROFILE_ME_KEY, normalized);
       const currentUser = useAppStore.getState().user;
       const id = currentUser?.id ?? 0;
 
       setUser({
         id,
-        name: data.name,
-        email: data.email,
-        avatarUrl: data.imageUrl,
+        name: normalized.name,
+        email: normalized.email,
+        avatarUrl: normalized.imageUrl,
       });
 
       notify.success('저장 완료!');

@@ -5,6 +5,11 @@ import { type ProfileResponse, type UpdateProfileRequest } from '@/api/profile';
 import RouteSkeleton from '@/components/RouteSkeleton';
 import OriginTitleBar from '@/components/titleBar/originTitleBar';
 import { ProfileForm } from '@/features/profile/components/ProfileForm';
+import {
+  DEFAULT_PROFILE_IMAGE_URL,
+  DEFAULT_PROFILE_NAME,
+  ensureProfileDefaults,
+} from '@/features/profile/constants';
 import { useUpdateProfile } from '@/hooks/mutations/profile';
 import { useProfileQuery } from '@/hooks/queries/profile';
 import type { ProfileFormValues } from '@/libs/validation/zodSchemas';
@@ -13,12 +18,16 @@ import { useHasHydrated } from '@/stores/appStore';
 
 import * as S from './ProfileEditPage.styled';
 
-const toFormValues = (profile: ProfileResponse): ProfileFormValues => ({
-  nickname: profile.name,
-  email: profile.email,
-  description: profile.description ?? '',
-  imageUrl: profile.imageUrl || undefined,
-});
+const toFormValues = (profile: ProfileResponse): ProfileFormValues => {
+  const normalized = ensureProfileDefaults(profile);
+
+  return {
+    nickname: normalized.name,
+    email: normalized.email,
+    description: normalized.description ?? '',
+    imageUrl: normalized.imageUrl,
+  };
+};
 
 export default function ProfileEditPage() {
   const hasHydrated = useHasHydrated();
@@ -30,20 +39,29 @@ export default function ProfileEditPage() {
   } = useProfileQuery({
     enabled: hasHydrated,
   });
-  const { mutateAsync: updateProfile, isPending } = useUpdateProfile();
-  const [previewUrl, setPreviewUrl] = useState<string | undefined>();
-  const [previewName, setPreviewName] = useState('');
+  const updateProfileMutation = useUpdateProfile();
+  const { mutateAsync: updateProfile, isPending } = updateProfileMutation;
+  const [previewUrl, setPreviewUrl] = useState<string>(
+    DEFAULT_PROFILE_IMAGE_URL,
+  );
+  const [previewName, setPreviewName] = useState(DEFAULT_PROFILE_NAME);
 
   useEffect(() => {
     if (profile) {
-      setPreviewUrl(profile.imageUrl || undefined);
-      setPreviewName(profile.name);
+      const normalized = ensureProfileDefaults(profile);
+      setPreviewUrl(normalized.imageUrl);
+      setPreviewName(normalized.name);
     }
   }, [profile]);
 
-  const initialValues = useMemo(
-    () => profile && toFormValues(profile),
+  const normalizedProfile = useMemo(
+    () => (profile ? ensureProfileDefaults(profile) : null),
     [profile],
+  );
+
+  const initialValues = useMemo(
+    () => (normalizedProfile ? toFormValues(normalizedProfile) : null),
+    [normalizedProfile],
   );
 
   const handleNavigateBack = useCallback(() => {
@@ -56,20 +74,20 @@ export default function ProfileEditPage() {
 
   const handleSubmit = useCallback(
     async (values: ProfileFormValues) => {
-      if (!profile) return;
+      if (!normalizedProfile) return;
 
       const request: UpdateProfileRequest = {};
       const nextName = values.nickname.trim();
       const nextDescription = values.description?.toString() ?? '';
       const nextImageUrl = values.imageUrl?.trim();
 
-      if (nextName !== profile.name) {
+      if (nextName !== normalizedProfile.name) {
         request.name = nextName;
       }
-      if (nextDescription !== (profile.description ?? '')) {
+      if (nextDescription !== (normalizedProfile.description ?? '')) {
         request.description = nextDescription;
       }
-      if ((nextImageUrl ?? '') !== (profile.imageUrl ?? '')) {
+      if ((nextImageUrl ?? '') !== (normalizedProfile.imageUrl ?? '')) {
         if (typeof nextImageUrl === 'string' && nextImageUrl.length > 0) {
           request.imageUrl = nextImageUrl;
         }
@@ -86,13 +104,36 @@ export default function ProfileEditPage() {
         // 훅 내부에서 토스트 및 롤백을 처리합니다.
       }
     },
-    [profile, updateProfile],
+    [normalizedProfile, updateProfile],
   );
 
   const handleFormChange = useCallback((values: ProfileFormValues) => {
-    setPreviewUrl(values.imageUrl || undefined);
-    setPreviewName(values.nickname);
+    const nextImage = values.imageUrl?.trim() || DEFAULT_PROFILE_IMAGE_URL;
+    const nextName = values.nickname.trim() || DEFAULT_PROFILE_NAME;
+
+    setPreviewUrl(nextImage);
+    setPreviewName(nextName);
   }, []);
+
+  const handleImageUploadedDirect = useCallback(
+    async (nextUrl: string) => {
+      const trimmed = nextUrl.trim();
+      if (!trimmed) return;
+
+      setPreviewUrl(trimmed);
+
+      if (normalizedProfile?.imageUrl === trimmed) {
+        return;
+      }
+
+      try {
+        await updateProfileMutation.mutateAsync({ imageUrl: trimmed });
+      } catch {
+        // 훅 내부에서 토스트 및 롤백을 처리합니다.
+      }
+    },
+    [normalizedProfile?.imageUrl, updateProfileMutation],
+  );
 
   if (!hasHydrated) {
     return <RouteSkeleton />;
@@ -164,6 +205,7 @@ export default function ProfileEditPage() {
           submitLabel={isPending ? '저장 중...' : '저장'}
           cancelLabel="취소"
           onChange={handleFormChange}
+          onImageUploaded={handleImageUploadedDirect}
         />
       </S.Card>
     </S.Page>
