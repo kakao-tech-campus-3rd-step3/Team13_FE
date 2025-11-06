@@ -122,14 +122,17 @@ describe('Certification 핸들러', () => {
   it('요청 → 검증(실패) → 검증(성공) → 상태', async () => {
     const req = await requestJson<CertificationResponse>(
       '/api/v1/members/me/certification/email',
-      { method: 'POST', body: { localPart: 'user' } },
+      { method: 'POST', body: { email: 'user@pusan.ac.kr' } },
     );
     expect(req.status).toBe(200);
     expect(req.data.isVerified).toBe(false);
 
     const bad = await requestJson<ApiErrorResponse>(
       '/api/v1/members/me/certification/verify',
-      { method: 'POST', body: { localPart: 'user', code: '123456' } },
+      {
+        method: 'POST',
+        body: { email: 'user@pusan.ac.kr', code: '123456' },
+      },
     );
     expect(bad.status).toBe(400);
     expect(bad.data.error).toEqual({
@@ -139,7 +142,10 @@ describe('Certification 핸들러', () => {
 
     const ok = await requestJson<CertificationResponse>(
       '/api/v1/members/me/certification/verify',
-      { method: 'POST', body: { localPart: 'user', code: '000000' } },
+      {
+        method: 'POST',
+        body: { email: 'user@pusan.ac.kr', code: '000000' },
+      },
     );
     expect(ok.status).toBe(200);
     expect(ok.data.isVerified).toBe(true);
