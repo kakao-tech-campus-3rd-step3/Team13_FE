@@ -25,7 +25,7 @@ export default function MatchDetailPage() {
 
   // 뒤로가기 핸들러
   const handleBack = () => {
-    void navigate(-1);
+    void navigate('/');
   };
 
   // 참여하기 버튼 핸들러

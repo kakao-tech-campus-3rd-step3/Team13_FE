@@ -110,3 +110,28 @@ export const SortDropDown: React.FC<SortDropDownProps> = ({
     />
   );
 };
+
+/**
+ * 인원 수 선택 드롭다운 (단일 선택, 2~30명)
+ */
+export const PlayerCountDropDown: React.FC<SportsDropDownProps> = ({
+  onChange,
+  className,
+  disabled = false,
+  initialSelected,
+}) => {
+  const handleChange = onChange
+    ? (selected: string | string[]) =>
+        (onChange as (selected: string) => void)(selected as string)
+    : undefined;
+
+  return (
+    <DropDown
+      config={DROPDOWN_CONFIG.playerCount}
+      onChange={handleChange}
+      className={className}
+      disabled={disabled}
+      initialSelected={initialSelected ? [initialSelected] : []}
+    />
+  );
+};

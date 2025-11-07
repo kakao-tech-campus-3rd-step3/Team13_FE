@@ -15,6 +15,7 @@ export {
   TimeSlotDropDown,
   LocationDropDown,
   SortDropDown,
+  PlayerCountDropDown,
 } from './dropDownPresets';
 
 // 복합 컴포넌트들
@@ -27,6 +28,7 @@ export {
   TIME_SLOT_OPTIONS,
   LOCATION_OPTIONS,
   SORT_OPTIONS,
+  PLAYER_COUNT_OPTIONS,
   DROPDOWN_ICONS,
 } from './constants';
 

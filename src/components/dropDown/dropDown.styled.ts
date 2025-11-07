@@ -26,13 +26,12 @@ const scaleIn = keyframes`
 /**
  * 전체 드롭다운 컨테이너
  */
-export const DropDownContainer = styled.div`
+export const DropDownContainer = styled.div<{ isOpen?: boolean }>`
   position: relative;
   width: 100%;
-  max-width: 360px;
   animation: ${scaleIn} 0.3s ease-out;
   overflow: visible;
-  z-index: 1000;
+  z-index: ${({ isOpen }) => (isOpen ? 10001 : 1)};
 `;
 
 /**

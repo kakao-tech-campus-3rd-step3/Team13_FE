@@ -47,6 +47,17 @@ export const SORT_OPTIONS: DropDownOption[] = [
 ] as const;
 
 /**
+ * 인원 수 옵션 목록 (2~30명)
+ */
+export const PLAYER_COUNT_OPTIONS: DropDownOption[] = Array.from(
+  { length: 29 },
+  (_, i) => ({
+    value: String(i + 2),
+    label: `${i + 2}명`,
+  }),
+);
+
+/**
  * 드롭다운 설정 객체 (matchCard의 BUTTON_CONFIG와 같은 패턴)
  */
 export const DROPDOWN_CONFIG = {
@@ -72,6 +83,12 @@ export const DROPDOWN_CONFIG = {
     label: '정렬 기준',
     selectionMode: 'single',
     options: SORT_OPTIONS,
+    hasInputOption: false,
+  },
+  playerCount: {
+    label: '인원 수 선택',
+    selectionMode: 'single',
+    options: PLAYER_COUNT_OPTIONS,
     hasInputOption: false,
   },
 } as const satisfies Record<string, DropDownConfig>;
