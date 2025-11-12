@@ -70,7 +70,23 @@ export async function handleKakaoCallback({
       .getState()
       .actions.setSession(sessionToken, refreshToken ?? null);
 
-    const profile = ensureProfileDefaults(await getMyProfile());
+    // 프로필 정보 조회 (실패 시 기본값으로 진행)
+    let profile;
+    try {
+      profile = ensureProfileDefaults(await getMyProfile());
+    } catch (error) {
+      console.error('카카오 로그인: 프로필 조회 실패', error);
+      notify.warning(
+        '프로필 정보를 불러오지 못했어요. 기본 정보로 진행합니다.',
+      );
+      profile = {
+        name: '사용자',
+        email: '',
+        imageUrl: DEFAULT_PROFILE_IMAGE_URL,
+        description: '',
+      };
+    }
+
     const { setUser, setEmailVerified } = useAppStore.getState().actions;
     const currentId = useAppStore.getState().user?.id ?? 0;
 
