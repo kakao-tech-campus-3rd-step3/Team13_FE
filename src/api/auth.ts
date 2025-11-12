@@ -122,15 +122,59 @@ export async function getKakaoOAuthUrl(params?: {
   return extractAuthUrl(data);
 }
 
-export async function exchangeKakaoCode(code: string): Promise<{
+export async function exchangeKakaoCode(
+  code: string,
+  redirectUri?: string,
+): Promise<{
   token: string | null;
   accessToken: string | null;
   refreshToken: string | null;
 }> {
+  const params: Record<string, string> = { code };
+  if (redirectUri) {
+    params.redirectUri = redirectUri;
+  }
   const { data } = await apiClient.get<NestedAuthResponse>(
     '/api/v1/auth/kakao/callback',
     {
-      params: { code },
+      params,
+    },
+  );
+
+  return extractTokens(data);
+}
+
+export async function getGoogleOAuthUrl(params?: {
+  state?: string;
+  redirectUri?: string;
+}): Promise<string | null> {
+  const { data } = await apiClient.get<NestedOAuthUrlResponse>(
+    '/api/v1/auth/google',
+    {
+      params,
+    },
+  );
+
+  return extractAuthUrl(data);
+}
+
+export async function exchangeGoogleCode(
+  code: string,
+  redirectUri?: string,
+): Promise<{
+  token: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+}> {
+  const params: Record<string, string> = { code };
+  if (redirectUri) {
+    params.redirectUri = redirectUri;
+  }
+
+  const { data } = await apiClient.get<NestedAuthResponse>(
+    '/api/v1/auth/google/callback',
+    {
+      params,
     },
   );
 

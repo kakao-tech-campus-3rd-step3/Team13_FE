@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
+import { getCertificationStatus } from '@/api/certification';
 import Button from '@/components/button';
 import RouteSkeleton from '@/components/RouteSkeleton';
 import LoginTitleBar from '@/components/titleBar/loginTitleBar';
-import { getOAuthUrl, type OAuthProvider } from '@/features/auth/api/authApi';
 import { AuthCard } from '@/features/auth/components/AuthCard';
-import { AuthProviderButton } from '@/features/auth/components/AuthProviderButton';
+import GoogleButton, {
+  type GoogleStatusUpdate,
+} from '@/features/auth/components/GoogleButton';
 import KakaoButton, {
   type KakaoStatusUpdate,
 } from '@/features/auth/components/KakaoButton';
@@ -19,7 +21,6 @@ import {
   useSessionActions,
   useSessionHydrated,
 } from '@/stores/sessionStore';
-import { redirectTo } from '@/utils/navigation';
 
 import * as S from './LoginPage.styled';
 
@@ -36,11 +37,11 @@ function useLoginFlow() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { setUser, clearSessionExpired } = useActions();
+  const { setUser, clearSessionExpired, setEmailVerified } = useActions();
   const { setSession } = useSessionActions();
 
   const redirectPath = useMemo(() => {
-    return resolveFrom(location.state);
+    return resolveFrom(location.state, '/home');
   }, [location.state]);
 
   const redirectParam = searchParams.get('redirect');
@@ -49,11 +50,45 @@ function useLoginFlow() {
   const expired = searchParams.get('expired') === '1';
 
   const handleLogin = useCallback(() => {
-    setUser(DUMMY_USER);
-    clearSessionExpired();
-    setSession(DUMMY_ACCESS_TOKEN);
-    void navigate(redirectTarget, { replace: true });
-  }, [clearSessionExpired, navigate, redirectTarget, setSession, setUser]);
+    void (async () => {
+      clearSessionExpired();
+      setSession(DUMMY_ACCESS_TOKEN);
+      setUser(DUMMY_USER);
+
+      try {
+        const status = await getCertificationStatus();
+        const isVerified = Boolean(status?.isVerified);
+        setEmailVerified(isVerified);
+
+        if (!isVerified) {
+          void navigate('/email-cert', {
+            replace: true,
+            state: { from: redirectTarget },
+          });
+          return;
+        }
+      } catch {
+        setEmailVerified(false);
+        notify.info(
+          '이메일 인증 상태 확인에 실패했어요. 인증을 먼저 완료해 주세요.',
+        );
+        void navigate('/email-cert', {
+          replace: true,
+          state: { from: redirectTarget },
+        });
+        return;
+      }
+
+      void navigate(redirectTarget, { replace: true });
+    })();
+  }, [
+    clearSessionExpired,
+    navigate,
+    redirectTarget,
+    setEmailVerified,
+    setSession,
+    setUser,
+  ]);
   return { expired, handleLogin, redirectTarget };
 }
 
@@ -67,39 +102,8 @@ export default function LoginPage() {
   const { feedback, isProcessing, setLoading, setSuccess, setError } =
     useOAuthFeedback();
 
-  const startOAuth = useCallback(
-    async (provider: OAuthProvider) => {
-      const providerLabel = provider === 'google' ? 'Google' : '카카오';
-      const retry = () => {
-        void startOAuth(provider);
-      };
-
-      setLoading(
-        provider,
-        `${providerLabel} 계정으로 이동을 준비하고 있어요…`,
-        retry,
-      );
-      try {
-        const url = await getOAuthUrl(provider, redirectTarget);
-        setSuccess(
-          provider,
-          `${providerLabel} 계정 페이지로 이동 중이에요. 새 창이 열리면 계속 진행해 주세요.`,
-        );
-        redirectTo(url);
-      } catch {
-        setError(
-          provider,
-          `${providerLabel} 로그인에 실패했어요. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.`,
-          retry,
-        );
-        notify.error('로그인을 시작하지 못했어요. 잠시 후 다시 시도해주세요.');
-      }
-    },
-    [redirectTarget, setError, setLoading, setSuccess],
-  );
-
-  const handleKakaoStatus = useCallback(
-    (update: KakaoStatusUpdate) => {
+  const handleOAuthStatus = useCallback(
+    (update: GoogleStatusUpdate | KakaoStatusUpdate) => {
       if (update.status === 'loading') {
         setLoading(update.provider, update.message, update.retry);
         return;
@@ -112,6 +116,11 @@ export default function LoginPage() {
 
       if (update.status === 'error') {
         setError(update.provider, update.message, update.retry);
+        if (update.provider === 'google') {
+          notify.error(
+            '로그인을 시작하지 못했어요. 잠시 후 다시 시도해주세요.',
+          );
+        }
       }
     },
     [setError, setLoading, setSuccess],
@@ -192,19 +201,15 @@ export default function LoginPage() {
           )}
         </S.StatusRegion>
         <S.ButtonStack>
-          <AuthProviderButton
-            provider="google"
-            loading={
-              feedback.status === 'loading' && feedback.provider === 'google'
-            }
-            onClick={() => {
-              void startOAuth('google');
-            }}
+          <GoogleButton
             disabled={isProcessing && feedback.provider !== 'google'}
+            onStatusChange={handleOAuthStatus}
+            redirectTo={redirectTarget}
           />
           <KakaoButton
             disabled={isProcessing && feedback.provider !== 'kakao'}
-            onStatusChange={handleKakaoStatus}
+            onStatusChange={handleOAuthStatus}
+            redirectTo={redirectTarget}
           />
         </S.ButtonStack>
         <S.Divider>또는</S.Divider>

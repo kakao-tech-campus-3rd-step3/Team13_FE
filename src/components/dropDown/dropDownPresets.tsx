@@ -10,6 +10,7 @@ import type {
   SportsDropDownProps,
   TimeSlotDropDownProps,
   LocationDropDownProps,
+  SortDropDownProps,
 } from './types';
 
 /**
@@ -19,6 +20,7 @@ export const SportsDropDown: React.FC<SportsDropDownProps> = ({
   onChange,
   className,
   disabled = false,
+  initialSelected,
 }) => {
   const handleChange = onChange
     ? (selected: string | string[]) =>
@@ -31,6 +33,7 @@ export const SportsDropDown: React.FC<SportsDropDownProps> = ({
       onChange={handleChange}
       className={className}
       disabled={disabled}
+      initialSelected={initialSelected ? [initialSelected] : []}
     />
   );
 };
@@ -42,6 +45,7 @@ export const TimeSlotDropDown: React.FC<TimeSlotDropDownProps> = ({
   onChange,
   className,
   disabled = false,
+  initialSelected,
 }) => {
   const handleChange = onChange
     ? (selected: string | string[]) =>
@@ -54,6 +58,7 @@ export const TimeSlotDropDown: React.FC<TimeSlotDropDownProps> = ({
       onChange={handleChange}
       className={className}
       disabled={disabled}
+      initialSelected={initialSelected || []}
     />
   );
 };
@@ -77,6 +82,56 @@ export const LocationDropDown: React.FC<LocationDropDownProps> = ({
       onChange={handleChange}
       className={className}
       disabled={disabled}
+    />
+  );
+};
+
+/**
+ * 정렬 기준 선택 드롭다운 (단일 선택)
+ */
+export const SortDropDown: React.FC<SortDropDownProps> = ({
+  onChange,
+  className,
+  disabled = false,
+  initialSelected,
+}) => {
+  const handleChange = onChange
+    ? (selected: string | string[]) =>
+        (onChange as (selected: string) => void)(selected as string)
+    : undefined;
+
+  return (
+    <DropDown
+      config={DROPDOWN_CONFIG.sort}
+      onChange={handleChange}
+      className={className}
+      disabled={disabled}
+      initialSelected={initialSelected ? [initialSelected] : []}
+    />
+  );
+};
+
+/**
+ * 인원 수 선택 드롭다운 (단일 선택, 2~30명)
+ */
+export const PlayerCountDropDown: React.FC<SportsDropDownProps> = ({
+  onChange,
+  className,
+  disabled = false,
+  initialSelected,
+}) => {
+  const handleChange = onChange
+    ? (selected: string | string[]) =>
+        (onChange as (selected: string) => void)(selected as string)
+    : undefined;
+
+  return (
+    <DropDown
+      config={DROPDOWN_CONFIG.playerCount}
+      onChange={handleChange}
+      className={className}
+      disabled={disabled}
+      initialSelected={initialSelected ? [initialSelected] : []}
     />
   );
 };

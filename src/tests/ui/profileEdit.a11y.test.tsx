@@ -1,0 +1,387 @@
+/* @vitest-environment jsdom */
+import { ThemeProvider } from '@emotion/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import type { ProfileResponse, UpdateProfileRequest } from '@/api/profile';
+import { getMyProfile, updateMyProfile } from '@/api/profile';
+import {
+  DEFAULT_PROFILE_IMAGE_URL,
+  DEFAULT_PROFILE_NAME,
+} from '@/features/profile/constants';
+import ProfileEditPage from '@/pages/My/ProfileEditPage';
+import { notify } from '@/pages/notifications/notify';
+import { useAppStore } from '@/stores/appStore';
+import { createUserEvent } from '@/tests/utils/userEvent';
+import { theme } from '@/theme';
+
+const baseProfile: ProfileResponse = {
+  name: '김대영',
+  email: 'kimdy@pusan.ac.kr',
+  imageUrl: 'https://example.com/avatar/kimdaeyoung.png',
+  description: '농구를 사랑하는 부산대생',
+};
+
+let currentProfile: ProfileResponse = structuredClone(baseProfile);
+
+vi.mock('@/api/profile', async () => {
+  const actual =
+    await vi.importActual<typeof import('@/api/profile')>('@/api/profile');
+
+  return {
+    ...actual,
+    getMyProfile: vi.fn(() => Promise.resolve(currentProfile)),
+    updateMyProfile: vi.fn((payload: UpdateProfileRequest) => {
+      currentProfile = {
+        ...currentProfile,
+        ...(typeof payload.name === 'string' ? { name: payload.name } : {}),
+        ...(typeof payload.description === 'string'
+          ? { description: payload.description }
+          : {}),
+        ...(typeof payload.imageUrl === 'string'
+          ? { imageUrl: payload.imageUrl }
+          : {}),
+      } satisfies ProfileResponse;
+
+      return Promise.resolve(currentProfile);
+    }),
+  } satisfies typeof import('@/api/profile');
+});
+
+vi.mock('@/features/upload/components/ImageUploader', () => {
+  type MockProps = {
+    label?: string;
+    description?: string;
+    onUploaded?: (url: string) => void;
+  };
+
+  return {
+    __esModule: true,
+    default: ({ onUploaded }: MockProps) => (
+      <div role="region" aria-label="mock-image-uploader">
+        <button
+          type="button"
+          onClick={() =>
+            onUploaded?.('https://cdn.example.com/direct-upload.png')
+          }
+        >
+          mock-upload
+        </button>
+      </div>
+    ),
+  };
+});
+
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: Infinity },
+      mutations: { retry: false },
+    },
+  });
+
+let queryClient: QueryClient;
+
+const renderProfileEdit = () =>
+  render(
+    <ThemeProvider theme={theme}>
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/my/profile/edit']}>
+          <Routes>
+            <Route path="/my/profile/edit" element={<ProfileEditPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
+    </ThemeProvider>,
+  );
+
+const waitForReactQueryIdle = async () => {
+  await waitFor(() => {
+    expect(queryClient.isFetching()).toBe(0);
+    expect(queryClient.isMutating()).toBe(0);
+  });
+};
+
+describe('ProfileEditPage 접근성 및 상호작용', () => {
+  beforeEach(() => {
+    currentProfile = structuredClone(baseProfile);
+    queryClient = createTestQueryClient();
+
+    act(() => {
+      useAppStore.setState((state) => ({
+        ...state,
+        hasHydrated: true,
+        emailVerified: true,
+        emailCertBypassed: false,
+        user: {
+          id: 101,
+          name: baseProfile.name,
+          email: baseProfile.email,
+          avatarUrl: baseProfile.imageUrl,
+        },
+      }));
+    });
+
+    vi.spyOn(notify, 'success').mockImplementation(() => undefined);
+    vi.spyOn(notify, 'error').mockImplementation(() => undefined);
+    vi.spyOn(notify, 'info').mockImplementation(() => undefined);
+    vi.mocked(updateMyProfile).mockClear();
+    vi.mocked(getMyProfile).mockClear();
+  });
+
+  afterEach(() => {
+    if (queryClient) {
+      queryClient.clear();
+      queryClient.getQueryCache().clear();
+      queryClient.getMutationCache().clear();
+    }
+    vi.restoreAllMocks();
+    act(() => {
+      useAppStore.setState((state) => ({
+        ...state,
+        hasHydrated: false,
+        emailVerified: true,
+        emailCertBypassed: false,
+        user: null,
+      }));
+    });
+  });
+
+  it('빈 값 제출 시 aria-invalid, 에러 메시지, 포커스를 설정한다', async () => {
+    renderProfileEdit();
+
+    const nicknameInput = await screen.findByLabelText('닉네임');
+    fireEvent.change(nicknameInput, { target: { value: '' } });
+
+    fireEvent.click(screen.getByRole('button', { name: '저장' }));
+
+    await waitForReactQueryIdle();
+
+    await waitFor(() => {
+      expect(nicknameInput).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByText('필수 입력 항목입니다.')).toBeInTheDocument();
+      expect(document.activeElement).toBe(nicknameInput);
+    });
+  });
+
+  it('프로필 이름과 이미지가 비어 있을 때 기본값을 노출한다', async () => {
+    currentProfile = {
+      ...baseProfile,
+      name: '',
+      imageUrl: '',
+    } satisfies ProfileResponse;
+
+    renderProfileEdit();
+
+    const nicknameInput = await screen.findByLabelText('닉네임');
+    expect(nicknameInput).toHaveValue(DEFAULT_PROFILE_NAME);
+
+    const imageUrlInput = screen.getByLabelText('프로필 이미지 URL');
+    expect(imageUrlInput).toHaveValue(DEFAULT_PROFILE_IMAGE_URL);
+
+    const avatarImage = await screen.findByRole('img', {
+      name: `${DEFAULT_PROFILE_NAME} 아바타 미리보기`,
+    });
+    expect(avatarImage).toHaveAttribute('src', DEFAULT_PROFILE_IMAGE_URL);
+
+    expect(useAppStore.getState().user?.name).toBe(DEFAULT_PROFILE_NAME);
+    expect(useAppStore.getState().user?.avatarUrl).toBe(
+      DEFAULT_PROFILE_IMAGE_URL,
+    );
+  });
+
+  it('닉네임을 변경하면 성공 알림과 함께 값이 반영된다', async () => {
+    renderProfileEdit();
+
+    const nicknameInput = await screen.findByLabelText('닉네임');
+    fireEvent.change(nicknameInput, { target: { value: '프리미엄 유저' } });
+
+    fireEvent.click(screen.getByRole('button', { name: '저장' }));
+
+    await waitForReactQueryIdle();
+
+    await waitFor(() => {
+      expect(notify.success).toHaveBeenCalledWith('저장 완료!');
+    });
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('프리미엄 유저')).toBeInTheDocument();
+    });
+
+    expect(useAppStore.getState().user?.name).toBe('프리미엄 유저');
+    expect(vi.mocked(updateMyProfile).mock.calls[0]?.[0]).toEqual({
+      name: '프리미엄 유저',
+    });
+    expect(vi.mocked(getMyProfile)).toHaveBeenCalled();
+  });
+
+  it('Tab 키로 이동하고 Enter로 제출할 수 있다', async () => {
+    renderProfileEdit();
+
+    const user = createUserEvent();
+
+    const nicknameInput = await screen.findByLabelText('닉네임');
+    act(() => {
+      fireEvent.change(nicknameInput, { target: { value: '' } });
+      nicknameInput.focus();
+    });
+    act(() => {
+      user.type(nicknameInput, '탭사용자');
+    });
+
+    act(() => {
+      user.tab();
+    });
+    const emailInput = screen.getByLabelText('이메일');
+    expect(document.activeElement).toBe(emailInput);
+
+    act(() => {
+      user.tab();
+    });
+    const descriptionField = screen.getByLabelText('소개');
+    expect(document.activeElement).toBe(descriptionField);
+    act(() => {
+      user.type(descriptionField, '탭으로 수정했습니다.');
+    });
+
+    act(() => {
+      user.tab();
+    });
+    const imageUrlField = screen.getByLabelText('프로필 이미지 URL');
+    expect(document.activeElement).toBe(imageUrlField);
+
+    act(() => {
+      user.tab();
+    });
+    const clearButton = screen.getByRole('button', {
+      name: '프로필 이미지 URL 지우기',
+    });
+    expect(document.activeElement).toBe(clearButton);
+
+    act(() => {
+      user.tab();
+    });
+    const directUploadButton = screen.getByRole('button', {
+      name: 'mock-upload',
+    });
+    expect(document.activeElement).toBe(directUploadButton);
+
+    act(() => {
+      user.tab();
+    });
+    const cancelButton = screen.getByRole('button', { name: '취소' });
+    expect(document.activeElement).toBe(cancelButton);
+
+    act(() => {
+      user.tab();
+    });
+    const submitButton = screen.getByRole('button', { name: '저장' });
+    expect(document.activeElement).toBe(submitButton);
+
+    act(() => {
+      user.keyboard('{Enter}');
+    });
+
+    await waitForReactQueryIdle();
+
+    await waitFor(() => {
+      expect(notify.success).toHaveBeenCalledWith('저장 완료!');
+    });
+  });
+
+  it('직접 업로드 시 이미지 URL이 자동으로 입력되고 저장이 실행된다', async () => {
+    renderProfileEdit();
+
+    const uploadButton = await screen.findByRole('button', {
+      name: 'mock-upload',
+    });
+    fireEvent.click(uploadButton);
+
+    await waitForReactQueryIdle();
+
+    await waitFor(() => {
+      expect(
+        screen.getByDisplayValue('https://cdn.example.com/direct-upload.png'),
+      ).toBeInTheDocument();
+    });
+
+    const lastCall = vi.mocked(updateMyProfile).mock.calls.at(-1);
+    expect(lastCall?.[0]).toEqual({
+      imageUrl: 'https://cdn.example.com/direct-upload.png',
+    });
+    expect(notify.success).toHaveBeenCalledWith('저장 완료!');
+  });
+
+  it('이미지 URL 지우기 버튼을 통해 값을 초기화할 수 있다', async () => {
+    renderProfileEdit();
+
+    const imageUrlInput = await screen.findByLabelText('프로필 이미지 URL');
+    expect(imageUrlInput).toHaveValue(
+      'https://example.com/avatar/kimdaeyoung.png',
+    );
+
+    const clearButton = screen.getByRole('button', {
+      name: '프로필 이미지 URL 지우기',
+    });
+    fireEvent.click(clearButton);
+
+    await waitFor(() => {
+      expect(imageUrlInput).toHaveValue('');
+    });
+
+    await waitFor(() => {
+      const preview = screen.getByRole('img', {
+        name: '김대영 아바타 미리보기',
+      });
+      expect(preview).toHaveAttribute('src', DEFAULT_PROFILE_IMAGE_URL);
+    });
+  });
+
+  it('미인증 상태에서 이메일 필드를 클릭하면 인증 페이지로 이동한다', async () => {
+    act(() => {
+      useAppStore.setState((state) => ({
+        ...state,
+        hasHydrated: true,
+        emailVerified: false,
+        emailCertBypassed: false,
+      }));
+    });
+
+    queryClient = createTestQueryClient();
+
+    render(
+      <ThemeProvider theme={theme}>
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter initialEntries={['/my/profile/edit']}>
+            <Routes>
+              <Route path="/my/profile/edit" element={<ProfileEditPage />} />
+              <Route
+                path="/email-cert"
+                element={<div data-testid="email-cert-page" />}
+              />
+            </Routes>
+          </MemoryRouter>
+        </QueryClientProvider>
+      </ThemeProvider>,
+    );
+
+    const emailField = await screen.findByLabelText('이메일');
+    fireEvent.click(emailField);
+
+    await waitFor(() => {
+      expect(notify.info).toHaveBeenCalledWith(
+        '학교 이메일 인증 화면으로 이동합니다.',
+      );
+    });
+
+    await screen.findByTestId('email-cert-page');
+  });
+});

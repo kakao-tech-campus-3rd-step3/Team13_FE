@@ -8,8 +8,8 @@ import type { DropDownConfig, DropDownOption } from './types';
  * 스포츠 옵션 목록
  */
 export const SPORTS_OPTIONS: DropDownOption[] = [
-  { value: 'futsal', label: '풋살' },
   { value: 'basketball', label: '농구' },
+  { value: 'futsal', label: '풋살' },
 ] as const;
 
 /**
@@ -38,6 +38,26 @@ export const LOCATION_OPTIONS: DropDownOption[] = [
 ] as const;
 
 /**
+ * 정렬 기준 옵션 목록
+ */
+export const SORT_OPTIONS: DropDownOption[] = [
+  { value: 'deadline', label: '마감 시간 순' },
+  { value: 'startTime', label: '운동 시간 순' },
+  { value: 'remainingSlots', label: '남은 인원 순' },
+] as const;
+
+/**
+ * 인원 수 옵션 목록 (2~30명)
+ */
+export const PLAYER_COUNT_OPTIONS: DropDownOption[] = Array.from(
+  { length: 29 },
+  (_, i) => ({
+    value: String(i + 2),
+    label: `${i + 2}명`,
+  }),
+);
+
+/**
  * 드롭다운 설정 객체 (matchCard의 BUTTON_CONFIG와 같은 패턴)
  */
 export const DROPDOWN_CONFIG = {
@@ -58,6 +78,18 @@ export const DROPDOWN_CONFIG = {
     selectionMode: 'single',
     options: LOCATION_OPTIONS,
     hasInputOption: true, // '기타' 선택 시 InputPlace로 전환
+  },
+  sort: {
+    label: '정렬 기준',
+    selectionMode: 'single',
+    options: SORT_OPTIONS,
+    hasInputOption: false,
+  },
+  playerCount: {
+    label: '인원 수 선택',
+    selectionMode: 'single',
+    options: PLAYER_COUNT_OPTIONS,
+    hasInputOption: false,
   },
 } as const satisfies Record<string, DropDownConfig>;
 

@@ -18,6 +18,7 @@ type KakaoButtonProps = {
   onStatusChange?: (update: KakaoStatusUpdate) => void;
   idleLabel?: string;
   loadingLabel?: string;
+  redirectTo?: string;
 };
 
 export default function KakaoButton({
@@ -25,13 +26,14 @@ export default function KakaoButton({
   onStatusChange,
   idleLabel = '카카오로 시작하기',
   loadingLabel = '카카오로 이동 중…',
+  redirectTo,
 }: KakaoButtonProps = {}) {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
 
   const redirectTarget = useMemo(
-    () => resolveFrom(location.state, '/my'),
-    [location.state],
+    () => redirectTo ?? resolveFrom(location.state, '/my'),
+    [location.state, redirectTo],
   );
 
   const attemptLogin = useCallback(async () => {

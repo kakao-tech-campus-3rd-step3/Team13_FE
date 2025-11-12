@@ -12,6 +12,15 @@ declare global {
     readonly VITE_AFTER_LOGIN_DEFAULT?: string;
     readonly VITE_LOGIN_PATH?: string;
     readonly VITE_EMAIL_CERT_PATH?: string;
+
+    /** Firebase 환경 변수들 */
+    readonly VITE_FIREBASE_API_KEY?: string;
+    readonly VITE_FIREBASE_AUTH_DOMAIN?: string;
+    readonly VITE_FIREBASE_PROJECT_ID?: string;
+    readonly VITE_FIREBASE_STORAGE_BUCKET?: string;
+    readonly VITE_FIREBASE_MESSAGING_SENDER_ID?: string;
+    readonly VITE_FIREBASE_APP_ID?: string;
+    readonly VITE_FIREBASE_VAPID_KEY?: string;
   }
 
   interface ImportMeta {

@@ -62,7 +62,7 @@ export const DropDown: React.FC<DropDownProps> = ({
   };
 
   return (
-    <DropDownContainer ref={dropdownRef} className={className}>
+    <DropDownContainer ref={dropdownRef} className={className} isOpen={isOpen}>
       <DropDownHeader
         onClick={toggleDropdown}
         disabled={disabled}

@@ -61,7 +61,7 @@ const buildPath = (location: {
   return `${pathname}${search}${hash}`;
 };
 
-const FALLBACK_PATH = '/my';
+const FALLBACK_PATH = '/';
 
 export function resolveFrom(
   state: unknown,

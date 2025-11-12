@@ -13,6 +13,7 @@ export default tseslint.config(
     ignores: [
       'dist/',
       'node_modules/',
+      'public/',
       '*.cjs',
       'prettier.config.cjs',
       'eslint.config.js',
@@ -101,6 +102,15 @@ export default tseslint.config(
     ],
     rules: {
       'react/jsx-props-no-spreading': 'off',
+    },
+  },
+  {
+    files: ['src/libs/firebase/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
   eslintConfigPrettier,

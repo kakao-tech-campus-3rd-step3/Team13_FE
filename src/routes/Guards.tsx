@@ -1,9 +1,11 @@
+import { useEffect, useRef } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import RouteSkeleton from '@/components/RouteSkeleton';
 import { resolveFrom } from '@/routes/resolveFrom';
 import {
   useActions,
+  useEmailCertBypassed,
   useEmailVerified,
   useHasHydrated,
   useIsLoggedIn,
@@ -15,18 +17,23 @@ import {
   useSessionHydrated,
 } from '@/stores/sessionStore';
 /** 로그인 상태면 접근 불가(예: /login) */
+
 export function PublicRoute() {
   const appHydrated = useHasHydrated();
   const sessionHydrated = useSessionHydrated();
   const isLoggedIn = useIsLoggedIn();
   const hasSession = useHasSession();
   const location = useLocation();
+  const currentPath = `${location.pathname}${location.search}${location.hash}`;
+  const defaultRedirect = resolveFrom(null);
+  const resolvedRedirect = resolveFrom(location.state, defaultRedirect);
+  const redirectTarget =
+    resolvedRedirect === currentPath ? defaultRedirect : resolvedRedirect;
 
   if (!appHydrated || !sessionHydrated) return <RouteSkeleton />;
 
   if (isLoggedIn || hasSession) {
-    const from = resolveFrom(location.state);
-    return <Navigate to={from} replace />;
+    return <Navigate to={redirectTarget} replace />;
   }
 
   return <Outlet />;
@@ -42,22 +49,43 @@ export function ProtectedRoute() {
   const location = useLocation();
   const { clearSession } = useSessionActions();
   const { logout } = useActions();
+  const expiredRedirectRef = useRef(false);
 
-  if (!appHydrated || !sessionHydrated) return <RouteSkeleton />;
-  if ((!isLoggedIn && !hasSession) || sessionExpired) {
+  useEffect(() => {
+    if (!sessionExpired) return;
+    if (!appHydrated || !sessionHydrated) return;
+
+    expiredRedirectRef.current = true;
+
     if (hasSession) {
       clearSession();
     }
     if (isLoggedIn) {
       logout();
     }
-    const suffix = sessionExpired ? '?expired=1' : '';
+  }, [
+    appHydrated,
+    sessionHydrated,
+    sessionExpired,
+    hasSession,
+    isLoggedIn,
+    clearSession,
+    logout,
+  ]);
+
+  if (!appHydrated || !sessionHydrated) return <RouteSkeleton />;
+  if (sessionExpired) {
     return (
-      <Navigate to={`/login${suffix}`} replace state={{ from: location }} />
+      <Navigate to="/login?expired=1" replace state={{ from: location }} />
     );
   }
 
-  // 인증된 경우 자식 라우트 렌더링
+  if (!isLoggedIn && !hasSession) {
+    const target = expiredRedirectRef.current ? '/login?expired=1' : '/login';
+    expiredRedirectRef.current = false;
+    return <Navigate to={target} replace state={{ from: location }} />;
+  }
+
   return <Outlet />;
 }
 
@@ -73,6 +101,7 @@ export function VerifiedRoute() {
   const isLoggedIn = useIsLoggedIn();
   const hasSession = useHasSession();
   const verified = useEmailVerified();
+  const emailCertBypassed = useEmailCertBypassed();
   const location = useLocation();
 
   if (!appHydrated || !sessionHydrated) return <RouteSkeleton />;
@@ -81,7 +110,7 @@ export function VerifiedRoute() {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (!verified) {
+  if (!verified && !emailCertBypassed) {
     return <Navigate to="/email-cert" replace state={{ from: location }} />;
   }
   return <Outlet />;

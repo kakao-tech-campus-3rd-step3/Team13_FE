@@ -1,15 +1,25 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 
 import GameListPage from '@/features/games/pages/GameListPage';
 import SportsPage from '@/features/sports/pages/SportsPage';
+import GoogleCallbackPage from '@/pages/Auth/GoogleCallbackPage';
 import KakaoCallbackPage from '@/pages/Auth/KakaoCallbackPage';
 import LoginPage from '@/pages/Auth/LoginPage';
 import ComponentTestPage from '@/pages/ComponentTest/ComponentTestPage';
+import CreateMatchPage from '@/pages/CreateMatch';
 import EmailCertPage from '@/pages/EmailCert/EmailCertPage';
 import ErrorPage from '@/pages/Error/ErrorPage';
+import FCMTestPage from '@/pages/FCMTest/FCMTestPage';
+import HomePage from '@/pages/Home';
+import MatchDetailPage from '@/pages/MatchDetail';
+import MatchHistoryPage from '@/pages/MatchHistory';
 import MyPage from '@/pages/My/MyPage';
+import ProfileEditPage from '@/pages/My/ProfileEditPage';
+import SportSelectPage from '@/pages/Onboarding/SportSelectPage';
+import TimeSelectPage from '@/pages/Onboarding/TimeSelectPage';
 import StoreDemoPage from '@/pages/StoreDemo/StoreDemoPage';
 import { ProtectedRoute, PublicRoute, VerifiedRoute } from '@/routes/Guards';
+import OnboardingGuard from '@/routes/OnboardingGuard';
 
 /**
  * 임시 페이지 컴포넌트들
@@ -25,7 +35,7 @@ const NotFoundPage = () => <div>404 - 페이지를 찾을 수 없습니다</div>
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/login" replace />, // 루트 접근 시 로그인 페이지로 리다이렉트
+    element: <HomePage />, // 루트 접근 시 홈페이지 표시
   },
 
   // 공개 라우트 (미인증 사용자용)
@@ -33,12 +43,20 @@ export const router = createBrowserRouter([
     element: <PublicRoute />,
     children: [
       {
+        path: '/home',
+        element: <HomePage />, // 루트 접근 시 홈페이지 표시
+      },
+      {
         path: '/login',
         element: <LoginPage />,
       },
       {
         path: '/auth/kakao/callback',
         element: <KakaoCallbackPage />,
+      },
+      {
+        path: '/auth/google/callback',
+        element: <GoogleCallbackPage />,
       },
       // TODO: 회원가입, 비밀번호 찾기 등 추가
     ],
@@ -56,9 +74,18 @@ export const router = createBrowserRouter([
       {
         element: <VerifiedRoute />,
         children: [
+          { path: '/onboarding/sports', element: <SportSelectPage /> },
+          { path: '/onboarding/times', element: <TimeSelectPage /> },
+          { path: '/home', element: <HomePage /> },
           {
-            path: '/my',
-            element: <MyPage />,
+            element: <OnboardingGuard />,
+            children: [
+              { path: '/my', element: <MyPage /> },
+              { path: '/my/profile/edit', element: <ProfileEditPage /> },
+              { path: '/matchDetail/:gameId', element: <MatchDetailPage /> },
+              { path: '/match-history', element: <MatchHistoryPage /> },
+              { path: '/create-match', element: <CreateMatchPage /> },
+            ],
           },
           // TODO: 매치 생성, 매치 상세, 검색 등 추가
         ],
@@ -81,6 +108,10 @@ export const router = createBrowserRouter([
   {
     path: '/test/store',
     element: <StoreDemoPage />,
+  },
+  {
+    path: '/test/fcm',
+    element: <FCMTestPage />,
   },
 
   // 404 페이지
