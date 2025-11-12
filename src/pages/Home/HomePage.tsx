@@ -80,7 +80,7 @@ export default function HomePage() {
 
       {/* 광고 배너 */}
       <S.BannerContainer>
-        <S.BannerImage src="/references/광고 배너.png" alt="프로모션 배너" />
+        <S.BannerImage src="/ad-banner.png" alt="프로모션 배너" />
       </S.BannerContainer>
 
       {/* 필터 배너 */}

@@ -66,7 +66,7 @@ export default function MatchDetailPage() {
       {/* 매치 이미지 */}
       <S.ImageContainer>
         <S.MatchImage
-          src={gameDetail.imageUrl ?? '/references/광고 배너.png'}
+          src={gameDetail.imageUrl ?? '/ad-banner.png'}
           alt={gameDetail.gameLocation}
         />
       </S.ImageContainer>
