@@ -86,7 +86,7 @@ describe('useUpdateProfile', () => {
 
   it('실패 시 낙관적 상태를 롤백하고 에러 토스트를 노출한다', async () => {
     server.use(
-      http.patch('*/api/v2/members/me/profile/name', async () => {
+      http.patch('*/api/v1/members/me/profile/name', async () => {
         await new Promise((resolve) => setTimeout(resolve, 50));
         return HttpResponse.json('error', { status: 500 });
       }),

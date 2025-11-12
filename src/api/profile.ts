@@ -17,7 +17,7 @@ export type UpdateProfileRequest = {
 
 export async function getMyProfile() {
   const { data } = await apiClient.get<ProfileResponse>(
-    '/api/v2/members/me/profile',
+    '/api/v1/members/me/profile',
   );
 
   return data;
@@ -40,20 +40,20 @@ async function patchOrPost<T>(url: string, body: unknown) {
 }
 
 export async function updateMyProfileName(name: string) {
-  return patchOrPost<ProfileResponse>('/api/v2/members/me/profile/name', {
+  return patchOrPost<ProfileResponse>('/api/v1/members/me/profile/name', {
     name: name.trim(),
   });
 }
 
 export async function updateMyProfileImageUrl(imageUrl: string) {
-  return patchOrPost<ProfileResponse>('/api/v2/members/me/profile/image-url', {
+  return patchOrPost<ProfileResponse>('/api/v1/members/me/profile/image-url', {
     imageUrl: imageUrl.trim(),
   });
 }
 
 export async function updateMyProfileDescription(description: string) {
   return patchOrPost<ProfileResponse>(
-    '/api/v2/members/me/profile/description',
+    '/api/v1/members/me/profile/description',
     { description },
   );
 }

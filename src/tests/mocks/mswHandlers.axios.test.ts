@@ -65,7 +65,7 @@ describe('MSW × axios 통합', () => {
       email: string;
       imageUrl: string;
       description: string;
-    }>('/api/v2/members/me/profile/name', { name: '부산대 농구 에이스' });
+    }>('/api/v1/members/me/profile/name', { name: '부산대 농구 에이스' });
 
     expect(res.status).toBe(200);
     const { name, email, imageUrl, description } = res.data;

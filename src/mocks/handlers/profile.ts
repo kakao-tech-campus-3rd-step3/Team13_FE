@@ -67,7 +67,7 @@ const toResponse = (p: Profile): ProfileResponse => ({
 });
 
 const getMe = http.get<never, never, ProfileResponse>(
-  '*/api/v2/members/me/profile',
+  '*/api/v1/members/me/profile',
   () => HttpResponse.json<ProfileResponse>(toResponse(myProfile)),
 );
 
@@ -75,7 +75,7 @@ const getMember = http.get<
   { memberId: string },
   never,
   ProfileResponse | ApiErrorResponse
->('*/api/v2/members/:memberId/profile', ({ params }) => {
+>('*/api/v1/members/:memberId/profile', ({ params }) => {
   const memberId = Number(params.memberId);
   if (Number.isNaN(memberId)) return createErrorResponse('PROFILE_NOT_FOUND');
   const p = directory.get(memberId);
@@ -87,7 +87,7 @@ const patchName = http.patch<
   never,
   { name?: string },
   ProfileResponse | ApiErrorResponse
->('*/api/v2/members/me/profile/name', async ({ request }) => {
+>('*/api/v1/members/me/profile/name', async ({ request }) => {
   const body = (await request.json()) as { name?: string };
   const name = body?.name?.trim() ?? '';
   if (!name || name.length > 31)
@@ -101,7 +101,7 @@ const patchImageUrl = http.patch<
   never,
   { imageUrl?: string },
   ProfileResponse | ApiErrorResponse
->('*/api/v2/members/me/profile/image-url', async ({ request }) => {
+>('*/api/v1/members/me/profile/image-url', async ({ request }) => {
   const body = (await request.json()) as { imageUrl?: string };
   const imageUrl = body?.imageUrl?.trim() ?? '';
   if (!imageUrl || imageUrl.length > 255 || !isValidUrl(imageUrl))
@@ -115,7 +115,7 @@ const patchDescription = http.patch<
   never,
   { description?: string },
   ProfileResponse | ApiErrorResponse
->('*/api/v2/members/me/profile/description', async ({ request }) => {
+>('*/api/v1/members/me/profile/description', async ({ request }) => {
   const body = (await request.json()) as { description?: string };
   const description = (body?.description ?? '').toString();
   if (description.length > 255)

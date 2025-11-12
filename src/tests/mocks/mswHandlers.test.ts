@@ -162,7 +162,7 @@ describe('Profile 핸들러', () => {
 
   it('내 프로필 조회: ProfileResponse', async () => {
     const { status, data } = await requestJson<ProfileResponse>(
-      '/api/v2/members/me/profile',
+      '/api/v1/members/me/profile',
     );
     expect(status).toBe(200);
     const { name, email, imageUrl, description } = data;
@@ -174,7 +174,7 @@ describe('Profile 핸들러', () => {
 
   it('유효하지 않은 닉네임(32자) → code+message', async () => {
     const { status, data } = await requestJson<ApiErrorResponse>(
-      '/api/v2/members/me/profile/name',
+      '/api/v1/members/me/profile/name',
       { method: 'PATCH', body: { name: 'a'.repeat(32) } },
     );
     expect(status).toBe(400);

@@ -98,7 +98,7 @@ export async function handleGoogleCallback({
 
     // 프로필 정보 조회
     console.log('6. 프로필 조회 시작...');
-    console.log('   - API: GET /api/v2/members/me/profile');
+    console.log('   - API: GET /api/v1/members/me/profile');
     console.log(
       '   - Authorization 헤더:',
       `Bearer ${sessionToken.substring(0, 30)}...`,
